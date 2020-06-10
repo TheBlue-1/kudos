@@ -6,9 +6,11 @@ namespace Kudos.Bot {
 	public sealed class Messaging {
 		private const string HelloText = "hello ";
 		private const string HelpText = @"```
-hello               answers hello
-delete [count?]     deletes 1 or count messages
-help                sends this
+hello                       answers hello
+honor [count?] [user]       honors someone
+dishonor [count?] [user]    dishonors someone
+delete [count?]             deletes 1 or count messages
+help                        sends this
 ? ...   optional
 ```";
 		public static Messaging Instance { get; } = new Messaging();
