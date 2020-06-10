@@ -19,10 +19,13 @@ help                        sends this
 
 		private Messaging() { }
 
-		public void Hello(ISocketMessageChannel channel, string username) {
-			channel.SendMessageAsync(HelloText + username);
+		public void Hello(ISocketMessageChannel channel, SocketUser user) {
+			channel.SendMessageAsync(HelloText + user.Mention);
 		}
 
+		public void Message(ISocketMessageChannel channel, string text) {
+			channel.SendMessageAsync(text);
+		}
 		public void Help(ISocketMessageChannel channel) {
 			channel.SendMessageAsync(HelpText);
 		}

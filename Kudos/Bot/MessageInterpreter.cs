@@ -5,7 +5,11 @@ using Discord.WebSocket;
 
 namespace Kudos.Bot {
 	public class MessageInterpreter {
-		private const string Prefix = "bot ";
+#if DEBUG
+		private const string Prefix = "test ";
+#else
+		private const string Prefix =   "bot ";
+#endif
 		private string Command { get; }
 
 		public bool Executable { get; } = true;
@@ -33,13 +37,16 @@ namespace Kudos.Bot {
 			switch (Command) {
 				case "" : break;
 				case "hello" :
-					Messaging.Instance.Hello(Message.Channel, Message.Author.Username);
+					Messaging.Instance.Hello(Message.Channel, Message.Author);
 					break;
 				case "delete" :
 					Managing.Instance.Delete(Message.Channel, ParameterAsInt(0));
 					break;
 				case "help" :
 					Messaging.Instance.Help(Message.Channel);
+					break;
+				case "balance":
+					Honor.Instance.SendHonorBalance(Message.MentionedUsers.FirstOrDefault(), Message.Channel);
 					break;
 				case "honor" :
 					Honor.Instance.HonorUser(Message.MentionedUsers.FirstOrDefault(), Message.Author, ParameterAsInt(0), Message.Channel);
