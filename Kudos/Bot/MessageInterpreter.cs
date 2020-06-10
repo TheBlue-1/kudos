@@ -5,11 +5,11 @@ using Discord.WebSocket;
 
 namespace Kudos.Bot {
 	public class MessageInterpreter {
-#if DEBUG
-		private const string Prefix = "test ";
-#else
-		private const string Prefix =   "bot ";
-#endif
+	#if DEBUG
+		public const string Prefix = "test ";
+	#else
+		public const string Prefix = "bot ";
+	#endif
 		private string Command { get; }
 
 		public bool Executable { get; } = true;
@@ -45,7 +45,7 @@ namespace Kudos.Bot {
 				case "help" :
 					Messaging.Instance.Help(Message.Channel);
 					break;
-				case "balance":
+				case "balance" :
 					Honor.Instance.SendHonorBalance(Message.MentionedUsers.FirstOrDefault(), Message.Channel);
 					break;
 				case "honor" :
@@ -54,7 +54,21 @@ namespace Kudos.Bot {
 				case "dishonor" :
 					Honor.Instance.DishonorUser(Message.MentionedUsers.FirstOrDefault(), Message.Author, ParameterAsInt(0), Message.Channel);
 					break;
+				case "question" :
+					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1), Message.MentionedUsers.FirstOrDefault(), Message.Author);
+					break;
+				case "answer" :
+					AnonymousQuestion.Instance.Answer(ParameterAsULong(0), ParametersFrom(1), Message.Author);
+					break;
 			}
+		}
+
+		private ulong ParameterAsULong(int index) {
+			ulong value = 0;
+			if (Parameters.Length > index) {
+				ulong.TryParse(Parameters[index], out value);
+			}
+			return value;
 		}
 
 		private int ParameterAsInt(int index) {
@@ -64,5 +78,7 @@ namespace Kudos.Bot {
 			}
 			return value;
 		}
+
+		private string ParametersFrom(int index) => string.Join(" ", Parameters.Skip(index));
 	}
 }

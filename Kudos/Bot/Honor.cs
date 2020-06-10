@@ -22,14 +22,14 @@ namespace Kudos.Bot {
 		}
 
 		public void DishonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
-			count = HonorCount(honoredUser, honoringUser, count,channel);
+			count = HonorCount(honoredUser, honoringUser, count, channel);
 			if (count == -1) {
 				return;
 			}
 			HonorUser(honoredUser.Id, -count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
-			Messaging.Instance.Message(channel,$"you successfully removed {count} honor points for {honoredUser.Mention}");
+			Messaging.Instance.Message(channel, $"you successfully removed {count} honor points for {honoredUser.Mention}");
 		}
 
 		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
@@ -41,7 +41,7 @@ namespace Kudos.Bot {
 			if (UsedHonor.ContainsKey(honoringUser.Id)) {
 				usedHonor = UsedHonor[honoringUser.Id];
 			}
-			
+
 			count = count >= MaxHonorPerDay - usedHonor ? MaxHonorPerDay - usedHonor : count <= 0 ? 1 : count;
 			if (count == 0) {
 				Messaging.Instance.Message(channel, $"you already used all {MaxHonorPerDay} honor points you can give per day");
@@ -51,7 +51,7 @@ namespace Kudos.Bot {
 		}
 
 		public void HonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
-			count = HonorCount(honoredUser, honoringUser, count,channel);
+			count = HonorCount(honoredUser, honoringUser, count, channel);
 			if (count == -1) {
 				return;
 			}
@@ -59,7 +59,6 @@ namespace Kudos.Bot {
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
 			Messaging.Instance.Message(channel, $"you successfully added {count} honor points for {honoredUser.Mention}");
-
 		}
 
 		private void HonorUser(ulong userId, int count) {
@@ -69,7 +68,7 @@ namespace Kudos.Bot {
 
 		public void SendHonorBalance(SocketUser user, ISocketMessageChannel channel) {
 			int honor = BalancesPerId.ContainsKey(user.Id) ? BalancesPerId[user.Id] : 0;
-			Messaging.Instance.Message( channel,$"{user.Mention} has {honor} honor points.");
+			Messaging.Instance.Message(channel, $"{user.Mention} has {honor} honor points.");
 		}
 	}
 }
