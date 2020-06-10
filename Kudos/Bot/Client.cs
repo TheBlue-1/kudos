@@ -34,6 +34,8 @@ namespace Kudos.Bot {
 			});
 		}
 
+		public SocketUser GetUserById(ulong id) => _client.GetUser(id);
+
 		private async void Start(string token) {
 			await _client.LoginAsync(TokenType.Bot, token);
 			await _client.StartAsync();
