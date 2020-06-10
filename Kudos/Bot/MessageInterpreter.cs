@@ -41,6 +41,12 @@ namespace Kudos.Bot {
 				case "help" :
 					Messaging.Instance.Help(Message.Channel);
 					break;
+				case "honor" :
+					Honor.Instance.HonorUser(Message.MentionedUsers.FirstOrDefault(), Message.Author, ParameterAsInt(0), Message.Channel);
+					break;
+				case "dishonor" :
+					Honor.Instance.DishonorUser(Message.MentionedUsers.FirstOrDefault(), Message.Author, ParameterAsInt(0), Message.Channel);
+					break;
 			}
 		}
 
@@ -51,7 +57,5 @@ namespace Kudos.Bot {
 			}
 			return value;
 		}
-
-		private void Test() { }
 	}
 }

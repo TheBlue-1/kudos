@@ -2,14 +2,11 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot {
 	public class Client {
 		private readonly DiscordSocketClient _client;
-
-		private AsyncFileSyncedDictionary<ushort, int> BalancesPerDescriptor { get; } = new AsyncFileSyncedDictionary<ushort, int>("balances");
 
 		public string State => _client.Status.ToString();
 

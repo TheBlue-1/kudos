@@ -12,12 +12,12 @@ namespace Kudos {
 
 		private static void Main(string[] args) {
 			string botToken;
-			var settings = FileService.Instance.Settings;
+			AsyncFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
 			if (settings.ContainsKey("bot_token")) {
 				botToken = settings["bot_token"];
 			} else {
 				Console.WriteLine("please enter the bot-token:");
-				botToken= Console.ReadLine();
+				botToken = Console.ReadLine();
 				settings["bot_token"] = botToken;
 			}
 			Client client = new Client(botToken);
