@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Kudos.Utils {
 	public class FileService {
-		private const string ApplicationFolderName = "Kudos";
+		private const string ApplicationFolderName = "KudosData";
 
 		private string ApplicationFolderPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
 		public static FileService Instance { get; } = new FileService();
