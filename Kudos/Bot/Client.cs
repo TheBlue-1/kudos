@@ -13,7 +13,7 @@ namespace Kudos.Bot {
 
 		public Client(string token) {
 			_client = new DiscordSocketClient();
-			_client.SetGameAsync("with the 'bot help' command");
+			_client.SetGameAsync($"with the '{MessageInterpreter.Prefix}help' command");
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
 			Start(token);
@@ -36,6 +36,7 @@ namespace Kudos.Bot {
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
+		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
 
 		private async void Start(string token) {
 			await _client.LoginAsync(TokenType.Bot, token);

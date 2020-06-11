@@ -9,13 +9,15 @@ namespace Kudos.Bot {
 hello                           answers hello
 honor [count?] [user]           honors someone
 dishonor [count?] [user]        dishonors someone
+balance [user]                  shows the honor balance of user
 delete [count?]                 deletes 1 or count messages
 question [user] [question]      sends anonymous question to person
 answer [questionId] [answer]    answers anonymous question
 help                            sends this
 ```
 ```
-?        optional
+[user]      mention with @ (if not possible use full username like '@Kudos#9294')
+[x?]	    optional
 ```";
 
 		public static Messaging Instance { get; } = new Messaging();
