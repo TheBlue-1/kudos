@@ -55,10 +55,10 @@ namespace Kudos.Bot {
 					Honor.Instance.DishonorUser(Message.MentionedUsers.FirstOrDefault(), Message.Author, ParameterAsInt(0), Message.Channel);
 					break;
 				case "question" :
-					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1), Message.MentionedUsers.FirstOrDefault(), Message.Author);
+					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1), Message.MentionedUsers.FirstOrDefault(), Message.Author, Message.Channel);
 					break;
 				case "answer" :
-					AnonymousQuestion.Instance.Answer(ParameterAsULong(0), ParametersFrom(1), Message.Author);
+					AnonymousQuestion.Instance.Answer(ParameterAsULong(0), ParametersFrom(1), Message.Author, Message.Channel);
 					break;
 			}
 		}
