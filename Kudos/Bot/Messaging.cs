@@ -15,6 +15,7 @@ answer [questionId] [answer]    answers anonymous question
 help                            sends this
 ```
 ```
+user     mention with @ (if not possible use full username like '@Kudos#9294')
 ?        optional
 ```";
 

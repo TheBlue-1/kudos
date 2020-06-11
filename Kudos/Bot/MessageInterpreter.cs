@@ -46,16 +46,16 @@ namespace Kudos.Bot {
 					Messaging.Instance.Help(Message.Channel);
 					break;
 				case "balance" :
-					Honor.Instance.SendHonorBalance(Message.MentionedUsers.FirstOrDefault(), Message.Channel);
+					Honor.Instance.SendHonorBalance(ParameterAsUser(0), Message.Channel);
 					break;
 				case "honor" :
-					Honor.Instance.HonorUser(Message.MentionedUsers.FirstOrDefault(), Message.Author, ParameterAsInt(0), Message.Channel);
+					Honor.Instance.HonorUser(ParameterAsUser(1), Message.Author, ParameterAsInt(0), Message.Channel);
 					break;
 				case "dishonor" :
-					Honor.Instance.DishonorUser(Message.MentionedUsers.FirstOrDefault(), Message.Author, ParameterAsInt(0), Message.Channel);
+					Honor.Instance.DishonorUser(ParameterAsUser(1), Message.Author, ParameterAsInt(0), Message.Channel);
 					break;
 				case "question" :
-					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1), Message.MentionedUsers.FirstOrDefault(), Message.Author, Message.Channel);
+					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1), ParameterAsUser(0), Message.Author, Message.Channel);
 					break;
 				case "answer" :
 					AnonymousQuestion.Instance.Answer(ParameterAsULong(0), ParametersFrom(1), Message.Author, Message.Channel);
@@ -77,6 +77,19 @@ namespace Kudos.Bot {
 				int.TryParse(Parameters[index], out value);
 			}
 			return value;
+		}
+
+		private SocketUser ParameterAsUser(int index) {
+			SocketUser user = Message.MentionedUsers.FirstOrDefault();
+			if (user == null) {
+				string[] userData = Parameters[index].Split("#");
+				if (userData.Length != 2) {
+					return null;
+				}
+
+				return Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
+			}
+			return user;
 		}
 
 		private string ParametersFrom(int index) => string.Join(" ", Parameters.Skip(index));
