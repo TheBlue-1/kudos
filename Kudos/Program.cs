@@ -9,6 +9,7 @@ namespace Kudos {
 	internal class Program {
 		private const string Dot = ".";
 		private const int WaitingTimeInMs = 250;
+		public static Random Random { get; } = new Random();
 
 		public static Client Client { get; private set; }
 
