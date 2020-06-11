@@ -1,5 +1,6 @@
 ﻿#region
 using System.Linq;
+using System.Text.RegularExpressions;
 using Discord.WebSocket;
 #endregion
 
@@ -23,7 +24,7 @@ namespace Kudos.Bot {
 				Executable = false;
 				return;
 			}
-			string[] contentParts = message.Content.Substring(Prefix.Length).Split(' ');
+			string[] contentParts = Regex.Split(message.Content.Substring(Prefix.Length), " @| (?<!@[^#]*?)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
 				Executable = false;
 				return;
