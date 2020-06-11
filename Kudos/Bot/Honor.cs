@@ -91,19 +91,24 @@ namespace Kudos.Bot {
 		public void SendHonorBalance(SocketUser user, ISocketMessageChannel channel) {
 			int honor = BalancesPerId.ContainsKey(user.Id) ? BalancesPerId[user.Id] : 0;
 			string honorMessage;
-			int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 
 			if (honor < -100) {
+				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 				honorMessage = HonorFeedbackLowest[index];
-			} else if (honor > -100 && honor < -50) {
+			} else if (honor >= -100 && honor < -50) {
+				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 				honorMessage = HonorFeedbackLower[index];
-			} else if (honor > -50 && honor < 0) {
+			} else if (honor >= -50 && honor < 0) {
+				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 				honorMessage = HonorFeedbackLow[index];
 			} else if (honor >= 0 && honor < 50) {
+				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 				honorMessage = HonorFeedbackHigh[index];
-			} else if (honor > 50 && honor < 100) {
+			} else if (honor >= 50 && honor <= 100) {
+				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 				honorMessage = HonorFeedbackHigher[index];
 			} else {
+				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 				honorMessage = HonorFeedbackHighest[index];
 			}
 
