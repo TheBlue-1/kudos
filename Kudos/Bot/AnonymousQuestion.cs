@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using Kudos.Models;
 using Kudos.Utils;
@@ -28,44 +29,53 @@ namespace Kudos.Bot {
 
 		private AnonymousQuestion() { }
 
-		public async void Answer(ulong questionId, string message, SocketUser answerer) {
+		public async void Answer(ulong questionId, string message, SocketUser answerer, ISocketMessageChannel channel) {
 			if (!AnonymousQuestions.ContainsKey(questionId)) {
 				return;
 			}
 
 			QuestionData question = AnonymousQuestions[questionId];
-			if (answerer.Id != question.Receiver) {
+			if (answerer.Id != question.Answerer) {
 				return;
 			}
 
-			try {
-				IDMChannel receiverChannel = await answerer.GetOrCreateDMChannelAsync();
-				SocketUser questionnaire = Program.Client.GetUserById(question.Questionnaire);
-				IDMChannel questionnaireChannel = await questionnaire.GetOrCreateDMChannelAsync();
+			RestUser restAnswerer = await Program.Client.GetRestUserById(answerer.Id);
+			RestUser restQuestionnaire = await Program.Client.GetRestUserById(question.Questionnaire);
 
+			IDMChannel answererChannel = await restAnswerer.GetOrCreateDMChannelAsync();
+			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
+			try {
 				await questionnaireChannel.SendMessageAsync(
 					$"Your Question to {answerer.Mention}: ```{question.Question}``` has been answered. The answer is: ```{message}```");
-				await receiverChannel.SendMessageAsync("answer submitted successfully");
-				AnonymousQuestions.Remove(questionId);
+				await answererChannel.SendMessageAsync("answer submitted successfully");
 			}
-			catch {
-				// ignored (user has disabled direct messages from guild members)
+			catch (Exception) {
+				await channel.SendMessageAsync(
+					"You or the questionnaire has disabled private messages from this server, so I won't be able to send your answer or the success message");
 			}
+			AnonymousQuestions.Remove(questionId);
 		}
 
-		public async void AskAnonymous(string message, SocketUser receiver, SocketUser questionnaire) {
+		public async void AskAnonymous(string message, SocketUser answerer, SocketUser questionnaire, ISocketMessageChannel channel) {
+			if (answerer == null) {
+				return;
+			}
 			ulong id = NextId;
-			AnonymousQuestions[id] = new QuestionData { Question = message, Questionnaire = questionnaire.Id, Receiver = receiver.Id };
-			try {
-				IDMChannel receiverChannel = await receiver.GetOrCreateDMChannelAsync();
-				IDMChannel questionnaireChannel = await questionnaire.GetOrCreateDMChannelAsync();
+			AnonymousQuestions[id] = new QuestionData { Question = message, Questionnaire = questionnaire.Id, Answerer = answerer.Id };
 
-				await receiverChannel.SendMessageAsync(
+			RestUser restAnswerer = await Program.Client.GetRestUserById(answerer.Id);
+			RestUser restQuestionnaire = await Program.Client.GetRestUserById(questionnaire.Id);
+
+			IDMChannel answererChannel = await restAnswerer.GetOrCreateDMChannelAsync();
+			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
+			try {
+				await answererChannel.SendMessageAsync(
 					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{MessageInterpreter.Prefix}answer {id} [answer]`.");
 				await questionnaireChannel.SendMessageAsync("Question sent successfully. Answer will be sent to you.");
 			}
-			catch {
-				// ignored (user has disabled direct messages from guild members)
+			catch (Exception) {
+				await channel.SendMessageAsync(
+					$"You or {answerer.Mention} has disabled private messages from this server, so I won't be able to send the question or the answer");
 			}
 		}
 	}

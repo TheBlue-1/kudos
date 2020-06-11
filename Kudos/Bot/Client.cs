@@ -1,6 +1,7 @@
 ﻿#region
 using System.Threading.Tasks;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 #endregion
 
@@ -34,7 +35,7 @@ namespace Kudos.Bot {
 			});
 		}
 
-		public SocketUser GetUserById(ulong id) => _client.GetUser(id);
+		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
 
 		private async void Start(string token) {
 			await _client.LoginAsync(TokenType.Bot, token);
