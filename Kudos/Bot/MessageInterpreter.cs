@@ -76,22 +76,24 @@ namespace Kudos.Bot {
 		}
 
 		private ulong ParameterAsULong(int index, bool optional = true, ulong defaultValue = 0) {
-			ulong value = defaultValue;
-			if (Parameters.Length <= index) {
+			if (Parameters.Length > index && ulong.TryParse(Parameters[index], out ulong value)) {
 				return value;
 			}
-			if (!ulong.TryParse(Parameters[index], out value) && !optional) {
+			if (optional) {
+				value = defaultValue;
+			} else {
 				throw new KudosArgumentException($"Parameter {index + 1} must be a number (ulong)");
 			}
 			return value;
 		}
 
 		private int ParameterAsInt(int index, bool optional = true, int defaultValue = 0) {
-			int value = defaultValue;
-			if (Parameters.Length <= index) {
+			if (Parameters.Length > index && int.TryParse(Parameters[index], out int value)) {
 				return value;
 			}
-			if (!int.TryParse(Parameters[index], out value) && !optional) {
+			if (optional) {
+				value = defaultValue;
+			} else {
 				throw new KudosArgumentException($"Parameter {index + 1} must be a number (int)");
 			}
 			return value;
@@ -102,16 +104,19 @@ namespace Kudos.Bot {
 			if (user != null) {
 				return user;
 			}
-			string[] userData = Parameters[index].Split("#");
-			if (userData.Length == 2) {
-				user = Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
-			}
-			if (user != null) {
-				return user;
+			if (Parameters.Length > index) {
+				string[] userData = Parameters[index].Split("#");
+				if (userData.Length == 2) {
+					user = Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
+				}
+				if (user != null) {
+					return user;
+				}
 			}
 			if (!optional) {
 				throw new KudosArgumentException($"Parameter {index + 1} must be a user (described in help)");
 			}
+
 			user = defaultValue;
 			return user;
 		}
