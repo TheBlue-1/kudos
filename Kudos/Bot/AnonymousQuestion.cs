@@ -38,7 +38,7 @@ namespace Kudos.Bot {
 
 			QuestionData question = AnonymousQuestions[questionId];
 			if (answerer.Id != question.Answerer) {
-				throw new KudosUnauthorizedAccessException("The question with this id isn't meant for you", "User with wrong id tried to answer the question");
+				throw new KudosUnauthorizedException("The question with this id isn't meant for you", "User with wrong id tried to answer the question");
 			}
 
 			RestUser restAnswerer = await Program.Client.GetRestUserById(answerer.Id);
@@ -52,9 +52,7 @@ namespace Kudos.Bot {
 				await answererChannel.SendMessageAsync("answer submitted successfully");
 			}
 			catch (Exception) {
-				//todo to exception
-				await channel.SendMessageAsync(
-					"You or the questionnaire has disabled private messages from this server, so I won't be able to send your answer or the success message");
+				throw new KudosUnauthorizedException("You or the questionnaire has disabled private messages from this server","user has dms disabled");
 			}
 			AnonymousQuestions.Remove(questionId);
 		}
@@ -73,9 +71,8 @@ namespace Kudos.Bot {
 					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{MessageInterpreter.Prefix}answer {id} [answer]`.");
 				await questionnaireChannel.SendMessageAsync("Question sent successfully. Answer will be sent to you.");
 			}
-			catch (Exception) { //todo to exception
-				await channel.SendMessageAsync(
-					$"You or {answerer.Mention} has disabled private messages from this server, so I won't be able to send the question or the answer");
+			catch (Exception) {
+				throw new KudosUnauthorizedException($"You or {answerer.Mention} has disabled private messages from this server", "user has dms disabled");
 			}
 		}
 	}

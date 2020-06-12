@@ -13,7 +13,7 @@ namespace Kudos {
 
 		public static Client Client { get; private set; }
 
-		private static void Main(string[] args) {
+		private static void Main() {
 			string botToken;
 			AsyncFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
 			if (settings.ContainsKey("bot_token")) {
