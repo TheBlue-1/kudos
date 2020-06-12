@@ -37,6 +37,12 @@ namespace Kudos.Utils {
 			}
 		}
 
+		public void Log(string message) {
+			string fileName = Path.Combine(ApplicationFolderPath, "log.txt");
+			message = $"{DateTime.Now}: {message}\n";
+			File.AppendAllText(fileName, message);
+		}
+
 		private byte[] ObjectToByteArray(object obj) {
 			BinaryFormatter binaryFormatter = new BinaryFormatter();
 			using MemoryStream memoryStream = new MemoryStream();

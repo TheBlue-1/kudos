@@ -46,7 +46,7 @@ namespace Kudos.Bot {
 
 		public void DishonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count, channel);
-			
+
 			HonorUser(honoredUser.Id, -count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 

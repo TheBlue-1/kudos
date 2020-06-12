@@ -2,6 +2,7 @@
 using System;
 using Discord.WebSocket;
 using Kudos.Exceptions;
+using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot {
@@ -34,12 +35,12 @@ namespace Kudos.Bot {
 				return;
 			}
 			Messaging.Instance.Message(Channel, "unknown error occured");
-
-			//TODO handle normal exceptions
+			FileService.Instance.Log(Exception.ToString());
 		}
 
 		private void SendInternalError() {
 			Messaging.Instance.Message(Channel, "An internal error occured");
+			FileService.Instance.Log($"error while error handling: \n{Exception}");
 		}
 	}
 }

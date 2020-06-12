@@ -52,7 +52,7 @@ namespace Kudos.Bot {
 				await answererChannel.SendMessageAsync("answer submitted successfully");
 			}
 			catch (Exception) {
-				throw new KudosUnauthorizedException("You or the questionnaire has disabled private messages from this server","user has dms disabled");
+				throw new KudosUnauthorizedException("You or the questionnaire has disabled private messages from this server", "user has dms disabled");
 			}
 			AnonymousQuestions.Remove(questionId);
 		}
