@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using Discord.WebSocket;
+using Kudos.Exceptions;
 using Kudos.Utils;
 #endregion
 
@@ -21,7 +22,7 @@ namespace Kudos.Bot {
 			"Maybe you should think about being nicer to people?"
 		};
 		private static readonly string[] HonorFeedbackLower = {
-			"Whoah dude you really crossed a line there...", "What have you done to deserve this?", "Your Karma is astonishingly low!",
+			"Whoa dude you really crossed a line there...", "What have you done to deserve this?", "Your Karma is astonishingly low!",
 			"Not good you reputation is! -Master Yoda"
 		};
 
@@ -45,9 +46,7 @@ namespace Kudos.Bot {
 
 		public void DishonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count, channel);
-			if (count == -1) {
-				return;
-			}
+
 			HonorUser(honoredUser.Id, -count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
@@ -55,8 +54,8 @@ namespace Kudos.Bot {
 		}
 
 		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
-			if (honoredUser == null || honoringUser.Id == honoredUser.Id) {
-				return -1;
+			if (honoringUser.Id == honoredUser.Id) {
+				throw new KudosUnauthorizedException("You are not allowed to honor yourself");
 			}
 
 			int usedHonor = 0;
@@ -66,17 +65,14 @@ namespace Kudos.Bot {
 
 			count = count >= MaxHonorPerDay - usedHonor ? MaxHonorPerDay - usedHonor : count <= 0 ? 1 : count;
 			if (count == 0) {
-				Messaging.Instance.Message(channel, $"You already used all ***{MaxHonorPerDay}*** honor points you can give per day!");
-				return -1;
+				throw new KudosUnauthorizedException("You already used all your daily honor points");
 			}
 			return count;
 		}
 
 		public void HonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count, channel);
-			if (count == -1) {
-				return;
-			}
+
 			HonorUser(honoredUser.Id, count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
