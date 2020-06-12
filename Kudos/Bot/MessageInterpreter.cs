@@ -1,7 +1,9 @@
 ﻿#region
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
+using Kudos.Exceptions;
 #endregion
 
 namespace Kudos.Bot {
@@ -31,7 +33,16 @@ namespace Kudos.Bot {
 			}
 			Message = message;
 			Command = contentParts[0];
-			Parameters = contentParts.Length > 1 ? contentParts.Skip(1).ToArray() : new string[0];
+			Parameters = contentParts.Skip(1).ToArray();
+		}
+
+		public void TryExecute() {
+			try {
+				Execute();
+			}
+			catch (Exception e) {
+				new ExceptionHandler(e, Message.Channel).Handle();
+			}
 		}
 
 		public void Execute() {
@@ -41,58 +52,78 @@ namespace Kudos.Bot {
 					Messaging.Instance.Hello(Message.Channel, Message.Author);
 					break;
 				case "delete" :
-					Managing.Instance.Delete(Message.Channel, ParameterAsInt(0));
+					Managing.Instance.Delete(Message.Channel, ParameterAsInt(0, true, 1));
 					break;
 				case "help" :
 					Messaging.Instance.Help(Message.Channel);
 					break;
 				case "balance" :
-					Honor.Instance.SendHonorBalance(ParameterAsUser(0), Message.Channel);
+					Honor.Instance.SendHonorBalance(ParameterAsUser(0, true, Message.Author), Message.Channel);
 					break;
 				case "honor" :
-					Honor.Instance.HonorUser(ParameterAsUser(1), Message.Author, ParameterAsInt(0), Message.Channel);
+					Honor.Instance.HonorUser(ParameterAsUser(1, false), Message.Author, ParameterAsInt(0, true, 1), Message.Channel);
 					break;
 				case "dishonor" :
-					Honor.Instance.DishonorUser(ParameterAsUser(1), Message.Author, ParameterAsInt(0), Message.Channel);
+					Honor.Instance.DishonorUser(ParameterAsUser(1, false), Message.Author, ParameterAsInt(0, true, 1), Message.Channel);
 					break;
 				case "question" :
-					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1), ParameterAsUser(0), Message.Author, Message.Channel);
+					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1, false), ParameterAsUser(0, false), Message.Author, Message.Channel);
 					break;
 				case "answer" :
-					AnonymousQuestion.Instance.Answer(ParameterAsULong(0), ParametersFrom(1), Message.Author, Message.Channel);
+					AnonymousQuestion.Instance.Answer(ParameterAsULong(0, false), ParametersFrom(1, false), Message.Author, Message.Channel);
 					break;
 			}
 		}
 
-		private ulong ParameterAsULong(int index) {
-			ulong value = 0;
-			if (Parameters.Length > index) {
-				ulong.TryParse(Parameters[index], out value);
+		private ulong ParameterAsULong(int index, bool optional = true, ulong defaultValue = 0) {
+			ulong value = defaultValue;
+			if (Parameters.Length <= index) {
+				return value;
+			}
+			if (!ulong.TryParse(Parameters[index], out value) && !optional) {
+				throw new KudosArgumentException($"Parameter {index + 1} must be a number (ulong)");
 			}
 			return value;
 		}
 
-		private int ParameterAsInt(int index) {
-			int value = 0;
-			if (Parameters.Length > index) {
-				int.TryParse(Parameters[index], out value);
+		private int ParameterAsInt(int index, bool optional = true, int defaultValue = 0) {
+			int value = defaultValue;
+			if (Parameters.Length <= index) {
+				return value;
+			}
+			if (!int.TryParse(Parameters[index], out value) && !optional) {
+				throw new KudosArgumentException($"Parameter {index + 1} must be a number (int)");
 			}
 			return value;
 		}
 
-		private SocketUser ParameterAsUser(int index) {
+		private SocketUser ParameterAsUser(int index, bool optional = true, SocketUser defaultValue = null) {
 			SocketUser user = Message.MentionedUsers.FirstOrDefault();
-			if (user == null) {
-				string[] userData = Parameters[index].Split("#");
-				if (userData.Length != 2) {
-					return null;
-				}
-
-				return Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
+			if (user != null) {
+				return user;
 			}
+			string[] userData = Parameters[index].Split("#");
+			if (userData.Length == 2) {
+				user = Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
+			}
+			if (user != null) {
+				return user;
+			}
+			if (!optional) {
+				throw new KudosArgumentException($"Parameter {index + 1} must be a user (described in help)");
+			}
+			user = defaultValue;
 			return user;
 		}
 
-		private string ParametersFrom(int index) => string.Join(" ", Parameters.Skip(index));
+		private string ParametersFrom(int index, bool optional = true, string defaultValue = "") {
+			if (Parameters.Length > index) {
+				return string.Join(" ", Parameters.Skip(index));
+			}
+			if (optional) {
+				return defaultValue;
+			}
+			throw new KudosArgumentException($"Parameter {index + 1} must be a text");
+		}
 	}
 }

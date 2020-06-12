@@ -3,6 +3,7 @@ using System;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Kudos.Exceptions;
 using Kudos.Models;
 using Kudos.Utils;
 #endregion
@@ -21,6 +22,7 @@ namespace Kudos.Bot {
 						return i;
 					}
 				}
+
 				throw new Exception("ulong id limit exceeded");
 			}
 		}
@@ -31,12 +33,12 @@ namespace Kudos.Bot {
 
 		public async void Answer(ulong questionId, string message, SocketUser answerer, ISocketMessageChannel channel) {
 			if (!AnonymousQuestions.ContainsKey(questionId)) {
-				return;
+				throw new KudosKeyNotFoundException($"No question found for id {questionId}");
 			}
 
 			QuestionData question = AnonymousQuestions[questionId];
 			if (answerer.Id != question.Answerer) {
-				return;
+				throw new KudosUnauthorizedAccessException("The question with this id isn't meant for you", "User with wrong id tried to answer the question");
 			}
 
 			RestUser restAnswerer = await Program.Client.GetRestUserById(answerer.Id);
@@ -50,6 +52,7 @@ namespace Kudos.Bot {
 				await answererChannel.SendMessageAsync("answer submitted successfully");
 			}
 			catch (Exception) {
+				//todo to exception
 				await channel.SendMessageAsync(
 					"You or the questionnaire has disabled private messages from this server, so I won't be able to send your answer or the success message");
 			}
@@ -57,9 +60,6 @@ namespace Kudos.Bot {
 		}
 
 		public async void AskAnonymous(string message, SocketUser answerer, SocketUser questionnaire, ISocketMessageChannel channel) {
-			if (answerer == null) {
-				return;
-			}
 			ulong id = NextId;
 			AnonymousQuestions[id] = new QuestionData { Question = message, Questionnaire = questionnaire.Id, Answerer = answerer.Id };
 
@@ -73,7 +73,7 @@ namespace Kudos.Bot {
 					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{MessageInterpreter.Prefix}answer {id} [answer]`.");
 				await questionnaireChannel.SendMessageAsync("Question sent successfully. Answer will be sent to you.");
 			}
-			catch (Exception) {
+			catch (Exception) { //todo to exception
 				await channel.SendMessageAsync(
 					$"You or {answerer.Mention} has disabled private messages from this server, so I won't be able to send the question or the answer");
 			}

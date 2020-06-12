@@ -23,7 +23,7 @@ namespace Kudos.Bot {
 			await Task.Run(() => {
 				MessageInterpreter interpreter = new MessageInterpreter(arg);
 				if (interpreter.Executable) {
-					interpreter.Execute();
+					interpreter.TryExecute();
 				}
 			});
 		}
