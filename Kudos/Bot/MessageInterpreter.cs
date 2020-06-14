@@ -26,7 +26,7 @@ namespace Kudos.Bot {
 				Executable = false;
 				return;
 			}
-			string[] contentParts = Regex.Split(message.Content.Substring(Prefix.Length), " @| (?<!@[^#]*?)");
+			string[] contentParts = Regex.Split(message.Content.Substring(Prefix.Length), " @| (?<! @[^#]*?)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
 				Executable = false;
 				return;
