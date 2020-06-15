@@ -17,15 +17,10 @@ namespace Kudos.Utils {
 				if (_dictionaryImplementation == null) {
 					ReadDictionary().Wait();
 				}
-				if (!HasExclusiveFileOwnership) {
-					_ = ReadDictionary();
-				}
 				return _dictionaryImplementation;
 			}
 		}
 		private string FileName { get; }
-		private SerializationFormat Format { get; }
-		private bool HasExclusiveFileOwnership { get; } = true;
 		public bool IsReadOnly => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).IsReadOnly;
 		public ICollection<TKey> Keys => DictionaryImplementation.Keys;
 		public ICollection<TValue> Values => DictionaryImplementation.Values;
@@ -38,31 +33,14 @@ namespace Kudos.Utils {
 			}
 		}
 
-		public AsyncFileSyncedDictionary(string fileName, SerializationFormat format = SerializationFormat.Binary) {
-			Format = format;
-			FileName = fileName;
-		}
+		public AsyncFileSyncedDictionary(string fileName) => FileName = fileName;
 
 		private async Task ReadDictionary() {
-			switch (Format) {
-				case SerializationFormat.Binary :
-					_dictionaryImplementation = await FileService.Instance.ReadFromFile<Dictionary<TKey, TValue>>(FileName);
-					break;
-				case SerializationFormat.Json :
-					_dictionaryImplementation = await FileService.Instance.ReadJsonFromFile<Dictionary<TKey, TValue>>(FileName);
-					break;
-			}
+			_dictionaryImplementation = await FileService.Instance.ReadJsonFromFile<Dictionary<TKey, TValue>>(FileName);
 		}
 
 		private async Task SaveDictionary() {
-			switch (Format) {
-				case SerializationFormat.Binary :
-					await FileService.Instance.SaveToFile(FileName, DictionaryImplementation);
-					break;
-				case SerializationFormat.Json :
-					await FileService.Instance.SaveJsonToFile(FileName, DictionaryImplementation);
-					break;
-			}
+			await FileService.Instance.SaveJsonToFile(FileName, DictionaryImplementation);
 		}
 
 		public void Add(KeyValuePair<TKey, TValue> item) {
@@ -104,10 +82,5 @@ namespace Kudos.Utils {
 
 		IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)DictionaryImplementation).GetEnumerator();
 		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => DictionaryImplementation.GetEnumerator();
-	}
-
-	public enum SerializationFormat {
-		Binary,
-		Json
 	}
 }
