@@ -7,6 +7,7 @@ using Discord.WebSocket;
 
 namespace Kudos.Bot {
 	public class Client {
+		//TODO sleep remember
 		private readonly DiscordSocketClient _client;
 
 		public string State => _client.Status.ToString();

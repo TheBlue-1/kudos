@@ -14,7 +14,7 @@ namespace Kudos.Utils {
 		public static FileService Instance { get; } = new FileService();
 
 		public AsyncFileSyncedDictionary<string, string> Settings { get; } =
-			new AsyncFileSyncedDictionary<string, string>("settings", SerializationFormat.Json);
+			new AsyncFileSyncedDictionary<string, string>("settings");
 		static FileService() { }
 
 		private FileService() {
@@ -23,19 +23,7 @@ namespace Kudos.Utils {
 			}
 		}
 
-		private object ByteArrayToObject(byte[] arr) {
-			using MemoryStream memoryStream = new MemoryStream();
-			BinaryFormatter binaryFormatter = new BinaryFormatter();
-			try {
-				memoryStream.Write(arr, 0, arr.Length);
-				memoryStream.Seek(0, SeekOrigin.Begin);
-				object obj = binaryFormatter.Deserialize(memoryStream);
-				return obj;
-			}
-			catch (Exception) {
-				return null;
-			}
-		}
+		
 
 		public void Log(string message) {
 			string fileName = Path.Combine(ApplicationFolderPath, "log.txt");
@@ -43,27 +31,9 @@ namespace Kudos.Utils {
 			File.AppendAllText(fileName, message);
 		}
 
-		private byte[] ObjectToByteArray(object obj) {
-			BinaryFormatter binaryFormatter = new BinaryFormatter();
-			using MemoryStream memoryStream = new MemoryStream();
-			binaryFormatter.Serialize(memoryStream, obj);
-			return memoryStream.ToArray();
-		}
+		
 
-		public async Task<T> ReadFromFile<T>(string fileName)
-			where T : new() {
-			return await Task.Run(() => {
-				fileName = Path.Combine(ApplicationFolderPath, fileName);
-				if (File.Exists(fileName)) {
-					byte[] byteContent = File.ReadAllBytes(fileName);
-					T val = (T)ByteArrayToObject(byteContent);
-					if (val != null) {
-						return val;
-					}
-				}
-				return new T();
-			});
-		}
+		
 
 		public async Task<T> ReadJsonFromFile<T>(string fileName)
 			where T : new() {
@@ -88,12 +58,6 @@ namespace Kudos.Utils {
 			});
 		}
 
-		public async Task SaveToFile<T>(string fileName, T content) {
-			await Task.Run(() => {
-				fileName = Path.Combine(ApplicationFolderPath, fileName);
-				byte[] byteContent = ObjectToByteArray(content);
-				File.WriteAllBytes(fileName, byteContent);
-			});
-		}
+		
 	}
 }
