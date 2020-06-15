@@ -36,16 +36,11 @@ namespace Kudos.Utils {
 		public AsyncFileSyncedDictionary(string fileName) => FileName = fileName;
 
 		private async Task ReadDictionary() {
-			
-					_dictionaryImplementation = await FileService.Instance.ReadJsonFromFile<Dictionary<TKey, TValue>>(FileName);
-				
-			}
-		
+			_dictionaryImplementation = await FileService.Instance.ReadJsonFromFile<Dictionary<TKey, TValue>>(FileName);
+		}
 
 		private async Task SaveDictionary() {
-			
-					await FileService.Instance.SaveJsonToFile(FileName, DictionaryImplementation);
-			
+			await FileService.Instance.SaveJsonToFile(FileName, DictionaryImplementation);
 		}
 
 		public void Add(KeyValuePair<TKey, TValue> item) {

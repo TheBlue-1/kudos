@@ -20,7 +20,7 @@ namespace Kudos.Bot {
 			Start(token);
 		}
 
-		private async Task ClientMessageReceived(SocketMessage arg) {
+		private static async Task ClientMessageReceived(SocketMessage arg) {
 			await Task.Run(() => {
 				MessageInterpreter interpreter = new MessageInterpreter(arg);
 				if (interpreter.Executable) {
@@ -29,7 +29,7 @@ namespace Kudos.Bot {
 			});
 		}
 
-		private async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
+		private static async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			await Task.Run(() => {
 				IMessage message = arg1.HasValue ? arg1.Value : arg3.Message.GetValueOrDefault() ?? arg2.GetMessageAsync(arg1.Id).GetAwaiter().GetResult();
 				message.AddReactionAsync(arg3.Emote);
