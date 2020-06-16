@@ -30,10 +30,10 @@ namespace Kudos.Bot {
 			"People really hate you don't they?", "Oh boy you must have done something annoying!", "Watch out we have a real Mr. Trump here!",
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
-		private AsyncFileSyncedDictionary<ulong, int> BalancesPerId { get; } = new AsyncFileSyncedDictionary<ulong, int>("balances");
+		private AsyncThreadsafeFileSyncedDictionary<ulong, int> BalancesPerId { get; } = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("balances");
 		public static Honor Instance { get; } = new Honor();
-		private AsyncFileSyncedDictionary<ulong, int> UsedHonor { get; } =
-			new AsyncFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
+		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor { get; } =
+			new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
 
 		static Honor() { }
 
@@ -45,7 +45,7 @@ namespace Kudos.Bot {
 		}
 
 		public void DishonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
-			count = HonorCount(honoredUser, honoringUser, count, channel);
+			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, -count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
@@ -53,7 +53,7 @@ namespace Kudos.Bot {
 			Messaging.Instance.Message(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
 
-		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
+		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count) {
 			if (honoringUser.Id == honoredUser.Id) {
 				throw new KudosUnauthorizedException("You are not allowed to honor yourself");
 			}
@@ -71,7 +71,7 @@ namespace Kudos.Bot {
 		}
 
 		public void HonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
-			count = HonorCount(honoredUser, honoringUser, count, channel);
+			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);

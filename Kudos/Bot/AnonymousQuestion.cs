@@ -10,8 +10,8 @@ using Kudos.Utils;
 
 namespace Kudos.Bot {
 	public class AnonymousQuestion {
-		private AsyncFileSyncedDictionary<ulong, QuestionData> AnonymousQuestions { get; } =
-			new AsyncFileSyncedDictionary<ulong, QuestionData>("anonymousQuestions");
+		private AsyncThreadsafeFileSyncedDictionary<ulong, QuestionData> AnonymousQuestions { get; } =
+			new AsyncThreadsafeFileSyncedDictionary<ulong, QuestionData>("anonymousQuestions");
 
 		public static AnonymousQuestion Instance { get; } = new AnonymousQuestion();
 

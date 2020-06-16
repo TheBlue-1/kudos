@@ -30,10 +30,8 @@ namespace Kudos.Bot {
 		}
 
 		private static async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
-			await Task.Run(() => {
-				IMessage message = arg1.HasValue ? arg1.Value : arg3.Message.GetValueOrDefault() ?? arg2.GetMessageAsync(arg1.Id).GetAwaiter().GetResult();
-				message.AddReactionAsync(arg3.Emote);
-			});
+			//unused
+			await Task.Run(() => { });
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);

@@ -13,7 +13,7 @@ namespace Kudos.Utils {
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
 		public static FileService Instance { get; } = new FileService();
 
-		public AsyncFileSyncedDictionary<string, string> Settings { get; } = new AsyncFileSyncedDictionary<string, string>("settings");
+		public AsyncThreadsafeFileSyncedDictionary<string, string> Settings { get; } = new AsyncThreadsafeFileSyncedDictionary<string, string>("settings");
 		static FileService() { }
 
 		private FileService() {
