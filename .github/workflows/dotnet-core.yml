@@ -46,16 +46,27 @@ jobs:
           TARGET: "${{ secrets.SSH_REMOTE_TARGET }}${{ env.REALEASE_TYPE }}"
       - name: Start new Version
         if: ${{ github.event_name=='push'}}
-
-        uses: cross-the-world/ssh-pipeline@master
+        uses: garygrossgarten/github-action-ssh@release
         with:
           host: ${{ secrets.SSH_REMOTE_HOST }}
-          user: ${{ secrets.SSH_REMOTE_USER }}
-          key: ${{ secrets.SSH_SERVER_KEY }}
-          script: |
+          username: ${{ secrets.SSH_REMOTE_USER }}
+          privateKey: ${{ secrets.SSH_SERVER_KEY}}
+          command: |
             cd Kudos/${{ env.REALEASE_TYPE }}publish
             pid=$(cat 'last.pid')
             kill $pid
             nohup ./Kudos &
             echo "$!" > last.pid
             echo "done"
+        # uses: cross-the-world/ssh-pipeline@master
+        # with:
+        #   host: ${{ secrets.SSH_REMOTE_HOST }}
+        #   user: ${{ secrets.SSH_REMOTE_USER }}
+        #   key: ${{ secrets.SSH_SERVER_KEY }}
+        #   script: |
+        #     cd Kudos/${{ env.REALEASE_TYPE }}publish
+        #     pid=$(cat 'last.pid')
+        #     kill $pid
+        #     nohup ./Kudos &
+        #     echo "$!" > last.pid
+        #     echo "done"
