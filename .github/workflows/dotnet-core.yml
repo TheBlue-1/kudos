@@ -25,19 +25,25 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
     - name: Publish
       run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=true --runtime linux-x64 --self-contained true
-   
-   #deploy
-  #  - name: Install Node.js
-  #    uses: actions/setup-node@v1
-  #    with:
-  #      node-version: '10.x'
-  #  - name: Install npm dependencies
-  #    run: npm install
-    - name: Deploy to Server
-      uses: easingthemes/ssh-deploy@v2.1.1
+    - name: scp ssh pipelines
+      uses: cross-the-world/ssh-scp-ssh-pipelines@latest
       env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_SERVER_KEY }}
-          SOURCE: "/Kudos/bin/Release/netcoreapp3.1/linux-x64/"
-          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
+          LASTSSH: "Doing something after copying"
+      with:
+        host: ${{ secrets.SSH_REMOTE_HOST }}
+        user: ${{ secrets.SSH_REMOTE_USER }}
+        key: ${{ secrets.SSH_SERVER_KEY }}
+        scp: |
+          ./Kudos/bin/Release/netcoreapp3.1/linux-x64/publish* => ${{ secrets.SSH_REMOTE_TARGET }}
+        last_ssh: |
+          echo "Hallo" > test.txt
+          
+  #deploy
+  #  - name: Deploy to Server
+   #   uses: easingthemes/ssh-deploy@v2.1.1
+    #  env:
+     #     SSH_PRIVATE_KEY: ${{ secrets.SSH_SERVER_KEY }}
+      #    SOURCE: "/Kudos/bin/Release/netcoreapp3.1/linux-x64/publish"
+       #   REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+        #  REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
+         # TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
