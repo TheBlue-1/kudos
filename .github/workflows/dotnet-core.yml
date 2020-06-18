@@ -38,7 +38,7 @@ jobs:
       #if: ${{ github.event_name=='push'}}
       run:  set-env name=REALEASE_TYPE::$(echo "public")
     - name: Set RealeaseType dev
-      if: ${{ github.ref=='refs/heads/dev'}}
+      #if: ${{ github.ref=='refs/heads/dev'}}
       #if: ${{ github.event_name=='push'}}
       run:  set-env name=REALEASE_TYPE::$(echo "beta")
     - name: Deploy to Server
