@@ -28,17 +28,16 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
     - name: Publish
       run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=true --runtime linux-x64 --self-contained true
-          
-          
-  deploy:
-
-    runs-on: ubuntu-latest
-    steps:
+    
+      #deploy
+      
+    - name: Extract Branch Name
+      run: echo "::set-env name=REALEASE_VERSION::$(echo ${GITHUB_REF##*/})"
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@v2.1.1
       env:
          SSH_PRIVATE_KEY: ${{ secrets.SSH_SERVER_KEY }}
-         SOURCE: "/Kudos/bin/Release/netcoreapp3.1/linux-x64/publish"
+         SOURCE: "/Kudos/bin/Release/netcoreapp3.1/linux-x64/${{ REALEASE_VERSION }}"
          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
@@ -50,7 +49,7 @@ jobs:
         user: ${{ secrets.SSH_REMOTE_USER }}
         private_key: ${{ secrets.SSH_SERVER_KEY }}
         commands: |
-          cd Kudos/public
+          cd Kudos/${{ REALEASE_VERSION }}
           pid=$(cat pid)
           kill $pid
           nohup ./Kudos &
