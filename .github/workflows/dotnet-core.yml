@@ -30,18 +30,27 @@ jobs:
       run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=true --runtime linux-x64 --self-contained true
     
       #deploy
-      
+      if: ${{ ${{GITHUB_EVENT_NAME}}=="push"}}
     - name: Extract Branch Name
-      run: echo "::set-env name=REALEASE_VERSION::$(echo ${GITHUB_REF##*/})"
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF##*/})"
+      if: ${{ ${{GITHUB_EVENT_NAME}}=="push"}}
+    - name: Set RealeaseType
+      run: |
+         if ["$BRANCH_NAME" == master]; then
+            set-env name=REALEASE_TYPE::$(echo "public")
+          else 
+            set-env name=REALEASE_TYPE::$(echo "beta")
+         fi
+      if: ${{ ${{GITHUB_EVENT_NAME}}=="push"}}
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@v2.1.1
       env:
          SSH_PRIVATE_KEY: ${{ secrets.SSH_SERVER_KEY }}
-         SOURCE: "/Kudos/bin/Release/netcoreapp3.1/linux-x64/${{ REALEASE_VERSION }}"
+         SOURCE: "/Kudos/bin/Release/netcoreapp3.1/linux-x64/${{ REALEASE_TYPE }}"
          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
-      
+      if: ${{ ${{GITHUB_EVENT_NAME}}=="push"}}
     - name: Run a command remotely
       uses: docker://evaneos/ssh-action:0.1.0
       with:
@@ -49,7 +58,7 @@ jobs:
         user: ${{ secrets.SSH_REMOTE_USER }}
         private_key: ${{ secrets.SSH_SERVER_KEY }}
         commands: |
-          cd Kudos/${{ REALEASE_VERSION }}
+          cd Kudos/${{ REALEASE_TYPE }}
           pid=$(cat pid)
           kill $pid
           nohup ./Kudos &
