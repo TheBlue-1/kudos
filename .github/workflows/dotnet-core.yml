@@ -36,11 +36,11 @@ jobs:
     - name: Set RealeaseType master
       if: ${{ github.ref=='refs/heads/master'}}
       #if: ${{ github.event_name=='push'}}
-      run:  set-env name=REALEASE_TYPE::$(echo "public")
+      run:  echo ::set-env name=GITHUB_SHA_SHORT::$(echo "public")
     - name: Set RealeaseType dev
       #if: ${{ github.ref=='refs/heads/dev'}}
       #if: ${{ github.event_name=='push'}}
-      run:  set-env name=REALEASE_TYPE::$(echo "beta")
+      run:  echo ::set-env name=GITHUB_SHA_SHORT::$(echo "beta")
     - name: Deploy to Server
       #if: ${{ github.event_name=='push'}}
       uses: easingthemes/ssh-deploy@v2.1.1
