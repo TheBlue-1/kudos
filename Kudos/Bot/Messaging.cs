@@ -1,5 +1,6 @@
 ﻿#region
 using Discord.WebSocket;
+using Kudos.Extensions;
 #endregion
 
 namespace Kudos.Bot {

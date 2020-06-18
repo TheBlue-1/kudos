@@ -1,8 +1,10 @@
 ﻿#region
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
+using Kudos.Attributes;
 using Kudos.Exceptions;
 #endregion
 
@@ -45,7 +47,29 @@ namespace Kudos.Bot {
 			}
 		}
 
+		private static Tuple<CommandModule, Type>[] CommandModules { get; } = AppDomain.CurrentDomain.GetAssemblies()
+			.SelectMany(assembly => assembly.GetTypes())
+			.Where(type => type.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (CommandModule)))
+			.Select(type => new Tuple<CommandModule, Type>(type.GetCustomAttribute<CommandModule>(), type))
+			.ToArray();
+
+		private static Tuple<Command, MethodInfo>[] Commands { get; } = CommandModules.SelectMany(module => module.Item2.GetMethods())
+			.Where(method => method.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (Command)))
+			.Select(method => new Tuple<Command, MethodInfo>(method.GetCustomAttribute<Command>(), method))
+			.ToArray();
+
 		public void Execute() {
+			Tuple<Command, MethodInfo> command = Commands.FirstOrDefault(tuple => tuple.Item1.Name == Command);
+			if (command == null) {
+				return;
+			}
+			object commandModule = command.Item2.DeclaringType.GetProperty("Instance").GetValue(null);
+			ParameterInfo[] parameterInfo = command.Item2.GetParameters();
+			object[] parameters = new object[parameterInfo.Length];
+
+			//set parameters
+			command.Item2.Invoke(commandModule, parameters);
+
 			switch (Command) {
 				case "" : break;
 				case "hello" :

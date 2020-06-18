@@ -4,6 +4,7 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Models;
 using Kudos.Utils;
 #endregion
@@ -41,10 +42,9 @@ namespace Kudos.Bot {
 				throw new KudosUnauthorizedException("The question with this id isn't meant for you", "User with wrong id tried to answer the question");
 			}
 
-			RestUser restAnswerer = await Program.Client.GetRestUserById(answerer.Id);
 			RestUser restQuestionnaire = await Program.Client.GetRestUserById(question.Questionnaire);
 
-			IDMChannel answererChannel = await restAnswerer.GetOrCreateDMChannelAsync();
+			IDMChannel answererChannel = await answerer.DmChannel();
 			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
 			try {
 				await questionnaireChannel.SendMessageAsync(

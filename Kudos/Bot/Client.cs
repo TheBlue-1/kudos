@@ -1,13 +1,21 @@
 ﻿#region
+using System.ComponentModel.Design;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 #endregion
 
 namespace Kudos.Bot {
 	public class Client {
-		//TODO sleep remember
+		/// <summary>
+		/// TODO ideas/planned
+		/// sleep rememberer (maybe general rememberer)
+		/// reaction helper (text to reaction and auto-reactions)
+		/// achievements (to make people use features and do crazy stuff)
+		/// stalker (listens in other channel and plays in yours)
+		/// </summary>
 		private readonly DiscordSocketClient _client;
 
 		public string State => _client.Status.ToString();
@@ -29,6 +37,7 @@ namespace Kudos.Bot {
 			});
 		}
 
+		
 		private static async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			//unused
 			await Task.Run(() => { });
