@@ -57,16 +57,4 @@ jobs:
             kill $pid
             nohup ./Kudos &
             echo "$!" > last.pid
-            echo "done"
-        # uses: cross-the-world/ssh-pipeline@master
-        # with:
-        #   host: ${{ secrets.SSH_REMOTE_HOST }}
-        #   user: ${{ secrets.SSH_REMOTE_USER }}
-        #   key: ${{ secrets.SSH_SERVER_KEY }}
-        #   script: |
-        #     cd Kudos/${{ env.REALEASE_TYPE }}publish
-        #     pid=$(cat 'last.pid')
-        #     kill $pid
-        #     nohup ./Kudos &
-        #     echo "$!" > last.pid
-        #     echo "done"
+            exit
