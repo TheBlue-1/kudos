@@ -50,7 +50,7 @@ jobs:
          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
          TARGET: "${{ secrets.SSH_REMOTE_TARGET }}${{ env.REALEASE_TYPE }}"
-    - name: Run a command remotely
+    - name: Start new Version
       #if: ${{ github.event_name=='push'}}
       uses: docker://evaneos/ssh-action:0.1.0
       with:
@@ -58,8 +58,9 @@ jobs:
         user: ${{ secrets.SSH_REMOTE_USER }}
         private_key: ${{ secrets.SSH_SERVER_KEY }}
         commands: |
-          cd Kudos/${{ env.REALEASE_TYPE }}publish
-          pid=$(cat pid)
+          cd Kudos/beta/publish
+          pid=$(cat 'last.pid')
           kill $pid
           nohup ./Kudos &
-          echo $! > pid
+          echo "$!" > last.pid
+          echo "done"
