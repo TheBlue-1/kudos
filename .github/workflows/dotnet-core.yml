@@ -60,7 +60,7 @@ jobs:
         user: ${{ secrets.SSH_REMOTE_USER }}
         private_key: ${{ secrets.SSH_SERVER_KEY }}
         commands: |
-          cd Kudos/${{ REALEASE_TYPE }}
+          cd Kudos/${{ env.REALEASE_TYPE }}
           pid=$(cat pid)
           kill $pid
           nohup ./Kudos &
