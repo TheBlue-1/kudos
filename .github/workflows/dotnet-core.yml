@@ -55,7 +55,6 @@ jobs:
             cd Kudos/${{ env.REALEASE_TYPE }}publish
             pid=$(cat 'last.pid')
             kill $pid
-            nohup ./Kudos &
+            nohup ./Kudos >/dev/null 2>&1 &
             echo "$!" > last.pid
             ~.
-            
