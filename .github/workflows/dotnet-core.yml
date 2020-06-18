@@ -31,16 +31,16 @@ jobs:
       #only if push
       
     - name: Publish
-      if: ${{ github.event_name=='push'}}
+  #    if: ${{ github.event_name=='push'}}
       run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=true --runtime linux-x64 --self-contained true
     - name: Set RealeaseType master
       if: ${{ github.ref=='refs/heads/master' && github.event_name=='push'}}
       run:  echo ::set-env name=REALEASE_TYPE::$(echo "public/")
     - name: Set RealeaseType dev
-      if: ${{ github.ref=='refs/heads/dev' && github.event_name=='push'}}
+    #  if: ${{ github.ref=='refs/heads/dev' && github.event_name=='push'}}
       run:  echo ::set-env name=REALEASE_TYPE::$(echo "beta/")
     - name: Deploy to Server
-      if: ${{ github.event_name=='push'}}
+   #   if: ${{ github.event_name=='push'}}
       uses: easingthemes/ssh-deploy@v2.1.1
       env:
          SSH_PRIVATE_KEY: ${{ secrets.SSH_SERVER_KEY }}
@@ -49,16 +49,27 @@ jobs:
          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
          TARGET: "${{ secrets.SSH_REMOTE_TARGET }}${{ env.REALEASE_TYPE }}"
     - name: Start new Version
-      if: ${{ github.event_name=='push'}}
-      uses: cross-the-world/ssh-pipeline@master
+   #   if: ${{ github.event_name=='push'}}
+      uses: JimCronqvist/action-ssh@master
       with:
-        host: ${{ secrets.SSH_REMOTE_HOST }}
-        user: ${{ secrets.SSH_REMOTE_USER }}
-        key: ${{ secrets.SSH_SERVER_KEY }}
-        script: |
+        hosts: ${{ secrets.SSH_REMOTE_USER }}@${{ secrets.SSH_REMOTE_HOST }}
+        privateKey: ${{ secrets.SSH_SERVER_KEY }}
+        command: |
           cd Kudos/${{ env.REALEASE_TYPE }}publish
           pid=$(cat 'last.pid')
           kill $pid
           nohup ./Kudos &
           echo "$!" > last.pid
           echo "done"
+      # uses: cross-the-world/ssh-pipeline@master
+      # with:
+      #   host: ${{ secrets.SSH_REMOTE_HOST }}
+      #   user: ${{ secrets.SSH_REMOTE_USER }}
+      #   key: ${{ secrets.SSH_SERVER_KEY }}
+      #   script: |
+      #     cd Kudos/${{ env.REALEASE_TYPE }}publish
+      #     pid=$(cat 'last.pid')
+      #     kill $pid
+      #     nohup ./Kudos &
+      #     echo "$!" > last.pid
+      #     echo "done"
