@@ -26,26 +26,21 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
-    - name: Publish
-      run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=true --runtime linux-x64 --self-contained true
-    
+  
       #deploy
       #only if push
       
     - name: Publish
       #if: ${{ github.event_name=='push'}}
       run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=true --runtime linux-x64 --self-contained true
-    - name: Extract Branch Name
+    - name: Set RealeaseType master
+      if: ${{ github.ref=='refs/heads/master'}}
       #if: ${{ github.event_name=='push'}}
-      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF##*/})"
-    - name: Set RealeaseType
+      run:  set-env name=REALEASE_TYPE::$(echo "public")
+    - name: Set RealeaseType dev
+      if: ${{ github.ref=='refs/heads/dev'}}
       #if: ${{ github.event_name=='push'}}
-      run: |
-         if ["$BRANCH_NAME" == master]; then
-            set-env name=REALEASE_TYPE::$(echo "public")
-          else 
-            set-env name=REALEASE_TYPE::$(echo "beta")
-         fi
+      run:  set-env name=REALEASE_TYPE::$(echo "beta")
     - name: Deploy to Server
       #if: ${{ github.event_name=='push'}}
       uses: easingthemes/ssh-deploy@v2.1.1
