@@ -3,10 +3,11 @@ using Discord.WebSocket;
 using Kudos.Extensions;
 #endregion
 
+
 namespace Kudos.Bot {
 	public sealed class Messaging {
 		private const string HelloText = "hello ";
-		private const string HelpText = @"```
+		private static readonly string HelpText = @"```
 hello                           answers hello
 honor [count?] [user]           honors someone
 dishonor [count?] [user]        dishonors someone
@@ -21,8 +22,9 @@ help                            sends this
             if not possible use full username like '@Kudos#9294'
             (you can also get this by copying a mention)
 [x?]	    optional
-```";
-
+```
+version: "+Program.Version;
+	
 		public static Messaging Instance { get; } = new Messaging();
 
 		static Messaging() { }
