@@ -3,7 +3,6 @@ name: Version Check
 on:
   pull_request:
     branches: [master , dev]
-    #dev for testing
 
 jobs:
   build:
@@ -16,6 +15,8 @@ jobs:
         with:
           required-packages: child_process
           script: |
+            const ChildProcess = require("child_process");
+            const core = require('@actions/core')
             const exec = require('@actions/exec');
-            await exec.exec('node','.github/workflows/version-check.js');
+            await exec.exec('.github/workflows/version-check.js');
 

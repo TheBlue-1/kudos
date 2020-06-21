@@ -1,5 +1,5 @@
-const core = require('@actions/core')
 const ChildProcess = require("child_process");
+const core = require('@actions/core')
 main();
 function main(){
 if(!isVersionChanged())
