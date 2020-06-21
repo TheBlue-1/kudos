@@ -1,4 +1,4 @@
-name: .NET Core
+name: Version Check
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ jobs:
       - name: Execute JavaScript inline
         uses: satackey/action-js-inline@v0.0.2
         with:
-          required-package: child_process
+          required-packages: child_process
           script: |
             const exec = require('@actions/exec');
             await exec.exec('node','version-check.js');
