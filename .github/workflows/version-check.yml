@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: checkout
-        run: git clone https://github.com/TheBlue-1/kudos.git
+        run: git clone https://github.com/TheBlue-1/kudos.git ./
       - name: test
         run: git diff HEAD master -- Kudos/Kudos.csproj
       - name: Execute JavaScript inline
