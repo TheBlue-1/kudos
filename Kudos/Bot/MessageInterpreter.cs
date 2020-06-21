@@ -1,11 +1,9 @@
 ﻿#region
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
-using Kudos.Attributes;
-using Kudos.Exceptions;
+using Kudos.Models;
 #endregion
 
 namespace Kudos.Bot {
@@ -34,7 +32,7 @@ namespace Kudos.Bot {
 				return;
 			}
 			Message = message;
-			Command = contentParts[0];
+			Command = contentParts[0].ToLower();
 			Parameters = contentParts.Skip(1).ToArray();
 		}
 
@@ -47,112 +45,23 @@ namespace Kudos.Bot {
 			}
 		}
 
-		private static Tuple<CommandModule, Type>[] CommandModules { get; } = AppDomain.CurrentDomain.GetAssemblies()
-			.SelectMany(assembly => assembly.GetTypes())
-			.Where(type => type.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (CommandModule)))
-			.Select(type => new Tuple<CommandModule, Type>(type.GetCustomAttribute<CommandModule>(), type))
-			.ToArray();
-
-		private static Tuple<Command, MethodInfo>[] Commands { get; } = CommandModules.SelectMany(module => module.Item2.GetMethods())
-			.Where(method => method.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (Command)))
-			.Select(method => new Tuple<Command, MethodInfo>(method.GetCustomAttribute<Command>(), method))
-			.ToArray();
-
 		public void Execute() {
-			Tuple<Command, MethodInfo> command = Commands.FirstOrDefault(tuple => tuple.Item1.Name == Command);
+			CommandInfo command = CommandModules.Instance.Modules
+				.SelectMany(module => module.Commands.Where(commandInfo => commandInfo.Command.Name == Command))
+				.FirstOrDefault();
 			if (command == null) {
 				return;
 			}
-			object commandModule = command.Item2.DeclaringType.GetProperty("Instance").GetValue(null);
-			ParameterInfo[] parameterInfo = command.Item2.GetParameters();
+			object commandModule = command.Module.Type.GetProperty("Instance")?.GetValue(null);
+			if (commandModule == null) {
+				throw new Exception("command modules must be singletons");
+			}
+			CommandParameterInfo[] parameterInfo = command.AllParameter;
 			object[] parameters = new object[parameterInfo.Length];
-
-			//set parameters
-			command.Item2.Invoke(commandModule, parameters);
-
-			switch (Command) {
-				case "" : break;
-				case "hello" :
-					Messaging.Instance.Hello(Message.Channel, Message.Author);
-					break;
-				case "delete" :
-					Managing.Instance.Delete(Message.Channel, ParameterAsInt(0, true, 1));
-					break;
-				case "help" :
-					Messaging.Instance.Help(Message.Channel);
-					break;
-				case "balance" :
-					Honor.Instance.SendHonorBalance(ParameterAsUser(0, true, Message.Author), Message.Channel);
-					break;
-				case "honor" :
-					Honor.Instance.HonorUser(ParameterAsUser(1, false), Message.Author, ParameterAsInt(0, true, 1), Message.Channel);
-					break;
-				case "dishonor" :
-					Honor.Instance.DishonorUser(ParameterAsUser(1, false), Message.Author, ParameterAsInt(0, true, 1), Message.Channel);
-					break;
-				case "question" :
-					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1, false), ParameterAsUser(0, false), Message.Author, Message.Channel);
-					break;
-				case "answer" :
-					AnonymousQuestion.Instance.Answer(ParameterAsULong(0, false), ParametersFrom(1, false), Message.Author, Message.Channel);
-					break;
+			for (int i = 0; i < parameters.Length; i++) {
+				parameters[i] = parameterInfo[i].CommandParameter.FormParameter(parameterInfo[i].ParameterInfo, Parameters, Message);
 			}
-		}
-
-		private ulong ParameterAsULong(int index, bool optional = true, ulong defaultValue = 0) {
-			if (Parameters.Length > index && ulong.TryParse(Parameters[index], out ulong value)) {
-				return value;
-			}
-			if (optional) {
-				value = defaultValue;
-			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a number (ulong)");
-			}
-			return value;
-		}
-
-		private int ParameterAsInt(int index, bool optional = true, int defaultValue = 0) {
-			if (Parameters.Length > index && int.TryParse(Parameters[index], out int value)) {
-				return value;
-			}
-			if (optional) {
-				value = defaultValue;
-			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a number (int)");
-			}
-			return value;
-		}
-
-		private SocketUser ParameterAsUser(int index, bool optional = true, SocketUser defaultValue = null) {
-			SocketUser user = Message.MentionedUsers.FirstOrDefault();
-			if (user != null) {
-				return user;
-			}
-			if (Parameters.Length > index) {
-				string[] userData = Parameters[index].Split("#");
-				if (userData.Length == 2) {
-					user = Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
-				}
-				if (user != null) {
-					return user;
-				}
-			}
-			if (!optional) {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a user (described in help)");
-			}
-
-			user = defaultValue;
-			return user;
-		}
-
-		private string ParametersFrom(int index, bool optional = true, string defaultValue = "") {
-			if (Parameters.Length > index) {
-				return string.Join(" ", Parameters.Skip(index));
-			}
-			if (optional) {
-				return defaultValue;
-			}
-			throw new KudosArgumentException($"Parameter {index + 1} must be a text");
+			command.MethodInfo.Invoke(commandModule, parameters);
 		}
 	}
 }

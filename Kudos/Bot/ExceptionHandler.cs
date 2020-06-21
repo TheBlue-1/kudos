@@ -30,10 +30,18 @@ namespace Kudos.Bot {
 		}
 
 		private void HandleException() {
-			if (Exception is IKudosException kudosException) {
-				Messaging.Instance.Message(Channel, kudosException.UserMessage);
-				return;
+			Exception exception = Exception;
+			while (true) {
+				if (exception is IKudosException kudosException) {
+					Messaging.Instance.Message(Channel, kudosException.UserMessage);
+					return;
+				}
+				if (exception.InnerException == null) {
+					break;
+				}
+				exception = exception.InnerException;
 			}
+
 			Messaging.Instance.Message(Channel, "unknown error occured");
 			FileService.Instance.Log(Exception.ToString());
 		}

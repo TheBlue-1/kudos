@@ -1,45 +1,33 @@
 ﻿#region
 using Discord.WebSocket;
-using Kudos.Extensions;
+using Kudos.Attributes;
+
+// ReSharper disable UnusedMember.Global
 #endregion
 
-
 namespace Kudos.Bot {
+	[CommandModule("Messaging")]
 	public sealed class Messaging {
 		private const string HelloText = "hello ";
-		private static readonly string HelpText = @"```
-hello                           answers hello
-honor [count?] [user]           honors someone
-dishonor [count?] [user]        dishonors someone
-balance [user?]                 shows the honor balance of user
-delete [count?]                 deletes 1 or count messages
-question [user] [question]      sends anonymous question to person
-answer [questionId] [answer]    answers anonymous question
-help                            sends this
-```
-```
-[user]      mention with @
-            if not possible use full username like '@Kudos#9294'
-            (you can also get this by copying a mention)
-[x?]	    optional
-```
-version: "+Program.Version;
-	
+
 		public static Messaging Instance { get; } = new Messaging();
 
 		static Messaging() { }
 
 		private Messaging() { }
 
-		public void Hello(ISocketMessageChannel channel, SocketUser user) {
+		[Command("hello")]
+		public void Hello([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
 			channel.SendMessageAsync(HelloText + user.Mention);
 		}
 
-		public void Help(ISocketMessageChannel channel) {
-			channel.SendMessageAsync(HelpText);
+		[Command("help")]
+		public void Help([CommandParameter] ISocketMessageChannel channel) {
+			channel.SendMessageAsync(CommandModules.Instance.ToString());
 		}
 
-		public void Message(ISocketMessageChannel channel, string text) {
+		[Command("say")]
+		public void Message([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string text) {
 			channel.SendMessageAsync(text);
 		}
 	}

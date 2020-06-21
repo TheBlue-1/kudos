@@ -1,12 +1,11 @@
-﻿namespace Kudos.Attributes
-{
-	[System.AttributeUsage(System.AttributeTargets.Method)
-	]
-	public class Command : System.Attribute
-	{
-		public string Name { get; }
+﻿#region
+using System;
+#endregion
 
-		public string Help { get; }
+namespace Kudos.Attributes {
+	[AttributeUsage(AttributeTargets.Method)]
+	public class Command : Attribute {
+		public string Name { get; }
 
 		public Command(string name) => Name = name;
 	}

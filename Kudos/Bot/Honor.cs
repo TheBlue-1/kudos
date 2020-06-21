@@ -1,11 +1,15 @@
 ﻿#region
 using System;
 using Discord.WebSocket;
+using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Utils;
+
+// ReSharper disable UnusedMember.Global
 #endregion
 
 namespace Kudos.Bot {
+	[CommandModule("Honor")]
 	public sealed class Honor {
 		private const byte MaxHonorPerDay = 7;
 		private static readonly string[] HonorFeedbackHigh = {
@@ -30,6 +34,7 @@ namespace Kudos.Bot {
 			"People really hate you don't they?", "Oh boy you must have done something annoying!", "Watch out we have a real Mr. Trump here!",
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
+
 		private AsyncThreadsafeFileSyncedDictionary<ulong, int> BalancesPerId { get; } = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("balances");
 		public static Honor Instance { get; } = new Honor();
 		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor { get; } =
@@ -44,7 +49,9 @@ namespace Kudos.Bot {
 			UsedHonor[userId] = honoringBalance + count;
 		}
 
-		public void DishonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
+		[Command("dishonor")]
+		public void DishonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser, [CommandParameter(0, 1)] int count,
+			[CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, -count);
@@ -70,7 +77,9 @@ namespace Kudos.Bot {
 			return count;
 		}
 
-		public void HonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
+		[Command("honor")]
+		public void HonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser, [CommandParameter(0, 1)] int count,
+			[CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, count);
@@ -84,7 +93,9 @@ namespace Kudos.Bot {
 			BalancesPerId[userId] = honorBalance + count;
 		}
 
-		public void SendHonorBalance(SocketUser user, ISocketMessageChannel channel) {
+		[Command("balance")]
+		public void SendHonorBalance([CommandParameter(0, CommandParameter.SpecialDefaults.IndexLess)]
+			SocketUser user, [CommandParameter] ISocketMessageChannel channel) {
 			int honor = BalancesPerId.ContainsKey(user.Id) ? BalancesPerId[user.Id] : 0;
 			string honorMessage;
 
