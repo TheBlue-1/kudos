@@ -10,9 +10,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: echo tree
-        run: |
-          find . | sed -e "s/[^-][^\/]*\// |/g" -e "s/|\([^ ]\)/|-\1/"
+      - uses: actions/checkout@v2
+        with:
+            ref: 'master'
       - name: Execute JavaScript inline
         uses: satackey/action-js-inline@v0.0.2
         with:
@@ -26,7 +26,6 @@ jobs:
             core.setFailed(`Version must be changed!`)
             }
             function isVersionChanged(){
-            var changes=ChildProcess.execSync("git checkout master")
             var changes=ChildProcess.execSync("git diff HEAD master -- Kudos/Kudos.csproj")
             console.log(changes);
             return true;
