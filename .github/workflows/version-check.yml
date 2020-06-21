@@ -13,6 +13,8 @@ jobs:
         with:
             ref: 'master'
       - uses: actions/checkout@v2
+        with:
+            clean: 'false'
       - name: test
         run: git diff HEAD master -- Kudos/Kudos.csproj
       - name: Execute JavaScript inline
