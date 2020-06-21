@@ -1,0 +1,21 @@
+name: .NET Core
+
+on:
+  pull_request:
+    branches: [master , dev]
+    #dev for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Execute JavaScript inline
+        uses: satackey/action-js-inline@v0.0.2
+        with:
+          required-package: child_process
+          script: |
+            const exec = require('@actions/exec');
+            await exec.exec('node','version-check.js');
+
