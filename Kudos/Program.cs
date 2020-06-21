@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Kudos.Bot;
 using Kudos.Utils;
@@ -10,6 +11,8 @@ namespace Kudos {
 		private const string Dot = ".";
 		private const int WaitingTimeInMs = 250;
 		public static Random Random { get; } = new Random();
+
+		public static Version Version { get; } = Assembly.GetExecutingAssembly().GetName().Version;
 
 		public static Client Client { get; private set; }
 

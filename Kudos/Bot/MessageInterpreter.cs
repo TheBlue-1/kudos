@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
-using Kudos.Exceptions;
+using Kudos.Models;
 #endregion
 
 namespace Kudos.Bot {
@@ -32,7 +32,7 @@ namespace Kudos.Bot {
 				return;
 			}
 			Message = message;
-			Command = contentParts[0];
+			Command = contentParts[0].ToLower();
 			Parameters = contentParts.Skip(1).ToArray();
 		}
 
@@ -46,89 +46,22 @@ namespace Kudos.Bot {
 		}
 
 		public void Execute() {
-			switch (Command) {
-				case "" : break;
-				case "hello" :
-					Messaging.Instance.Hello(Message.Channel, Message.Author);
-					break;
-				case "delete" :
-					Managing.Instance.Delete(Message.Channel, ParameterAsInt(0, true, 1));
-					break;
-				case "help" :
-					Messaging.Instance.Help(Message.Channel);
-					break;
-				case "balance" :
-					Honor.Instance.SendHonorBalance(ParameterAsUser(0, true, Message.Author), Message.Channel);
-					break;
-				case "honor" :
-					Honor.Instance.HonorUser(ParameterAsUser(1, false), Message.Author, ParameterAsInt(0, true, 1), Message.Channel);
-					break;
-				case "dishonor" :
-					Honor.Instance.DishonorUser(ParameterAsUser(1, false), Message.Author, ParameterAsInt(0, true, 1), Message.Channel);
-					break;
-				case "question" :
-					AnonymousQuestion.Instance.AskAnonymous(ParametersFrom(1, false), ParameterAsUser(0, false), Message.Author, Message.Channel);
-					break;
-				case "answer" :
-					AnonymousQuestion.Instance.Answer(ParameterAsULong(0, false), ParametersFrom(1, false), Message.Author, Message.Channel);
-					break;
+			CommandInfo command = CommandModules.Instance.Modules
+				.SelectMany(module => module.Commands.Where(commandInfo => commandInfo.Command.Name == Command))
+				.FirstOrDefault();
+			if (command == null) {
+				return;
 			}
-		}
-
-		private ulong ParameterAsULong(int index, bool optional = true, ulong defaultValue = 0) {
-			if (Parameters.Length > index && ulong.TryParse(Parameters[index], out ulong value)) {
-				return value;
+			object commandModule = command.Module.Type.GetProperty("Instance")?.GetValue(null);
+			if (commandModule == null) {
+				throw new Exception("command modules must be singletons");
 			}
-			if (optional) {
-				value = defaultValue;
-			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a number (ulong)");
+			CommandParameterInfo[] parameterInfo = command.AllParameter;
+			object[] parameters = new object[parameterInfo.Length];
+			for (int i = 0; i < parameters.Length; i++) {
+				parameters[i] = parameterInfo[i].CommandParameter.FormParameter(parameterInfo[i].ParameterInfo, Parameters, Message);
 			}
-			return value;
-		}
-
-		private int ParameterAsInt(int index, bool optional = true, int defaultValue = 0) {
-			if (Parameters.Length > index && int.TryParse(Parameters[index], out int value)) {
-				return value;
-			}
-			if (optional) {
-				value = defaultValue;
-			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a number (int)");
-			}
-			return value;
-		}
-
-		private SocketUser ParameterAsUser(int index, bool optional = true, SocketUser defaultValue = null) {
-			SocketUser user = Message.MentionedUsers.FirstOrDefault();
-			if (user != null) {
-				return user;
-			}
-			if (Parameters.Length > index) {
-				string[] userData = Parameters[index].Split("#");
-				if (userData.Length == 2) {
-					user = Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
-				}
-				if (user != null) {
-					return user;
-				}
-			}
-			if (!optional) {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a user (described in help)");
-			}
-
-			user = defaultValue;
-			return user;
-		}
-
-		private string ParametersFrom(int index, bool optional = true, string defaultValue = "") {
-			if (Parameters.Length > index) {
-				return string.Join(" ", Parameters.Skip(index));
-			}
-			if (optional) {
-				return defaultValue;
-			}
-			throw new KudosArgumentException($"Parameter {index + 1} must be a text");
+			command.MethodInfo.Invoke(commandModule, parameters);
 		}
 	}
 }
