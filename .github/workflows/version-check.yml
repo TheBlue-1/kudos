@@ -9,14 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-            ref: 'master'
-            fetch-depth: 0
-      - uses: actions/checkout@v2
-        with:
-            clean: false
-            fetch-depth: 0
+      - name: checkout
+        run: git clone https://github.com/TheBlue-1/kudos.git
       - name: test
         run: git diff HEAD master -- Kudos/Kudos.csproj
       - name: Execute JavaScript inline
