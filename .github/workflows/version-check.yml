@@ -28,6 +28,10 @@ jobs:
             }
             function isVersionChanged(){
             let changes=ChildProcess.execSync("git diff ${{ github.base_ref }} ${{ github.head_ref }} -- Kudos/Kudos.csproj", { encoding: "utf8" })
-            console.log("changes:\n" + changes+"[end]");
+            let regex= /(?:-|\+)(?: |	)*<Version>(.*?)<\/Version>/
+            let versions= changes.matchAll(regex)
+            if(versions==null||versions.length<2)
+            return false;
+            console.log(versions)
             return true;
             }
