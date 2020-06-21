@@ -17,5 +17,5 @@ jobs:
           required-packages: child_process
           script: |
             const exec = require('@actions/exec');
-            await exec.exec('node','version-check.js');
+            await exec.exec('node','.github/workflows/version-check.js');
 
