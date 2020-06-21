@@ -13,10 +13,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
             ref: 'master'
+      - name: test
+        run: git diff HEAD master -- Kudos/Kudos.csproj
       - name: Execute JavaScript inline
         uses: satackey/action-js-inline@v0.0.2
         with:
-          required-packages: child_process
+          required-packages: child_process simple-git
           script: |
             const ChildProcess = require("child_process");
             const core = require('@actions/core')
@@ -26,7 +28,7 @@ jobs:
             core.setFailed(`Version must be changed!`)
             }
             function isVersionChanged(){
-            let changes=ChildProcess.execSync("git diff HEAD master -- Kudos/Kudos.csproj")
+            let changes=ChildProcess.execSync("git diff HEAD master -- Kudos/Kudos.csproj", { encoding: "utf8" })
             console.error("changes:\n" + changes);
             return true;
             }
