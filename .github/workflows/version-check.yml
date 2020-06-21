@@ -27,6 +27,6 @@ jobs:
             }
             function isVersionChanged(){
             let changes=ChildProcess.execSync("git diff HEAD master -- Kudos/Kudos.csproj")
-            console.error("changes:\n" changes);
+            console.error("changes:\n" + changes);
             return true;
             }
