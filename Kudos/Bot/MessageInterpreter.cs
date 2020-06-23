@@ -65,13 +65,14 @@ namespace Kudos.Bot {
 			for (int i = 0; i < parameters.Length; i++) {
 				parameters[i] = parameterInfo[i].CommandParameter.FormParameter(parameterInfo[i].ParameterInfo, Parameters, Message);
 			}
-			if(command.MethodInfo.GetCustomAttribute<AsyncStateMachineAttribute>()!=null) {
-				if( command.MethodInfo.ReturnType == typeof(void)) {
+			if (command.MethodInfo.GetCustomAttribute<AsyncStateMachineAttribute>() != null) {
+				if (command.MethodInfo.ReturnType == typeof (void)) {
 					throw new KudosInternalException("async command methods must return Task");
 				}
 
 				Task task = (Task)command.MethodInfo.Invoke(commandModule, parameters);
-				task.Wait(new TimeSpan(0,1,0));
+				task.Wait(new TimeSpan(0, 1, 0));
+				return;
 			}
 			command.MethodInfo.Invoke(commandModule, parameters);
 		}

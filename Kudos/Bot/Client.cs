@@ -13,7 +13,7 @@ namespace Kudos.Bot {
 		///     reaction helper (auto-reactions)
 		///     achievements (to make people use features and do crazy stuff)
 		///     stalker (listens in other channel and plays in yours)
-		///		settings (prefix usw)
+		///     settings (prefix usw)
 		/// </summary>
 		private readonly DiscordSocketClient _client;
 
