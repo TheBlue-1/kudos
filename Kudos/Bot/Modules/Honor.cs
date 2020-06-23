@@ -8,7 +8,7 @@ using Kudos.Utils;
 // ReSharper disable UnusedMember.Global
 #endregion
 
-namespace Kudos.Bot {
+namespace Kudos.Bot.Modules {
 	[CommandModule("Honor")]
 	public sealed class Honor {
 		private const byte MaxHonorPerDay = 7;

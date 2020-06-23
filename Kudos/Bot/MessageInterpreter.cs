@@ -1,8 +1,12 @@
 ﻿#region
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Discord.WebSocket;
+using Kudos.Exceptions;
 using Kudos.Models;
 #endregion
 
@@ -60,6 +64,14 @@ namespace Kudos.Bot {
 			object[] parameters = new object[parameterInfo.Length];
 			for (int i = 0; i < parameters.Length; i++) {
 				parameters[i] = parameterInfo[i].CommandParameter.FormParameter(parameterInfo[i].ParameterInfo, Parameters, Message);
+			}
+			if(command.MethodInfo.GetCustomAttribute<AsyncStateMachineAttribute>()!=null) {
+				if( command.MethodInfo.ReturnType == typeof(void)) {
+					throw new KudosInternalException("async command methods must return Task");
+				}
+
+				Task task = (Task)command.MethodInfo.Invoke(commandModule, parameters);
+				task.Wait(new TimeSpan(0,1,0));
 			}
 			command.MethodInfo.Invoke(commandModule, parameters);
 		}

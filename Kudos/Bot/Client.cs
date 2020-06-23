@@ -10,9 +10,10 @@ namespace Kudos.Bot {
 		/// <summary>
 		///     TODO ideas/planned
 		///     sleep rememberer (maybe general rememberer)
-		///     reaction helper (text to reaction and auto-reactions)
+		///     reaction helper (auto-reactions)
 		///     achievements (to make people use features and do crazy stuff)
 		///     stalker (listens in other channel and plays in yours)
+		///		settings (prefix usw)
 		/// </summary>
 		private readonly DiscordSocketClient _client;
 
