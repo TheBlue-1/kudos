@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -37,7 +38,7 @@ namespace Kudos.Bot.Modules {
 		private AnonymousQuestion() { }
 
 		[Command("answer")]
-		public async void Answer([CommandParameter(0)] ulong questionId, [CommandParameter(1)] string message, [CommandParameter] SocketUser answerer) {
+		public async Task Answer([CommandParameter(0)] ulong questionId, [CommandParameter(1)] string message, [CommandParameter] SocketUser answerer) {
 			if (!AnonymousQuestions.ContainsKey(questionId)) {
 				throw new KudosKeyNotFoundException($"No question found for id {questionId}");
 			}
@@ -63,7 +64,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("ask")]
-		public async void AskAnonymous([CommandParameter(1)] string message, [CommandParameter(0)] SocketUser answerer,
+		public async Task AskAnonymous([CommandParameter(1)] string message, [CommandParameter(0)] SocketUser answerer,
 			[CommandParameter] SocketUser questionnaire) {
 			ulong id = NextId;
 			AnonymousQuestions[id] = new QuestionData { Question = message, Questionnaire = questionnaire.Id, Answerer = answerer.Id };

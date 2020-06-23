@@ -10,7 +10,6 @@ using Kudos.Extensions;
 
 // ReSharper disable UnusedMember.Global
 #endregion
-
 namespace Kudos.Bot.Modules {
 	[CommandModule("Reactions")]
 	public sealed class Reactions {
