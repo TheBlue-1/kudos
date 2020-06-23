@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using Discord.WebSocket;
+using Kudos.Bot.Modules;
 using Kudos.Exceptions;
 using Kudos.Utils;
 #endregion

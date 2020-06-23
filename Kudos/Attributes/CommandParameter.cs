@@ -17,7 +17,7 @@ namespace Kudos.Attributes {
 		public Optional<object> DefaultValue { get; }
 		public int Index { get; }
 
-		private IEnumerable<object> IndexLess => new object[] { Message.Author, Message.Channel };
+		private IEnumerable<object> IndexLess => new object[] { Message.Author, Message.Channel,Message };
 		public object Max { get; }
 		public object Min { get; }
 		public bool Optional { get; }

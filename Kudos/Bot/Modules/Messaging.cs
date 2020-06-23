@@ -5,7 +5,7 @@ using Kudos.Attributes;
 // ReSharper disable UnusedMember.Global
 #endregion
 
-namespace Kudos.Bot {
+namespace Kudos.Bot.Modules {
 	[CommandModule("Messaging")]
 	public sealed class Messaging {
 		private const string HelloText = "hello ";
