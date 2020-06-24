@@ -2,12 +2,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Discord;
 using Kudos.Attributes;
+using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Models;
 #endregion
 
 namespace Kudos.Bot {
 	public sealed class CommandModules {
+		public EmbedBuilder CommandListAsEmbed {
+			get {
+				if (Modules.Count() > 24) {
+					throw new KudosInternalException("Too many CommandModules, merge them");
+				}
+				EmbedBuilder embedBuilder = new EmbedBuilder().SetDefaults()
+					.WithTitle("Command List")
+					.WithDescription("Kudos is a bot with a honor system and many other features.");
+				foreach (CommandModuleInfo module in Modules) {
+					embedBuilder.AddField(module.CommandListAsEmbedField);
+				}
+				embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types")
+					.WithIsInline(false)
+					.WithValue(@"
+`[user]`    mention with @
+            if not possible use full username like '@Kudos#9294'
+            (you can also get this by copying a mention)
+`[x?]`	    optional
+"));
+				return embedBuilder;
+			}
+		}
 		public static CommandModules Instance { get; } = new CommandModules();
 
 		public IEnumerable<CommandModuleInfo> Modules { get; }
@@ -19,20 +44,6 @@ namespace Kudos.Bot {
 				.SelectMany(assembly => assembly.GetTypes())
 				.Where(type => type.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (CommandModule)))
 				.Select(type => new CommandModuleInfo(type));
-		}
-
-		public override string ToString() {
-			string info = Modules.Aggregate("Kudos Commands:\n", (current, module) => current + module);
-			info += @"Types:
-```
-[user]      mention with @
-            if not possible use full username like '@Kudos#9294'
-            (you can also get this by copying a mention)
-[x?]	    optional
-```
-version: "
-				+ Program.Version;
-			return info;
 		}
 	}
 }

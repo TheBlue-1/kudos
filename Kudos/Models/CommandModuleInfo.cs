@@ -3,11 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Discord;
 using Kudos.Attributes;
 #endregion
 
 namespace Kudos.Models {
 	public class CommandModuleInfo {
+		public EmbedFieldBuilder CommandListAsEmbedField {
+			get {
+				EmbedFieldBuilder fieldBuilder = new EmbedFieldBuilder().WithName(Module.Name).WithIsInline(false);
+				string commands = Commands.Aggregate("", (current, command) => current + (command + "\n"));
+				return fieldBuilder.WithValue(commands);
+			}
+		}
 		public IEnumerable<CommandInfo> Commands { get; }
 		public CommandModule Module { get; }
 		public Type Type { get; }
@@ -18,13 +26,6 @@ namespace Kudos.Models {
 			Commands = Type.GetMethods()
 				.Where(method => method.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (Command)))
 				.Select(methodInfo => new CommandInfo(methodInfo, this));
-		}
-
-		public override string ToString() {
-			string info = Module.Name + ":\n```";
-			info = Commands.Aggregate(info, (current, command) => current + command);
-			info += "```";
-			return info;
 		}
 	}
 }

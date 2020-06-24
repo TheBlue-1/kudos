@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Discord;
@@ -9,9 +10,6 @@ using Kudos.Exceptions;
 #endregion
 
 namespace Kudos.Attributes {
-	/// <summary>
-	///     TODO implement min max and more constructors
-	/// </summary>
 	[AttributeUsage(AttributeTargets.Parameter)]
 	public class CommandParameter : Attribute {
 		public Optional<object> DefaultValue { get; }
@@ -44,6 +42,29 @@ namespace Kudos.Attributes {
 		public CommandParameter(int index, object defaultValue, object min = null, object max = null) : this(index, defaultValue: defaultValue, min: min,
 			max: max, optional: true) { }
 
+		[SuppressMessage("ReSharper", "InvertIf")]
+		private T CheckMinMax<T>(T value)
+			where T : IComparable {
+			if (Min != null) {
+				if (value.CompareTo(Min) < 0) {
+					if (ThrowOutOfRange) {
+						throw new KudosArgumentOutOfRangeException($"parameter {Index} must be bigger than {Min}");
+					}
+					return (T)Min;
+				}
+			}
+			if (Max != null) {
+				if (value.CompareTo(Max) > 0) {
+					if (ThrowOutOfRange) {
+						throw new KudosArgumentOutOfRangeException($"parameter {Index} must be smaller than {Max}");
+					}
+					return (T)Max;
+				}
+			}
+
+			return value;
+		}
+
 		public object FormParameter(ParameterInfo info, string[] parameters, SocketMessage message) {
 			Message = message;
 			Parameters = parameters;
@@ -67,7 +88,7 @@ namespace Kudos.Attributes {
 
 		private int ParameterAsInt() {
 			if (Parameters.Length > Index && int.TryParse(Parameters[Index], out int value)) {
-				return value;
+				return CheckMinMax(value);
 			}
 			if (Optional) {
 				SetToDefaultValue(out value);
@@ -101,7 +122,7 @@ namespace Kudos.Attributes {
 
 		private ulong ParameterAsULong() {
 			if (Parameters.Length > Index && ulong.TryParse(Parameters[Index], out ulong value)) {
-				return value;
+				return CheckMinMax(value);
 			}
 			if (Optional) {
 				SetToDefaultValue(out value);

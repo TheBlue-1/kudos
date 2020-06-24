@@ -27,6 +27,7 @@ namespace Kudos {
 				settings["bot_token"] = botToken;
 			}
 			Client = new Client(botToken);
+
 			while (true) {
 				string state = Client.State;
 				Console.Write(state);

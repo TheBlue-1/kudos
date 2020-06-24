@@ -1,6 +1,9 @@
 ﻿#region
+using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.Extensions;
 
 // ReSharper disable UnusedMember.Global
 #endregion
@@ -17,18 +20,22 @@ namespace Kudos.Bot.Modules {
 		private Messaging() { }
 
 		[Command("hello")]
-		public void Hello([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
-			channel.SendMessageAsync(HelloText + user.Mention);
+		public async Task Hello([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
+			await SendMessage(channel, HelloText + user.Mention);
 		}
 
 		[Command("help")]
-		public void Help([CommandParameter] ISocketMessageChannel channel) {
-			channel.SendMessageAsync(CommandModules.Instance.ToString());
+		public async Task Help([CommandParameter] ISocketMessageChannel channel) {
+			await SendEmbed(channel, CommandModules.Instance.CommandListAsEmbed);
+		}
+
+		public async Task SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) {
+			await channel.SendMessageAsync(embed: embedBuilder.Build());
 		}
 
 		[Command("say")]
-		public void Message([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string text) {
-			channel.SendMessageAsync(text);
+		public async Task SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
+			await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
 		}
 	}
 }
