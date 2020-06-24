@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Threading.Tasks;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
@@ -50,14 +51,14 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("dishonor")]
-		public void DishonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser, [CommandParameter(0, 1)] int count,
-			[CommandParameter] ISocketMessageChannel channel) {
+		public async Task DishonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, -count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
-			Messaging.Instance.Message(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
+			await Messaging.Instance.SendMessage(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
 
 		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count) {
@@ -78,14 +79,14 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("honor")]
-		public void HonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser, [CommandParameter(0, 1)] int count,
-			[CommandParameter] ISocketMessageChannel channel) {
+		public async Task HonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
-			Messaging.Instance.Message(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
+			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
 		}
 
 		private void HonorUser(ulong userId, int count) {
@@ -94,7 +95,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("balance")]
-		public void SendHonorBalance([CommandParameter(0, CommandParameter.SpecialDefaults.IndexLess)]
+		public async Task SendHonorBalance([CommandParameter(0, CommandParameter.SpecialDefaults.IndexLess)]
 			SocketUser user, [CommandParameter] ISocketMessageChannel channel) {
 			int honor = BalancesPerId.ContainsKey(user.Id) ? BalancesPerId[user.Id] : 0;
 			string honorMessage;
@@ -119,7 +120,7 @@ namespace Kudos.Bot.Modules {
 				honorMessage = HonorFeedbackHighest[index];
 			}
 
-			Messaging.Instance.Message(channel, $"***{user.Mention}*** has ***{honor}*** honor points. \n***{honorMessage}***");
+			await Messaging.Instance.SendMessage(channel, $"***{user.Mention}*** has ***{honor}*** honor points. \n***{honorMessage}***");
 		}
 	}
 }

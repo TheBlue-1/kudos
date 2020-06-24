@@ -16,8 +16,9 @@ namespace Kudos.Bot {
 		///     settings (prefix usw)
 		/// </summary>
 		private readonly DiscordSocketClient _client;
+		public string State => StartedSuccessful ? _client.Status.ToString() : "starting";
 
-		public string State => _client.Status.ToString();
+		private bool StartedSuccessful { get; set; }
 
 		public Client(string token) {
 			_client = new DiscordSocketClient();
@@ -47,6 +48,7 @@ namespace Kudos.Bot {
 		private async void Start(string token) {
 			await _client.LoginAsync(TokenType.Bot, token);
 			await _client.StartAsync();
+			StartedSuccessful = true;
 		}
 	}
 }

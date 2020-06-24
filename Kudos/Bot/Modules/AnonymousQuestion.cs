@@ -37,7 +37,7 @@ namespace Kudos.Bot.Modules {
 
 		private AnonymousQuestion() { }
 
-		[Command("answer")]
+		[Command("answer", "answers anonymous question")]
 		public async Task Answer([CommandParameter(0)] ulong questionId, [CommandParameter(1)] string message, [CommandParameter] SocketUser answerer) {
 			if (!AnonymousQuestions.ContainsKey(questionId)) {
 				throw new KudosKeyNotFoundException($"No question found for id {questionId}");
@@ -53,9 +53,9 @@ namespace Kudos.Bot.Modules {
 			IDMChannel answererChannel = await answerer.DmChannel();
 			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
 			try {
-				await questionnaireChannel.SendMessageAsync(
+				await Messaging.Instance.SendMessage(questionnaireChannel,
 					$"Your Question to {answerer.Mention}: ```{question.Question}``` has been answered. The answer is: ```{message}```");
-				await answererChannel.SendMessageAsync("answer submitted successfully");
+				await Messaging.Instance.SendMessage(answererChannel, "answer submitted successfully");
 			}
 			catch (Exception) {
 				throw new KudosUnauthorizedException("You or the questionnaire has disabled private messages from this server", "user has dms disabled");
@@ -63,7 +63,7 @@ namespace Kudos.Bot.Modules {
 			AnonymousQuestions.Remove(questionId);
 		}
 
-		[Command("ask")]
+		[Command("ask", "asks anonymous question")]
 		public async Task AskAnonymous([CommandParameter(1)] string message, [CommandParameter(0)] SocketUser answerer,
 			[CommandParameter] SocketUser questionnaire) {
 			ulong id = NextId;
@@ -75,9 +75,9 @@ namespace Kudos.Bot.Modules {
 			IDMChannel answererChannel = await restAnswerer.GetOrCreateDMChannelAsync();
 			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
 			try {
-				await answererChannel.SendMessageAsync(
+				await Messaging.Instance.SendMessage(answererChannel,
 					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{MessageInterpreter.Prefix}answer {id} [answer]`.");
-				await questionnaireChannel.SendMessageAsync("Question sent successfully. Answer will be sent to you.");
+				await Messaging.Instance.SendMessage(questionnaireChannel, "Question sent successfully. Answer will be sent to you.");
 			}
 			catch (Exception) {
 				throw new KudosUnauthorizedException($"You or {answerer.Mention} has disabled private messages from this server", "user has dms disabled");

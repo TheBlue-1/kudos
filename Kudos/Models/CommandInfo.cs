@@ -22,8 +22,9 @@ namespace Kudos.Models {
 		}
 
 		public override string ToString() {
-			string info = Parameter.Aggregate(Command.Name, (current, parameter) => current + (Space + parameter));
-			info += "\n";
+			string info = "`" + Command.Name;
+			info = Parameter.Aggregate(info, (current, parameter) => current + (Space + parameter));
+			info += "` " + Command.Description;
 			return info;
 		}
 	}
