@@ -1,4 +1,5 @@
 ﻿#region
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -14,6 +15,7 @@ namespace Kudos.Bot.Modules {
 		private const string HelloText = "hello ";
 
 		public static Messaging Instance { get; } = new Messaging();
+		private static string PingMessage => Program.Client.LastPings.Aggregate("*Pong*\nMy last pings:\n", (current, ping) => current + (ping + "ms\n"));
 
 		static Messaging() { }
 
@@ -36,6 +38,11 @@ namespace Kudos.Bot.Modules {
 		[Command("say")]
 		public async Task SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
 			await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
+		}
+
+		[Command("ping")]
+		public async Task SendPing([CommandParameter] ISocketMessageChannel channel) {
+			await SendMessage(channel, PingMessage);
 		}
 	}
 }

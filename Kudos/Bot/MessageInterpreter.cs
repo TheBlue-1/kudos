@@ -7,16 +7,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Models;
 #endregion
 
 namespace Kudos.Bot {
 	public class MessageInterpreter {
-	#if DEBUG
-		public const string Prefix = "test ";
-	#else
-		public const string Prefix = "bot ";
-	#endif
 		private string Command { get; }
 
 		public bool Executable { get; } = true;
@@ -26,11 +22,12 @@ namespace Kudos.Bot {
 		private string[] Parameters { get; }
 
 		public MessageInterpreter(SocketMessage message) {
-			if (message.Author.IsBot || !message.Content.StartsWith(Prefix)) {
+			string prefix = message.Settings().Prefix.Value;
+			if (message.Author.IsBot || !message.Content.StartsWith(prefix)) {
 				Executable = false;
 				return;
 			}
-			string[] contentParts = Regex.Split(message.Content.Substring(Prefix.Length), " @| (?<! @[^#]*?)");
+			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?: @| (?<! @[^#]*?))(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
 				Executable = false;
 				return;
@@ -38,15 +35,6 @@ namespace Kudos.Bot {
 			Message = message;
 			Command = contentParts[0].ToLower();
 			Parameters = contentParts.Skip(1).ToArray();
-		}
-
-		public void TryExecute() {
-			try {
-				Execute();
-			}
-			catch (Exception e) {
-				new ExceptionHandler(e, Message.Channel).Handle();
-			}
 		}
 
 		public void Execute() {
@@ -75,6 +63,15 @@ namespace Kudos.Bot {
 				return;
 			}
 			command.MethodInfo.Invoke(commandModule, parameters);
+		}
+
+		public void TryExecute() {
+			try {
+				Execute();
+			}
+			catch (Exception e) {
+				new ExceptionHandler(e, Message.Channel).Handle();
+			}
 		}
 	}
 }

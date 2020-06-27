@@ -65,7 +65,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("ask", "asks anonymous question")]
 		public async Task AskAnonymous([CommandParameter(1)] string message, [CommandParameter(0)] SocketUser answerer,
-			[CommandParameter] SocketUser questionnaire) {
+			[CommandParameter] SocketUser questionnaire, [CommandParameter] Settings settings) {
 			ulong id = NextId;
 			AnonymousQuestions[id] = new QuestionData { Question = message, Questionnaire = questionnaire.Id, Answerer = answerer.Id };
 
@@ -76,7 +76,7 @@ namespace Kudos.Bot.Modules {
 			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
 			try {
 				await Messaging.Instance.SendMessage(answererChannel,
-					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{MessageInterpreter.Prefix}answer {id} [answer]`.");
+					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{settings.Prefix}answer {id} [answer]`.");
 				await Messaging.Instance.SendMessage(questionnaireChannel, "Question sent successfully. Answer will be sent to you.");
 			}
 			catch (Exception) {

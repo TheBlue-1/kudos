@@ -7,6 +7,7 @@ using System.Reflection;
 using Discord;
 using Discord.WebSocket;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 #endregion
 
 namespace Kudos.Attributes {
@@ -14,8 +15,7 @@ namespace Kudos.Attributes {
 	public class CommandParameter : Attribute {
 		public Optional<object> DefaultValue { get; }
 		public int Index { get; }
-
-		private IEnumerable<object> IndexLess => new object[] { Message.Author, Message.Channel, Message };
+		private IEnumerable<object> IndexLess => new object[] { Message.Author, Message.Channel, Message, Message.Settings() };
 		public object Max { get; }
 		public object Min { get; }
 		public bool Optional { get; }
@@ -77,6 +77,9 @@ namespace Kudos.Attributes {
 			if (type == typeof (int)) {
 				return ParameterAsInt();
 			}
+			if (type == typeof (bool)) {
+				return ParameterAsBool();
+			}
 			if (type == typeof (ulong)) {
 				return ParameterAsULong();
 			}
@@ -84,6 +87,18 @@ namespace Kudos.Attributes {
 				return ParameterAsSocketUser();
 			}
 			return type == typeof (string) ? ParametersAsString() : null;
+		}
+
+		private bool ParameterAsBool() {
+			if (Parameters.Length > Index && bool.TryParse(Parameters[Index], out bool value)) {
+				return value;
+			}
+			if (Optional) {
+				SetToDefaultValue(out value);
+			} else {
+				throw new KudosArgumentException($"Parameter {Index + 1} must be a true/false (bool)");
+			}
+			return value;
 		}
 
 		private int ParameterAsInt() {
@@ -134,7 +149,11 @@ namespace Kudos.Attributes {
 
 		private string ParametersAsString() {
 			if (Parameters.Length > Index) {
-				return string.Join(" ", Parameters.Skip(Index));
+				if (Parameters[Index].StartsWith('"') && Parameters[Index].EndsWith('"')) {
+					return Parameters[Index].Substring(1, Parameters[Index].Length - 2);
+				}
+
+				return string.Join(" ", Parameters.Skip(Index - 1));
 			}
 			if (!Optional) {
 				throw new KudosArgumentException($"Parameter {Index + 1} must be a text");

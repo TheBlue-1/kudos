@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Kudos.Models;
+using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot {
@@ -16,16 +18,23 @@ namespace Kudos.Bot {
 		///     settings (prefix usw)
 		/// </summary>
 		private readonly DiscordSocketClient _client;
+
+		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
 		public string State => StartedSuccessful ? _client.Status.ToString() : "starting";
 
 		private bool StartedSuccessful { get; set; }
 
 		public Client(string token) {
 			_client = new DiscordSocketClient();
-			_client.SetGameAsync($"with the '{MessageInterpreter.Prefix}help' command");
+			_client.SetGameAsync($"with the '{new Settings().Prefix.Value}help' command");
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
+			_client.LatencyUpdated += _client_LatencyUpdated;
 			Start(token);
+		}
+
+		private Task _client_LatencyUpdated(int old, int val) {
+			return Task.Run(() => { LastPings.Enqueue(val); });
 		}
 
 		private static async Task ClientMessageReceived(SocketMessage arg) {
