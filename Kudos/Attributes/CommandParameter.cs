@@ -153,7 +153,7 @@ namespace Kudos.Attributes {
 					return Parameters[Index].Substring(1, Parameters[Index].Length - 2);
 				}
 
-				return string.Join(" ", Parameters.Skip(Index - 1));
+				return string.Join(" ", Parameters.Skip(Index));
 			}
 			if (!Optional) {
 				throw new KudosArgumentException($"Parameter {Index + 1} must be a text");
