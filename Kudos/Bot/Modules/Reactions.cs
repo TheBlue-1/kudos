@@ -1,12 +1,14 @@
 ﻿#region
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Extensions;
+using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
 #endregion
@@ -14,6 +16,7 @@ using Kudos.Extensions;
 namespace Kudos.Bot.Modules {
 	[CommandModule("Reactions")]
 	public sealed class Reactions {
+
 		private static readonly Dictionary<char, IEmote> EmoteMap = new Dictionary<char, IEmote> {
 			{ 'a', new Emoji("\U0001F1E6") },
 			{ 'b', new Emoji("\U0001F1E7") },
@@ -49,7 +52,7 @@ namespace Kudos.Bot.Modules {
 		private Reactions() { }
 
 		[Command("react")]
-		public async Task Delete([CommandParameter] SocketMessage message, [CommandParameter(0)] string text) {
+		public async Task React([CommandParameter] SocketMessage message, [CommandParameter(0)] string text) {
 			text = text.ToLower();
 			if (!(text.JustNormalChars() && text.UniqueChars())) {
 				throw new KudosArgumentException("Reaction text can just use a-z and each character just one time.");
@@ -66,5 +69,7 @@ namespace Kudos.Bot.Modules {
 				await reactMessage.AddReactionAsync(EmoteMap[c]);
 			}
 		}
+
+	
 	}
 }

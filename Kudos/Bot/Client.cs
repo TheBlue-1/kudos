@@ -15,7 +15,7 @@ namespace Kudos.Bot {
 		///     reaction helper (auto-reactions)
 		///     achievements (to make people use features and do crazy stuff)
 		///     stalker (listens in other channel and plays in yours)
-		///     settings (prefix usw)
+		///		prison
 		/// </summary>
 		private readonly DiscordSocketClient _client;
 
@@ -29,11 +29,11 @@ namespace Kudos.Bot {
 			_client.SetGameAsync($"with the '{new Settings().Prefix.Value}help' command");
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
-			_client.LatencyUpdated += _client_LatencyUpdated;
+			_client.LatencyUpdated += LatencyUpdated;
 			Start(token);
 		}
 
-		private Task _client_LatencyUpdated(int old, int val) {
+		private Task LatencyUpdated(int old, int val) {
 			return Task.Run(() => { LastPings.Enqueue(val); });
 		}
 
