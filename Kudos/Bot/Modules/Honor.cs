@@ -50,7 +50,7 @@ namespace Kudos.Bot.Modules {
 			UsedHonor[userId] = honoringBalance + count;
 		}
 
-		[Command("dishonor","removes honor points for user")]
+		[Command("dishonor", "removes honor points for user")]
 		public async Task DishonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
 			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
@@ -78,7 +78,7 @@ namespace Kudos.Bot.Modules {
 			return count;
 		}
 
-		[Command("honor","adds honor points for user")]
+		[Command("honor", "adds honor points for user")]
 		public async Task HonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
 			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
