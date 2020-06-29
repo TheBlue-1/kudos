@@ -1,6 +1,10 @@
 ﻿#region
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.Utils;
 #endregion
 
 namespace Kudos.Models {
@@ -14,8 +18,10 @@ namespace Kudos.Models {
 		}
 
 		public override string ToString() {
-			string info = $"[{ParameterInfo.Name}{(CommandParameter.Optional ? "?" : "")}]";
+			string info = $"[{ParameterType.ParameterTypes[ParameterInfo.ParameterType].Character}|{ParameterInfo.Name}{(CommandParameter.Optional ? "?" : "")}]";
 			return info;
 		}
+
+		
 	}
 }

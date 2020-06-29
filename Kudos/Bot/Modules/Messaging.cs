@@ -21,12 +21,12 @@ namespace Kudos.Bot.Modules {
 
 		private Messaging() { }
 
-		[Command("hello")]
+		[Command("hello","answers hello")]
 		public async Task Hello([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
 			await SendMessage(channel, HelloText + user.Mention);
 		}
 
-		[Command("help")]
+		[Command("help","shows all commands")]
 		public async Task Help([CommandParameter] ISocketMessageChannel channel) {
 			await SendEmbed(channel, CommandModules.Instance.CommandListAsEmbed);
 		}
@@ -35,12 +35,12 @@ namespace Kudos.Bot.Modules {
 			await channel.SendMessageAsync(embed: embedBuilder.Build());
 		}
 
-		[Command("say")]
+		[Command("say","says whatever you write behind say")]
 		public async Task SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
 			await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
 		}
 
-		[Command("ping")]
+		[Command("ping","shows the last pings")]
 		public async Task SendPing([CommandParameter] ISocketMessageChannel channel) {
 			await SendMessage(channel, PingMessage);
 		}

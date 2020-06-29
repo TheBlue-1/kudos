@@ -48,7 +48,7 @@ namespace Kudos.Bot.Modules {
 
 		private Reactions() { }
 
-		[Command("react")]
+		[Command("react","reacts with letters to latest message")]
 		public async Task Delete([CommandParameter] SocketMessage message, [CommandParameter(0)] string text) {
 			text = text.ToLower();
 			if (!(text.JustNormalChars() && text.UniqueChars())) {

@@ -26,7 +26,7 @@ namespace Kudos.Bot.Modules {
 			});
 		}
 
-		[Command("delete")]
+		[Command("delete","deletes messages in the channel")]
 		public void DeletePerCommand([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0, 1, 1, 100)] int count) {
 			count++;
 			Delete(channel, count);
