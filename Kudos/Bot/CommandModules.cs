@@ -7,6 +7,7 @@ using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
+using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot {
@@ -22,14 +23,9 @@ namespace Kudos.Bot {
 				foreach (CommandModuleInfo module in Modules) {
 					embedBuilder.AddField(module.CommandListAsEmbedField);
 				}
-				embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types")
-					.WithIsInline(false)
-					.WithValue(@"
-`[user]`    mention with @
-            if not possible use full username like '@Kudos#9294'
-            (you can also get this by copying a mention)
-`[x?]`	    optional
-"));
+				string types = ParameterType.ParameterTypes.Values.Aggregate("`[x|y?]` x is the Type, y is the name, ? tells it's optional",
+					(current, type) => current + ("\n" + type));
+				embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
 				return embedBuilder;
 			}
 		}

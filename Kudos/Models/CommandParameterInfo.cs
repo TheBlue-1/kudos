@@ -1,6 +1,7 @@
 ﻿#region
 using System.Reflection;
 using Kudos.Attributes;
+using Kudos.Utils;
 #endregion
 
 namespace Kudos.Models {
@@ -14,7 +15,8 @@ namespace Kudos.Models {
 		}
 
 		public override string ToString() {
-			string info = $"[{ParameterInfo.Name}{(CommandParameter.Optional ? "?" : "")}]";
+			string info =
+				$"[{ParameterType.ParameterTypes[ParameterInfo.ParameterType].Character}|{ParameterInfo.Name}{(CommandParameter.Optional ? "?" : "")}]";
 			return info;
 		}
 	}

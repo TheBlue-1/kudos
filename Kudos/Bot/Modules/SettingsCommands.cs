@@ -17,7 +17,7 @@ namespace Kudos.Bot.Modules {
 
 		private SettingsCommands() { }
 
-		[Command("prefix")]
+		[Command("prefix", "changes the prefix")]
 		public async Task SetPrefix([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string prefix,
 			[CommandParameter(1, false)] bool forServer, [CommandParameter] SocketUser author) {
 			if (forServer) {
