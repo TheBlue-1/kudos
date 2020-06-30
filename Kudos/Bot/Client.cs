@@ -48,10 +48,12 @@ namespace Kudos.Bot {
 
 		private static async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			//unused
+
 			await Task.Run(() => { });
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
+		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
 
 		private async void Start(string token) {

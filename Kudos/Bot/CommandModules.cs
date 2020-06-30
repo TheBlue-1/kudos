@@ -7,7 +7,6 @@ using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
-using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot {
