@@ -1,7 +1,7 @@
 ﻿#region
 using System.Reflection;
 using Kudos.Attributes;
-using Kudos.Utils;
+using Kudos.Bot;
 #endregion
 
 namespace Kudos.Models {

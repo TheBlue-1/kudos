@@ -95,7 +95,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("balance", "shows the honor point balance")]
-		public async Task SendHonorBalance([CommandParameter(0, CommandParameter.SpecialDefaults.IndexLess)]
+		public async Task SendHonorBalance([CommandParameter(0, ParameterType.SpecialDefaults.IndexLess)]
 			SocketUser user, [CommandParameter] ISocketMessageChannel channel) {
 			int honor = BalancesPerId.ContainsKey(user.Id) ? BalancesPerId[user.Id] : 0;
 			string honorMessage;
