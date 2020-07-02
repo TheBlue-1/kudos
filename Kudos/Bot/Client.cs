@@ -1,8 +1,10 @@
 ﻿#region
+using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Kudos.Bot.Modules;
 using Kudos.Models;
 using Kudos.Utils;
 #endregion
@@ -12,10 +14,8 @@ namespace Kudos.Bot {
 		/// <summary>
 		///     TODO ideas/planned
 		///     sleep rememberer (maybe general rememberer)
-		///     reaction helper (auto-reactions)
 		///     achievements (to make people use features and do crazy stuff)
 		///     stalker (listens in other channel and plays in yours)
-		///     settings (prefix usw)
 		/// </summary>
 		private readonly DiscordSocketClient _client;
 
@@ -30,11 +30,23 @@ namespace Kudos.Bot {
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
 			_client.LatencyUpdated += _client_LatencyUpdated;
+			_client.MessageReceived += AutoReactionMessageReceived;
 			Start(token);
 		}
 
 		private Task _client_LatencyUpdated(int old, int val) {
 			return Task.Run(() => { LastPings.Enqueue(val); });
+		}
+
+		private static async Task AutoReactionMessageReceived(SocketMessage arg) {
+			await Task.Run(async () => {
+				try {
+					await Reactions.Instance.AutoReact(arg);
+				}
+				catch (Exception e) {
+					new ExceptionHandler(e, arg.Channel).Handle();
+				}
+			});
 		}
 
 		private static async Task ClientMessageReceived(SocketMessage arg) {

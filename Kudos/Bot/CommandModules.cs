@@ -22,7 +22,9 @@ namespace Kudos.Bot {
 				foreach (CommandModuleInfo module in Modules) {
 					embedBuilder.AddField(module.CommandListAsEmbedField);
 				}
-				string types = (from value in ParameterType.ParameterTypes.Values let valueString = value.ToString() where valueString != string.Empty select value).Aggregate("`[x|y?]` x is the Type, y is the name, ? tells it's optional", (current, value) => current + ("\n" + value));
+				string types =
+					(from value in ParameterType.ParameterTypes.Values let valueString = value.ToString() where valueString != string.Empty select value)
+					.Aggregate("`[x|y?]` x is the Type, y is the name, ? tells it's optional", (current, value) => current + ("\n" + value));
 				embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
 				return embedBuilder;
 			}
