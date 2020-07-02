@@ -37,6 +37,8 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(stringParameter.Type, stringParameter);
 			ParameterType userParameter = new ParameterType(typeof (SocketUser), 'u', "a user mention or @username#number", ParameterAsSocketUser);
 			ParameterTypes.TryAdd(userParameter.Type, userParameter);
+			ParameterType emojiParameter = new ParameterType(typeof (Emoji), 'e', "an emoji", ParameterAsEmoji);
+			ParameterTypes.TryAdd(emojiParameter.Type, emojiParameter);
 			ParameterType settingsParameter = new ParameterType(typeof (Settings));
 			ParameterTypes.TryAdd(settingsParameter.Type, settingsParameter);
 			ParameterType messageParameter = new ParameterType(typeof (SocketMessage));
@@ -94,6 +96,20 @@ namespace Kudos.Bot {
 				throw new KudosArgumentException($"Parameter {index + 1} must be a true/false (bool)");
 			}
 			return value;
+		}
+
+		private static object ParameterAsEmoji(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
+			object min, object max, bool throwOutOfRange) {
+			if (parameters.Length > index) {
+				string emojiString = parameters[index];
+				return new Emoji(emojiString);
+			}
+			if (!optional) {
+				throw new KudosArgumentException($"Parameter {index + 1} must be a emoji (described in help)");
+			}
+
+			SetToDefaultValue(out Emoji emoji, defaultValue, indexLess);
+			return emoji;
 		}
 
 		private static object ParameterAsInt(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
