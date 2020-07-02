@@ -52,8 +52,7 @@ namespace Kudos.Bot.Modules {
 
 		public async Task AutoReact(SocketMessage message) {
 			string content = message.Content;
-			ulong? guildId = (message.Channel as SocketGuildChannel)?.Guild?.Id;
-			ImmutableDictionary<string, string> reactions = SettingsManager.Instance.SettingsFor(message.Author.Id, guildId).AutoReact.Value;
+			ImmutableDictionary<string, string> reactions = message.Settings().AutoReact.Value;
 			foreach ((string needle, string emojiString) in reactions) {
 				if (string.IsNullOrWhiteSpace(emojiString)) {
 					continue;
