@@ -1,6 +1,7 @@
 ﻿#region
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
@@ -18,6 +19,17 @@ namespace Kudos.Extensions {
 			RestUser restUser = await user.RestUser();
 			IDMChannel channel = await restUser.GetOrCreateDMChannelAsync();
 			return channel;
+		}
+
+		public static SocketUser FromMention(string mention) {
+			Regex regex = new Regex("^<@!{0,1}(\\d+)>$");
+			Match match = regex.Match(mention);
+			if (!match.Success) {
+				return null;
+			}
+
+			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+			return Program.Client.GetSocketUserById(id);
 		}
 
 		public static async Task<RestUser> RestUser(this SocketUser user) => await Program.Client.GetRestUserById(user.Id);

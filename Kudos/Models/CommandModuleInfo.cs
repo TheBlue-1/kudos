@@ -12,8 +12,8 @@ namespace Kudos.Models {
 		public EmbedFieldBuilder CommandListAsEmbedField {
 			get {
 				EmbedFieldBuilder fieldBuilder = new EmbedFieldBuilder().WithName(Module.Name).WithIsInline(false);
-				string commands = Commands.Aggregate("", (current, command) => current + (command + "\n"));
-				return fieldBuilder.WithValue(commands);
+				string commands = Commands.Where(command => !command.Command.Hidden).Aggregate("", (current, command) => current + (command + "\n"));
+				return string.IsNullOrEmpty(commands) ? null : fieldBuilder.WithValue(commands);
 			}
 		}
 		public IEnumerable<CommandInfo> Commands { get; }

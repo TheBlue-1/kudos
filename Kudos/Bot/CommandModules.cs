@@ -20,16 +20,15 @@ namespace Kudos.Bot {
 					.WithTitle("Command List")
 					.WithDescription("Kudos is a bot with a honor system and many other features.");
 				foreach (CommandModuleInfo module in Modules) {
-					embedBuilder.AddField(module.CommandListAsEmbedField);
+					EmbedFieldBuilder field = module.CommandListAsEmbedField;
+					if (field != null) {
+						embedBuilder.AddField(field);
+					}
 				}
-				embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types")
-					.WithIsInline(false)
-					.WithValue(@"
-`[user]`    mention with @
-            if not possible use full username like '@Kudos#9294'
-            (you can also get this by copying a mention)
-`[x?]`	    optional
-"));
+				string types =
+					(from value in ParameterType.ParameterTypes.Values let valueString = value.ToString() where valueString != string.Empty select value)
+					.Aggregate("`[x|y?]` x is the Type, y is the name, ? tells it's optional", (current, value) => current + ("\n" + value));
+				embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
 				return embedBuilder;
 			}
 		}
