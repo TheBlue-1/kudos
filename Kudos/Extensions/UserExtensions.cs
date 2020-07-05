@@ -22,13 +22,13 @@ namespace Kudos.Extensions {
 		}
 
 		public static SocketUser FromMention(string mention) {
-			Regex regex = new Regex("^<@(\\d +)>$");
+			Regex regex = new Regex("^<@!{0,1}(\\d+)>$");
 			Match match = regex.Match(mention);
 			if (!match.Success) {
 				return null;
 			}
 
-			ulong id = ulong.Parse(match.Groups.Values.First().Value);
+			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
 			return Program.Client.GetSocketUserById(id);
 		}
 

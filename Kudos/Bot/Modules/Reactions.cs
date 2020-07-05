@@ -8,7 +8,6 @@ using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Extensions;
-using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
 #endregion

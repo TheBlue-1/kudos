@@ -20,7 +20,10 @@ namespace Kudos.Bot {
 					.WithTitle("Command List")
 					.WithDescription("Kudos is a bot with a honor system and many other features.");
 				foreach (CommandModuleInfo module in Modules) {
-					embedBuilder.AddField(module.CommandListAsEmbedField);
+					EmbedFieldBuilder field = module.CommandListAsEmbedField;
+					if (field != null) {
+						embedBuilder.AddField(field);
+					}
 				}
 				string types =
 					(from value in ParameterType.ParameterTypes.Values let valueString = value.ToString() where valueString != string.Empty select value)

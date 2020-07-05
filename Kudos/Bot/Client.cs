@@ -5,7 +5,6 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Kudos.Bot.Modules;
-using Kudos.Models;
 using Kudos.Utils;
 #endregion
 
@@ -20,13 +19,19 @@ namespace Kudos.Bot {
 		private readonly DiscordSocketClient _client;
 
 		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
+		public int ServerCount => _client.Guilds.Count;
 		public string State => StartedSuccessful ? _client.Status.ToString() : "starting";
 
 		private bool StartedSuccessful { get; set; }
 
 		public Client(string token) {
 			_client = new DiscordSocketClient();
+		#if DEBUG
+			_client.SetGameAsync("testing...");
+		#else
 			_client.SetGameAsync($"with the '{new Settings().Prefix.Value}help' command");
+		#endif
+
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
 			_client.LatencyUpdated += _client_LatencyUpdated;
@@ -65,6 +70,7 @@ namespace Kudos.Bot {
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
+		public SocketGuild GetSocketGuildById(ulong id) => _client.GetGuild(id);
 		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
 
