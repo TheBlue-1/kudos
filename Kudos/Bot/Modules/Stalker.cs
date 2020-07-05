@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Discord.Audio;
@@ -24,15 +25,26 @@ namespace Kudos.Bot.Modules {
 				throw new KudosArgumentException("user not in voice channel");
 			}
 			IAudioClient client = await channel.ConnectAsync();
+			
 			client.StreamCreated += async (id, stream) => {
-				byte[] buffer = new byte[1024];
+				byte[] buffer = new byte[1024* 8];
 				FileStream file = File.OpenWrite("D:\\Downloads\\test.audio");
 				while (true) {
-					await stream.ReadAsync(buffer, 0, 1024);
-					await file.WriteAsync(buffer, 0, 1024);
+					int read = await stream.ReadAsync(buffer, 0, 1024 * 8);
+					await file.WriteAsync(buffer, 0, read);
 				}
 			};
-			client.CreateDirectOpusStream();
+		var	stream = client.CreateOpusStream();
+		byte[] buffer = new byte[1024 * 1];
+		FileStream file = File.OpenRead("D:\\Downloads\\test.opus");
+		int last = 1024 * 1;
+		long r = file.Length;
+		while (last== 1024 * 1 && r>0)
+		{
+			last=	await file.ReadAsync(buffer, 0, (int)Math.Min(1024 * 1,r));
+			r -= last;
+			await stream.WriteAsync(buffer, 0, last);
+		}
 		}
 	}
 }

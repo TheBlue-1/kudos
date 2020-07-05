@@ -13,6 +13,7 @@ namespace Kudos.Models {
 		public T SetValue {
 			get => _setValue;
 			set {
+				if (value == null) return;
 				_setValue = value;
 				IsSet = true;
 				OnPropertyChanged();

@@ -38,12 +38,14 @@ namespace Kudos.Bot {
 		}
 
 		private static async Task ClientMessageReceived(SocketMessage arg) {
-			await Task.Run(() => {
+			_=Task.Run(() => {
 				MessageInterpreter interpreter = new MessageInterpreter(arg);
 				if (interpreter.Executable) {
 					interpreter.TryExecute();
 				}
 			});
+			await Task.Run(async 
+				() => {await Task.Delay(50); });
 		}
 
 		private static async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
