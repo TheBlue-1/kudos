@@ -16,6 +16,11 @@ namespace Kudos {
 
 		public static Client Client { get; private set; }
 
+#if DEBUG
+		public const bool Debug = true;
+#else
+		public const bool Debug = false;
+#endif
 		private static void Main() {
 			string botToken;
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;

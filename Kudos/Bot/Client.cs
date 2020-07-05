@@ -5,6 +5,7 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Kudos.Bot.Modules;
+using Kudos.Models;
 using Kudos.Utils;
 #endregion
 
@@ -26,20 +27,19 @@ namespace Kudos.Bot {
 
 		public Client(string token) {
 			_client = new DiscordSocketClient();
-		#if DEBUG
-			_client.SetGameAsync("testing...");
-		#else
-			_client.SetGameAsync($"with the '{new Settings().Prefix.Value}help' command");
-		#endif
+
+			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+			// ReSharper disable once UnreachableCode
+			_client.SetGameAsync(Program.Debug ? "testing..." : $"with the '{new Settings().Prefix.Value}help' command");
 
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
-			_client.LatencyUpdated += _client_LatencyUpdated;
+			_client.LatencyUpdated += ClientLatencyUpdated;
 			_client.MessageReceived += AutoReactionMessageReceived;
 			Start(token);
 		}
 
-		private Task _client_LatencyUpdated(int old, int val) {
+		private Task ClientLatencyUpdated(int old, int val) {
 			return Task.Run(() => { LastPings.Enqueue(val); });
 		}
 
