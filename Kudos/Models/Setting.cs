@@ -9,12 +9,11 @@ namespace Kudos.Models {
 		public T Default { get; }
 		public T Value => IsSet ? SetValue : Default;
 
-		public bool IsSet { get;
-			private set; }
+		public bool IsSet { get; private set; }
 		public T SetValue {
 			get => _setValue;
 			set {
-				if(value==null) {
+				if (value == null) {
 					return;
 				}
 				_setValue = value;
