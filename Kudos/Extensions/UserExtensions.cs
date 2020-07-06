@@ -10,6 +10,8 @@ using Discord.WebSocket;
 
 namespace Kudos.Extensions {
 	public static class UserExtensions {
+		private static readonly ulong[] BotAdmins = { 406118105711116288, 393152252862529556 };
+
 		public static ISocketAudioChannel AudioChannel(this SocketUser user) {
 			IEnumerable<SocketGuildUser> guildUsers = user.MutualGuilds.Select(guild => guild.GetUser(user.Id));
 			return guildUsers.FirstOrDefault(guildUser => guildUser.VoiceChannel != null)?.VoiceChannel;
@@ -31,6 +33,8 @@ namespace Kudos.Extensions {
 			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
 			return Program.Client.GetSocketUserById(id);
 		}
+
+		public static bool IsBotAdmin(this IUser user) => BotAdmins.Contains(user.Id);
 
 		public static async Task<RestUser> RestUser(this SocketUser user) => await Program.Client.GetRestUserById(user.Id);
 	}

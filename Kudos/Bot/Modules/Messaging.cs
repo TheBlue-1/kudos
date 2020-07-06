@@ -27,8 +27,8 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("help", "shows all commands")]
-		public async Task Help([CommandParameter] ISocketMessageChannel channel) {
-			await SendEmbed(channel, CommandModules.Instance.CommandListAsEmbed);
+		public async Task Help([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser author) {
+			await SendEmbed(channel, CommandModules.Instance.CommandListAsEmbed(author.IsBotAdmin()));
 		}
 
 		public async Task SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) {
