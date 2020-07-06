@@ -29,7 +29,7 @@ namespace Kudos.Bot.Modules {
 		// ReSharper disable once StringLiteralTypo
 		[Command("servercount", "shows on how many serves this bot is")]
 		public async Task ServerCount([CommandParameter] ISocketMessageChannel channel) {
-			await Messaging.Instance.SendMessage(channel, $"I am active on {Program.Client.ServerCount} servers");
+			await Messaging.Instance.SendMessage(channel, $"I am active on {Program.Client.GuildCount} servers");
 		}
 	}
 }

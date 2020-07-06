@@ -200,6 +200,8 @@ namespace Kudos.Bot {
 			value = default;
 		}
 
+		public string ToHtml() => Description == null ? string.Empty : $"<tr><td><b>{Character}</b> </td> <td>{Description} </td></tr>";
+
 		public override string ToString() => Description == null ? string.Empty : $"`{Character}` {Description}";
 
 		public enum SpecialDefaults {

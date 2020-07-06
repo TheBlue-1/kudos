@@ -20,7 +20,7 @@ namespace Kudos.Bot {
 		private readonly DiscordSocketClient _client;
 
 		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
-		public int ServerCount => _client.Guilds.Count;
+		public int GuildCount => _client.Guilds.Count;
 		public string State => StartedSuccessful ? _client.Status.ToString() : "starting";
 
 		private bool StartedSuccessful { get; set; }
@@ -28,20 +28,22 @@ namespace Kudos.Bot {
 		public Client(string token) {
 			_client = new DiscordSocketClient();
 
+		#pragma warning disable 162
+
 			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 			// ReSharper disable once UnreachableCode
 			_client.SetGameAsync(Program.Debug ? "testing..." : $"with the '{new Settings().Prefix.Value}help' command");
+		#pragma warning restore 162
 
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
 			_client.LatencyUpdated += ClientLatencyUpdated;
 			_client.MessageReceived += AutoReactionMessageReceived;
+			_client.JoinedGuild += JoinedGuild;
 			Start(token);
 		}
 
-		private Task ClientLatencyUpdated(int old, int val) {
-			return Task.Run(() => { LastPings.Enqueue(val); });
-		}
+		public event Action JoinedNewGuild;
 
 		private static async Task AutoReactionMessageReceived(SocketMessage arg) {
 			await Task.Run(async () => {
@@ -52,6 +54,10 @@ namespace Kudos.Bot {
 					new ExceptionHandler(e, arg.Channel).Handle();
 				}
 			});
+		}
+
+		private Task ClientLatencyUpdated(int old, int val) {
+			return Task.Run(() => { LastPings.Enqueue(val); });
 		}
 
 		private static async Task ClientMessageReceived(SocketMessage arg) {
@@ -65,7 +71,6 @@ namespace Kudos.Bot {
 
 		private static async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			//unused
-
 			await Task.Run(() => { });
 		}
 
@@ -73,6 +78,10 @@ namespace Kudos.Bot {
 		public SocketGuild GetSocketGuildById(ulong id) => _client.GetGuild(id);
 		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
+
+		private async Task JoinedGuild(SocketGuild arg) {
+			await Task.Run(() => { JoinedNewGuild?.Invoke(); });
+		}
 
 		private async void Start(string token) {
 			await _client.LoginAsync(TokenType.Bot, token);

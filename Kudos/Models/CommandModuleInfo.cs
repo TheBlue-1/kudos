@@ -16,6 +16,22 @@ namespace Kudos.Models {
 				return string.IsNullOrEmpty(commands) ? null : fieldBuilder.WithValue(commands);
 			}
 		}
+
+		public string CommandListAsHtml {
+			get {
+				string htmlList = $@"
+<p>
+<h3>{Module.Name}</h3>
+<table>
+";
+				htmlList = Commands.Where(command => !command.Command.Hidden).Aggregate(htmlList, (current, commandInfo) => current + commandInfo.ToHtml());
+				htmlList += @"
+</table>
+</p> 
+";
+				return htmlList;
+			}
+		}
 		public IEnumerable<CommandInfo> Commands { get; }
 		public CommandModule Module { get; }
 		public Type Type { get; }
