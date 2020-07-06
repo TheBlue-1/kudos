@@ -21,6 +21,13 @@ namespace Kudos.Models {
 			Parameter = AllParameter.Where(parameter => parameter.CommandParameter.Index >= 0).OrderBy(parameter => parameter.CommandParameter.Index).ToArray();
 		}
 
+		public string ToHtml() {
+			string html = $@"<tr><td><b>{Command.Name}";
+			html = Parameter.Aggregate(html, (current, parameterInfo) => current + (Space + parameterInfo));
+			html += $@"</b></td><td>{Command.Description}</td></tr>";
+			return html;
+		}
+
 		public override string ToString() {
 			string info = "`" + Command.Name;
 			info = Parameter.Aggregate(info, (current, parameter) => current + (Space + parameter));

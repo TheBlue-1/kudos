@@ -16,14 +16,21 @@ namespace Kudos {
 
 		public static Client Client { get; private set; }
 
-#if DEBUG
+		public static string BotListToken { get; private set; }
+		public const ulong BotListBotId = 719571683517792286;
+
+	#if DEBUG
 		public const bool Debug = true;
-#else
+	#else
 		public const bool Debug = false;
-#endif
+	#endif
+
 		private static void Main() {
 			string botToken;
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
+			if (settings.ContainsKey("bot_list_token")) {
+				BotListToken = settings["bot_list_token"];
+			}
 			if (settings.ContainsKey("bot_token")) {
 				botToken = settings["bot_token"];
 			} else {
@@ -32,7 +39,7 @@ namespace Kudos {
 				settings["bot_token"] = botToken;
 			}
 			Client = new Client(botToken);
-
+			RefreshBotListDocs();
 			while (true) {
 				string state = Client.State;
 				Console.Write(state);
@@ -47,6 +54,20 @@ namespace Kudos {
 			}
 
 			// ReSharper disable once FunctionNeverReturns
+		}
+
+		private static async void RefreshBotListDocs() {
+			if (BotListToken == null) {
+				return;
+			}
+			BotList botList = await BotList.Instantiate(BotListBotId, BotListToken);
+
+			// ReSharper disable once UnusedVariable
+			string html = CommandModules.Instance.LongDescription;
+
+			//TODO set long description
+
+			Client.JoinedNewGuild += () => { botList.ThisBot.UpdateStatsAsync(Client.GuildCount); };
 		}
 	}
 }

@@ -32,8 +32,14 @@ jobs:
             let matches =changes.matchAll(regex);
             if(matches==null) return false;
             let versions= [... matches]
-            if(versions.length<2||versions[0][1]==versions[1][1])
+            if(versions.length<2||versions[0][1]==versions[1][1]){
+            if(versions.length<2)
+            console.log("length")
+            else{
+            console.log("old:"+versions[0][1])
+            console.log("new:"+versions[1][1])
+            }
             return false;
-            
+            }
             return true;
             }

@@ -32,7 +32,45 @@ namespace Kudos.Bot {
 				return embedBuilder;
 			}
 		}
+
 		public static CommandModules Instance { get; } = new CommandModules();
+
+		public string LongDescription {
+			get {
+				string longDescription = @"
+<h1>Kudos</h1>
+<h4>A bot with a honor system and many other features</h4>
+";
+				longDescription += @"
+<h2>Features</h2>
+<p>
+<ul>
+";
+				longDescription = Modules.Aggregate(longDescription, (current, module) => current + $@"<li>{module.Module.Name}</li>");
+				longDescription += @"
+</ul>
+</p>
+";
+				longDescription += @"
+<h2>Commands</h2>
+";
+
+				longDescription = Modules.Aggregate(longDescription, (current, module) => current + module.CommandListAsHtml);
+
+				longDescription += @"
+<h2>Types</h2>
+<h4>[x|y?] ... x is the Type, y is the name, ? tells it's optional</h4>
+<p>
+<table>
+";
+				longDescription = ParameterType.ParameterTypes.Values.Aggregate(longDescription, (current, parameterType) => current + parameterType.ToHtml());
+				longDescription += @"
+</table>
+</p> 
+";
+				return longDescription;
+			}
+		}
 
 		public IEnumerable<CommandModuleInfo> Modules { get; }
 
