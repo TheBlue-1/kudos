@@ -36,8 +36,8 @@ jobs:
             if(versions.length<2)
             console.log("length")
             else{
-            console.log("old:"versions[0][1])
-            console.log("new:"versions[1][1])
+            console.log("old:"+versions[0][1])
+            console.log("new:"+versions[1][1])
             }
             return false;
             }
