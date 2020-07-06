@@ -1,11 +1,16 @@
 ﻿#region
 using System;
+using System.Threading.Tasks;
 using Discord.WebSocket;
+using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Utils;
+
+// ReSharper disable UnusedMember.Global
 #endregion
 
-namespace Kudos.Bot {
+namespace Kudos.Bot.Modules {
+	[CommandModule("Honor")]
 	public sealed class Honor {
 		private const byte MaxHonorPerDay = 7;
 		private static readonly string[] HonorFeedbackHigh = {
@@ -30,6 +35,7 @@ namespace Kudos.Bot {
 			"People really hate you don't they?", "Oh boy you must have done something annoying!", "Watch out we have a real Mr. Trump here!",
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
+
 		private AsyncThreadsafeFileSyncedDictionary<ulong, int> BalancesPerId { get; } = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("balances");
 		public static Honor Instance { get; } = new Honor();
 		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor { get; } =
@@ -44,13 +50,15 @@ namespace Kudos.Bot {
 			UsedHonor[userId] = honoringBalance + count;
 		}
 
-		public void DishonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
+		[Command("dishonor", "removes honor points for user")]
+		public async Task DishonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, -count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
-			Messaging.Instance.Message(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
+			await Messaging.Instance.SendMessage(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
 
 		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count) {
@@ -70,13 +78,15 @@ namespace Kudos.Bot {
 			return count;
 		}
 
-		public void HonorUser(SocketUser honoredUser, SocketUser honoringUser, int count, ISocketMessageChannel channel) {
+		[Command("honor", "adds honor points for user")]
+		public async Task HonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorUser(honoredUser.Id, count);
 			ChangeUsersUsedHonor(honoringUser.Id, count);
 
-			Messaging.Instance.Message(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
+			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
 		}
 
 		private void HonorUser(ulong userId, int count) {
@@ -84,23 +94,25 @@ namespace Kudos.Bot {
 			BalancesPerId[userId] = honorBalance + count;
 		}
 
-		public void SendHonorBalance(SocketUser user, ISocketMessageChannel channel) {
+		[Command("balance", "shows the honor point balance")]
+		public async Task SendHonorBalance([CommandParameter(0, ParameterType.SpecialDefaults.IndexLess)]
+			SocketUser user, [CommandParameter] ISocketMessageChannel channel) {
 			int honor = BalancesPerId.ContainsKey(user.Id) ? BalancesPerId[user.Id] : 0;
 			string honorMessage;
 
 			if (honor < -100) {
 				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
 				honorMessage = HonorFeedbackLowest[index];
-			} else if (honor >= -100 && honor < -50) {
+			} else if (honor < -50) {
 				int index = Program.Random.Next(0, HonorFeedbackLower.Length);
 				honorMessage = HonorFeedbackLower[index];
-			} else if (honor >= -50 && honor < 0) {
+			} else if (honor < 0) {
 				int index = Program.Random.Next(0, HonorFeedbackLow.Length);
 				honorMessage = HonorFeedbackLow[index];
-			} else if (honor >= 0 && honor < 50) {
+			} else if (honor < 50) {
 				int index = Program.Random.Next(0, HonorFeedbackHigh.Length);
 				honorMessage = HonorFeedbackHigh[index];
-			} else if (honor >= 50 && honor <= 100) {
+			} else if (honor <= 100) {
 				int index = Program.Random.Next(0, HonorFeedbackHigher.Length);
 				honorMessage = HonorFeedbackHigher[index];
 			} else {
@@ -108,7 +120,7 @@ namespace Kudos.Bot {
 				honorMessage = HonorFeedbackHighest[index];
 			}
 
-			Messaging.Instance.Message(channel, $"***{user.Mention}*** has ***{honor}*** honor points. \n***{honorMessage}***");
+			await Messaging.Instance.SendMessage(channel, $"***{user.Mention}*** has ***{honor}*** honor points. \n***{honorMessage}***");
 		}
 	}
 }

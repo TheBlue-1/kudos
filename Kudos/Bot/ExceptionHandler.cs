@@ -1,6 +1,8 @@
 ﻿#region
 using System;
+using System.Threading.Tasks;
 using Discord.WebSocket;
+using Kudos.Bot.Modules;
 using Kudos.Exceptions;
 using Kudos.Utils;
 #endregion
@@ -15,13 +17,13 @@ namespace Kudos.Bot {
 			Channel = channel;
 		}
 
-		public void Handle() {
+		public async void Handle() {
 			try {
-				HandleException();
+				await HandleException();
 			}
 			catch (Exception) {
 				try {
-					SendInternalError();
+					await SendInternalError();
 				}
 				catch (Exception) {
 					//ignored (couldn't send internal error msg, nothing more kudos can do)
@@ -29,17 +31,25 @@ namespace Kudos.Bot {
 			}
 		}
 
-		private void HandleException() {
-			if (Exception is IKudosException kudosException) {
-				Messaging.Instance.Message(Channel, kudosException.UserMessage);
-				return;
+		private async Task HandleException() {
+			Exception exception = Exception;
+			while (true) {
+				if (exception is IKudosException kudosException) {
+					await Messaging.Instance.SendMessage(Channel, kudosException.UserMessage);
+					return;
+				}
+				if (exception.InnerException == null) {
+					break;
+				}
+				exception = exception.InnerException;
 			}
-			Messaging.Instance.Message(Channel, "unknown error occured");
+
+			await Messaging.Instance.SendMessage(Channel, "unknown error occured");
 			FileService.Instance.Log(Exception.ToString());
 		}
 
-		private void SendInternalError() {
-			Messaging.Instance.Message(Channel, "An internal error occured");
+		private async Task SendInternalError() {
+			await Messaging.Instance.SendMessage(Channel, "An internal error occured");
 			FileService.Instance.Log($"error while error handling: \n{Exception}");
 		}
 	}

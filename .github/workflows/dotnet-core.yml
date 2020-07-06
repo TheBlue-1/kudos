@@ -15,7 +15,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.101
+          dotnet-version: 3.1.300
       - name: Install dependencies
         run: dotnet restore
       - name: Build
@@ -28,7 +28,7 @@ jobs:
         #only if push
       - name: Publish
         if: ${{ github.event_name=='push'}}
-        run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=true --runtime linux-x64 --self-contained true
+        run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=false --runtime linux-x64 --self-contained true
       - name: Set RealeaseType master
         if: ${{ github.ref=='refs/heads/master' && github.event_name=='push'}}
         run: echo ::set-env name=REALEASE_TYPE::$(echo "public/")

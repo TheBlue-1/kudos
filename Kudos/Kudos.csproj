@@ -3,6 +3,15 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<Version>1.0.0.0</Version>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -12,10 +21,7 @@
 		<PackageReference Include="Discord.Net.Rest" Version="2.2.0" />
 		<PackageReference Include="Discord.Net.Webhook" Version="2.2.0" />
 		<PackageReference Include="Discord.Net.WebSocket" Version="2.2.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Extensions\" />
+		<PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
 	</ItemGroup>
 
 </Project>

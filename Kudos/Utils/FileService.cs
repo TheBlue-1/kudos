@@ -48,5 +48,9 @@ namespace Kudos.Utils {
 				File.WriteAllText(fileName, json);
 			});
 		}
+
+		public void WriteFile(string name, string content) {
+			File.WriteAllText(Path.Combine(ApplicationFolderPath, name), content);
+		}
 	}
 }
