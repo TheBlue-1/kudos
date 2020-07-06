@@ -14,6 +14,7 @@ using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot.Modules {
+	
 	[CommandModule("AnonymousQuestions")]
 	public class AnonymousQuestion {
 		private AsyncThreadsafeFileSyncedDictionary<ulong, QuestionData> AnonymousQuestions { get; } =
