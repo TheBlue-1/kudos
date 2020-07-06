@@ -16,6 +16,13 @@ namespace Kudos.Bot {
 		public string LongDescription {
 			get {
 				string longDescription = @"
+<!DOCTYPE html><html> 
+<body>
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.css' type='text/css'>	
+<link rel = 'stylesheet' href = 'https://top.gg/stylesheets/thenewstyle.css' />
+<link rel = 'stylesheet' href = 'https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/components/button.css' />
+<link rel = 'stylesheet' href = 'https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/components/icon.css' />	
+<div class='longdescription content'>
 <h1>Kudos</h1>
 <h4>A bot with a honor system and many other features</h4>
 ";
@@ -44,12 +51,14 @@ namespace Kudos.Bot {
 <table>
 ";
 				longDescription = ParameterType.ParameterTypes.Values.Aggregate(longDescription, (current, parameterType) => current + parameterType.ToHtml());
-				string href = "href=\"https://discord.com/oauth2/authorize?client_id=720622422654451763&permissions=8&scope=bot\"";
-				longDescription += $@"
+				longDescription += @"
 </table>
 </p> 
 <h2>Kudos Beta</h2>
-<p><b>For more recent features and updates make sure to invite <a {href}>Kudos - Beta</a> to your Server</b></p>
+<p><b>For more recent features and updates make sure to invite <a href='https://discord.com/oauth2/authorize?client_id=720622422654451763&permissions=8&scope=bot'>Kudos - Beta</a> to your Server</b></p>
+</div>
+</body>  
+</html>           
 ";
 				return longDescription;
 			}
@@ -73,6 +82,7 @@ namespace Kudos.Bot {
 			EmbedBuilder embedBuilder = new EmbedBuilder().SetDefaults()
 				.WithTitle("Command List")
 				.WithDescription("Kudos is a bot with a honor system and many other features.");
+			
 			foreach (CommandModuleInfo module in Modules) {
 				EmbedFieldBuilder field = module.CommandListAsEmbedField(isBotAdmin);
 				if (field != null) {
