@@ -10,7 +10,7 @@ namespace Kudos.Models {
 		public Setting<string> Prefix { get; }
 
 		public Settings() {
-			Prefix = new Setting<string>("bot ", SettingChanged);
+			Prefix = new Setting<string>("k!", SettingChanged);
 			AutoReact = new Setting<ImmutableDictionary<string, string>>(ImmutableDictionary<string, string>.Empty, SettingChanged);
 		}
 
