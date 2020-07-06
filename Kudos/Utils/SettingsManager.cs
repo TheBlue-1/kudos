@@ -1,4 +1,5 @@
 ﻿#region
+using System.Diagnostics.CodeAnalysis;
 using Kudos.Models;
 #endregion
 
@@ -13,6 +14,7 @@ namespace Kudos.Utils {
 
 		private SettingsManager() { }
 
+		[SuppressMessage("ReSharper", "PatternAlwaysOfType")]
 		public Settings SettingsFor(ulong? userId = null, ulong? guildId = null, bool create = false) {
 			ulong userIdLong = 0;
 			ulong guildIdLong = 0;

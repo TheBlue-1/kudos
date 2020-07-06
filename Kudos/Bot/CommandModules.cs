@@ -44,9 +44,12 @@ namespace Kudos.Bot {
 <table>
 ";
 				longDescription = ParameterType.ParameterTypes.Values.Aggregate(longDescription, (current, parameterType) => current + parameterType.ToHtml());
-				longDescription += @"
+				string href = "href=\"https://discord.com/oauth2/authorize?client_id=720622422654451763&permissions=8&scope=bot\"";
+				longDescription += $@"
 </table>
 </p> 
+<h2>Kudos Beta</h2>
+<p><b>For more recent features and updates make sure to invite <a {href}>Kudos - Beta</a> to your Server</b></p>
 ";
 				return longDescription;
 			}
