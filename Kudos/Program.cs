@@ -72,10 +72,9 @@ namespace Kudos {
 				return;
 			}
 
-			// ReSharper disable once UnusedVariable
 			string html = CommandModules.Instance.LongDescription;
 
-			//TODO set long description
+			FileService.Instance.WriteFile("description.html", html);
 
 			Client.JoinedNewGuild += () => { BotList.ThisBot.UpdateStatsAsync(Client.Guilds.Count); };
 		}
