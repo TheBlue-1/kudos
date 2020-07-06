@@ -9,14 +9,6 @@ using Kudos.Attributes;
 
 namespace Kudos.Models {
 	public class CommandModuleInfo {
-		public EmbedFieldBuilder CommandListAsEmbedField {
-			get {
-				EmbedFieldBuilder fieldBuilder = new EmbedFieldBuilder().WithName(Module.Name).WithIsInline(false);
-				string commands = Commands.Where(command => !command.Command.Hidden).Aggregate("", (current, command) => current + (command + "\n"));
-				return string.IsNullOrEmpty(commands) ? null : fieldBuilder.WithValue(commands);
-			}
-		}
-
 		public string CommandListAsHtml {
 			get {
 				string htmlList = $@"
@@ -42,6 +34,15 @@ namespace Kudos.Models {
 			Commands = Type.GetMethods()
 				.Where(method => method.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (Command)))
 				.Select(methodInfo => new CommandInfo(methodInfo, this));
+		}
+
+		public EmbedFieldBuilder CommandListAsEmbedField(bool isBotAdmin) {
+			if (Module.Hidden && !isBotAdmin) {
+				return null;
+			}
+			EmbedFieldBuilder fieldBuilder = new EmbedFieldBuilder().WithName(Module.Name).WithIsInline(false);
+			string commands = Commands.Where(command => !command.Command.Hidden || isBotAdmin).Aggregate("", (current, command) => current + (command + "\n"));
+			return string.IsNullOrEmpty(commands) ? null : fieldBuilder.WithValue(commands);
 		}
 	}
 }

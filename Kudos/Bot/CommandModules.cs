@@ -11,28 +11,6 @@ using Kudos.Models;
 
 namespace Kudos.Bot {
 	public sealed class CommandModules {
-		public EmbedBuilder CommandListAsEmbed {
-			get {
-				if (Modules.Count() > 24) {
-					throw new KudosInternalException("Too many CommandModules, merge them");
-				}
-				EmbedBuilder embedBuilder = new EmbedBuilder().SetDefaults()
-					.WithTitle("Command List")
-					.WithDescription("Kudos is a bot with a honor system and many other features.");
-				foreach (CommandModuleInfo module in Modules) {
-					EmbedFieldBuilder field = module.CommandListAsEmbedField;
-					if (field != null) {
-						embedBuilder.AddField(field);
-					}
-				}
-				string types =
-					(from value in ParameterType.ParameterTypes.Values let valueString = value.ToString() where valueString != string.Empty select value)
-					.Aggregate("`[x|y?]` x is the Type, y is the name, ? tells it's optional", (current, value) => current + ("\n" + value));
-				embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
-				return embedBuilder;
-			}
-		}
-
 		public static CommandModules Instance { get; } = new CommandModules();
 
 		public string LongDescription {
@@ -46,7 +24,8 @@ namespace Kudos.Bot {
 <p>
 <ul>
 ";
-				longDescription = Modules.Aggregate(longDescription, (current, module) => current + $@"<li>{module.Module.Name}</li>");
+				longDescription = Modules.Where(module => !module.Module.Hidden)
+					.Aggregate(longDescription, (current, module) => current + $@"<li>{module.Module.Name}</li>");
 				longDescription += @"
 </ul>
 </p>
@@ -55,7 +34,8 @@ namespace Kudos.Bot {
 <h2>Commands</h2>
 ";
 
-				longDescription = Modules.Aggregate(longDescription, (current, module) => current + module.CommandListAsHtml);
+				longDescription = Modules.Where(module => !module.Module.Hidden)
+					.Aggregate(longDescription, (current, module) => current + module.CommandListAsHtml);
 
 				longDescription += @"
 <h2>Types</h2>
@@ -81,6 +61,26 @@ namespace Kudos.Bot {
 				.SelectMany(assembly => assembly.GetTypes())
 				.Where(type => type.CustomAttributes.Any(attribute => attribute.AttributeType == typeof (CommandModule)))
 				.Select(type => new CommandModuleInfo(type));
+		}
+
+		public EmbedBuilder CommandListAsEmbed(bool isBotAdmin = false) {
+			if (Modules.Count() > 24) {
+				throw new KudosInternalException("Too many CommandModules, merge them");
+			}
+			EmbedBuilder embedBuilder = new EmbedBuilder().SetDefaults()
+				.WithTitle("Command List")
+				.WithDescription("Kudos is a bot with a honor system and many other features.");
+			foreach (CommandModuleInfo module in Modules) {
+				EmbedFieldBuilder field = module.CommandListAsEmbedField(isBotAdmin);
+				if (field != null) {
+					embedBuilder.AddField(field);
+				}
+			}
+			string types =
+				(from value in ParameterType.ParameterTypes.Values let valueString = value.ToString() where valueString != string.Empty select value).Aggregate(
+					"`[x|y?]` x is the Type, y is the name, ? tells it's optional", (current, value) => current + ("\n" + value));
+			embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
+			return embedBuilder;
 		}
 	}
 }

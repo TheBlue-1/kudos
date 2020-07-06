@@ -38,8 +38,9 @@ namespace Kudos.Bot {
 		}
 
 		public void Execute() {
-			CommandInfo command = CommandModules.Instance.Modules
-				.SelectMany(module => module.Commands.Where(commandInfo => commandInfo.Command.Name == Command))
+			bool isBotAdmin = Message.Author.IsBotAdmin();
+			CommandInfo command = CommandModules.Instance.Modules.Where(module => !module.Module.Hidden || isBotAdmin)
+				.SelectMany(module => module.Commands.Where(commandInfo => (!commandInfo.Command.Hidden || isBotAdmin) && commandInfo.Command.Name == Command))
 				.FirstOrDefault();
 			if (command == null) {
 				return;

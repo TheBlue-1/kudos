@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
@@ -20,7 +21,7 @@ namespace Kudos.Bot {
 		private readonly DiscordSocketClient _client;
 
 		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
-		public int GuildCount => _client.Guilds.Count;
+		public IReadOnlyCollection<SocketGuild> Guilds => _client.Guilds;
 		public string State => StartedSuccessful ? _client.Status.ToString() : "starting";
 
 		private bool StartedSuccessful { get; set; }
