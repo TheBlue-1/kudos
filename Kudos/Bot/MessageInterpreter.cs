@@ -60,7 +60,7 @@ namespace Kudos.Bot {
 				}
 
 				Task task = (Task)command.MethodInfo.Invoke(commandModule, parameters);
-				task.Wait(new TimeSpan(0, 1, 0));
+				task?.Wait(new TimeSpan(0, 1, 0));
 				return;
 			}
 			command.MethodInfo.Invoke(commandModule, parameters);
