@@ -82,6 +82,7 @@ namespace Kudos.Bot {
 			EmbedBuilder embedBuilder = new EmbedBuilder().SetDefaults()
 				.WithTitle("Command List")
 				.WithDescription("Kudos is a bot with a honor system and many other features.");
+			
 			foreach (CommandModuleInfo module in Modules) {
 				EmbedFieldBuilder field = module.CommandListAsEmbedField(isBotAdmin);
 				if (field != null) {
