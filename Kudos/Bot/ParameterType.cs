@@ -43,7 +43,9 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(settingsParameter.Type, settingsParameter);
 			ParameterType messageParameter = new ParameterType(typeof (SocketMessage));
 			ParameterTypes.TryAdd(messageParameter.Type, messageParameter);
-			ParameterType channelParameter = new ParameterType(typeof (ISocketMessageChannel));
+			ParameterType socketChannelParameter = new ParameterType(typeof (ISocketMessageChannel));
+			ParameterTypes.TryAdd(socketChannelParameter.Type, socketChannelParameter);
+			ParameterType channelParameter = new ParameterType(typeof (IMessageChannel));
 			ParameterTypes.TryAdd(channelParameter.Type, channelParameter);
 		}
 
