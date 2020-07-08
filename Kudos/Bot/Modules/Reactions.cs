@@ -56,7 +56,13 @@ namespace Kudos.Bot.Modules {
 				if (string.IsNullOrWhiteSpace(emojiString)) {
 					continue;
 				}
-				Emoji emoji = new Emoji(emojiString);
+				IEmote emoji;
+				if (Emote.TryParse(emojiString, out Emote emote)) {
+					emoji = emote;
+				} else {
+					emoji = new Emoji(emojiString);
+				}
+
 				if (needle.StartsWith("*")) {
 					if (needle.EndsWith("*")) {
 						if (content.Contains(needle.Substring(1, needle.Length - 2))) {
