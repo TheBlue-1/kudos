@@ -21,6 +21,7 @@
 		<PackageReference Include="Discord.Net.Rest" Version="2.2.0" />
 		<PackageReference Include="Discord.Net.Webhook" Version="2.2.0" />
 		<PackageReference Include="Discord.Net.WebSocket" Version="2.2.0" />
+		<PackageReference Include="NAudio" Version="1.10.0" />
 	</ItemGroup>
 
 </Project>
