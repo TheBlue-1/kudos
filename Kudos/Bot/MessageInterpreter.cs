@@ -27,7 +27,7 @@ namespace Kudos.Bot {
 				Executable = false;
 				return;
 			}
-			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?: @| (?<! @[^#]*?))(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+@|\\s+(?<!\\s+@[^#]*?))(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
 				Executable = false;
 				return;
@@ -71,7 +71,7 @@ namespace Kudos.Bot {
 				Execute();
 			}
 			catch (Exception e) {
-				new ExceptionHandler(e, Message.Channel).Handle();
+				new ExceptionHandler(e, Message.Channel).Handle(true);
 			}
 		}
 	}

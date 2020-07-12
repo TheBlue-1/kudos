@@ -30,13 +30,29 @@ namespace Kudos.Bot.Modules {
 			throw new KudosArgumentException("Can not set server settings in pms");
 		}
 
+
+
+
+		[Command("s", "change settings")]
+		public async Task ChangeSetting([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string setting, [CommandParameter(1)] string value,
+			[CommandParameter(1, false)] bool forServer, [CommandParameter] SocketUser author) {
+			
+			var settings=	EditableSettings(forServer, channel, author);
+
+
+
+		}
+
 		// ReSharper disable once StringLiteralTypo
 		[Command("autoreact", "set automatic reactions to messages")]
 		public async Task SetAutoReact([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string message,
 			[CommandParameter(1, null)] IEmote emoji, [CommandParameter(2, false)] bool forServer, [CommandParameter] SocketUser author) {
 			Settings settings = EditableSettings(forServer, channel, author);
 			settings.AutoReact.SetValue = settings.AutoReact.Value.SetItem(message, emoji.ToString());
-			await Messaging.Instance.SendMessage(channel, emoji.ToString() == null ? $"unset for `{message}`" : $"set `{emoji}` for `{message}`");
+			await Messaging.Instance.SendMessage(channel,
+				emoji.ToString() == null
+					? $"unset for `{message}` {(forServer ? "server wide" : "personal")}"
+					: $"set `{emoji}` for `{message}` {(forServer ? "server wide" : "personal")}");
 		}
 
 		[Command("prefix", "changes the prefix")]
@@ -44,7 +60,7 @@ namespace Kudos.Bot.Modules {
 			[CommandParameter(1, false)] bool forServer, [CommandParameter] SocketUser author) {
 			EditableSettings(forServer, channel, author).Prefix.SetValue = prefix;
 
-			await Messaging.Instance.SendMessage(channel, $"prefix set to `{prefix}`");
+			await Messaging.Instance.SendMessage(channel, $"prefix set to `{prefix}` {(forServer ? "server wide" : "personal")}");
 		}
 	}
 }

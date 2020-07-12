@@ -37,8 +37,9 @@ namespace Kudos.Bot.Modules {
 				throw new KudosUnauthorizedException("bot is not allowed to see this information");
 			}
 			List<IDblEntity> voters = await Program.BotList.ThisBot.GetVotersAsync();
+			var countedVotes = voters.GroupBy(voter => voter.Id).Select(voter => new { voter.First().Id, Count = voter.Key, voter.First().Username });
 			string message = $"Count: {voters.Count}";
-			message = voters.Aggregate(message, (current, voter) => current + $"\n{voter.Username}");
+			message = countedVotes.Aggregate(message, (current, voter) => current + $"\n{voter.Username} ({voter.Count})");
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 	}

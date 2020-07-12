@@ -106,7 +106,7 @@ namespace Kudos.Bot {
 		private static object ParameterAsEmote(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
 			object min, object max, bool throwOutOfRange) {
 			if (parameters.Length > index && Emote.TryParse(parameters[index], out Emote value)) {
-				return value;
+				throw new KudosArgumentException("We currently don't support server-emojis");
 			}
 			if (Emojis.Contains(parameters[index])) {
 				return new Emoji(parameters[index]);

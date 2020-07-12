@@ -35,6 +35,11 @@ namespace Kudos.Bot.Modules {
 			await channel.SendMessageAsync(embed: embedBuilder.Build());
 		}
 
+		public async Task SendImage(IMessageChannel channel, string imageUrl) {
+			EmbedBuilder builder = new EmbedBuilder().SetDefaults().WithImageUrl(imageUrl);
+			await SendEmbed(channel, builder);
+		}
+
 		[Command("say", "says whatever you write behind say")]
 		public async Task SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
 			await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));

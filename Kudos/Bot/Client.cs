@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using Kudos.Bot.Modules;
 using Kudos.Models;
 using Kudos.Utils;
 #endregion
@@ -39,21 +38,20 @@ namespace Kudos.Bot {
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
 			_client.LatencyUpdated += ClientLatencyUpdated;
-			_client.MessageReceived += AutoReactionMessageReceived;
-			_client.MessageReceived += EasterEggMessageReceived;
+			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
 			Start(token);
 		}
 
 		public event Action JoinedNewGuild;
 
-		private static async Task AutoReactionMessageReceived(SocketMessage arg) {
+		private static async Task AutoResponseMessageReceived(SocketMessage arg) {
 			await Task.Run(async () => {
 				try {
-					await Reactions.Instance.AutoReact(arg);
+					await AutoResponse.Instance.Respond(arg);
 				}
 				catch (Exception e) {
-					new ExceptionHandler(e, arg.Channel).Handle();
+					new ExceptionHandler(e, arg.Channel).Handle(false);
 				}
 			});
 		}
@@ -74,17 +72,6 @@ namespace Kudos.Bot {
 		private static async Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			//unused
 			await Task.Run(() => { });
-		}
-
-		private static async Task EasterEggMessageReceived(SocketMessage arg) {
-			await Task.Run(async () => {
-				try {
-					await EasterEgg.Instance.EasterEggReact(arg);
-				}
-				catch (Exception e) {
-					new ExceptionHandler(e, arg.Channel).Handle();
-				}
-			});
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
