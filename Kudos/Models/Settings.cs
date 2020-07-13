@@ -1,40 +1,42 @@
 ﻿#region
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using Discord;
 #endregion
 
 namespace Kudos.Models {
 	public class Settings : INotifyPropertyChanged {
-		public Setting<ImmutableDictionary<string, string>> AutoImage { get; }
-		public Setting<ImmutableDictionary<string, string>> AutoMessage { get; }
-		public Setting<ImmutableDictionary<string, string>> AutoReact { get; }
-		public Setting<bool> AutoResponses { get; }
-		public Setting<string> Prefix { get; }
+		private readonly ImmutableDictionary<SettingNames, Setting> _settings;
 
-		
+		public Setting this[SettingNames name] => _settings[name];
 
-		public Settings() {
-			Prefix = new Setting<string>("k!", SettingChanged);
-			AutoResponses = new Setting<bool>(true, SettingChanged);
-			AutoReact = new Setting<ImmutableDictionary<string, string>>(ImmutableDictionary<string, string>.Empty, SettingChanged);
-			AutoImage = new Setting<ImmutableDictionary<string, string>>(ImmutableDictionary<string, string>.Empty, SettingChanged);
-			AutoMessage = new Setting<ImmutableDictionary<string, string>>(ImmutableDictionary<string, string>.Empty, SettingChanged);
+		public Settings() : this(ImmutableDictionary.CreateRange(new[] {
+			new KeyValuePair<SettingNames, Setting>(SettingNames.Prefix, new Setting<string>("k!")),
+			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoResponses, new Setting<bool>(true)),
+			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoReact,
+				new DictionarySetting<string, IEmote>(ImmutableDictionary<string, IEmote>.Empty)),
+			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoImage,
+				new DictionarySetting<string, string>(ImmutableDictionary<string, string>.Empty)),
+			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoMessage,
+				new DictionarySetting<string, string>(ImmutableDictionary<string, string>.Empty))
+		})) { }
+
+		private Settings(ImmutableDictionary<SettingNames, Setting> settings) {
+			_settings = settings;
+			foreach (Setting setting in settings.Values) {
+				setting.PropertyChanged += SettingChanged;
+			}
 		}
 
-		private Settings(Setting<string> prefix, Setting<ImmutableDictionary<string, string>> autoReact, Setting<ImmutableDictionary<string, string>> autoImage,
-			Setting<ImmutableDictionary<string, string>> autoMessage, Setting<bool> autoResponses) {
-			Prefix = prefix;
-			AutoReact = autoReact;
-			AutoImage = autoImage;
-			AutoMessage = autoMessage;
-			AutoResponses = autoResponses;
-		}
+		public Setting<T> GetSetting<T>(SettingNames name) => (Setting<T>)_settings[name];
 
-		public Settings Merge(Settings userSettings) => new Settings(userSettings.Prefix.IsSet ? userSettings.Prefix : Prefix,
-			userSettings.AutoReact.IsSet ? userSettings.AutoReact : AutoReact, userSettings.AutoImage.IsSet ? userSettings.AutoImage : AutoImage,
-			userSettings.AutoMessage.IsSet ? userSettings.AutoMessage : AutoMessage,
-			userSettings.AutoResponses.IsSet ? userSettings.AutoResponses : AutoResponses);
+		public Settings Merge(Settings userSettings) {
+			return new Settings(ImmutableDictionary.CreateRange(userSettings._settings.Select(setting =>
+				setting.Value.IsSet ? setting : _settings.First(serverSetting => serverSetting.Key == setting.Key))));
+		}
 
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -45,5 +47,13 @@ namespace Kudos.Models {
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
+	}
+
+	public enum SettingNames {
+		Prefix,
+		AutoResponses,
+		AutoReact,
+		AutoImage,
+		AutoMessage
 	}
 }

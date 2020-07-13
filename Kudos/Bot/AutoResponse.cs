@@ -5,6 +5,7 @@ using Discord;
 using Discord.WebSocket;
 using Kudos.Bot.Modules;
 using Kudos.Extensions;
+using Kudos.Models;
 #endregion
 
 namespace Kudos.Bot {
@@ -16,7 +17,7 @@ namespace Kudos.Bot {
 		private AutoResponse() { }
 
 		private static async Task AutoImage(SocketMessage message) {
-			ImmutableDictionary<string, string> images = message.Settings().AutoImage.Value;
+			message.Settings()[SettingNames.AutoImage].Value(out ImmutableDictionary<string, string> images);
 			foreach ((string needle, string imageUrl) in images) {
 				if (NeedleContained(message.Content, needle)) {
 					await Messaging.Instance.SendImage(message.Channel, imageUrl);
@@ -25,7 +26,7 @@ namespace Kudos.Bot {
 		}
 
 		private static async Task AutoMessage(SocketMessage message) {
-			ImmutableDictionary<string, string> messages = message.Settings().AutoMessage.Value;
+			message.Settings()[SettingNames.AutoMessage].Value(out ImmutableDictionary<string, string> messages);
 			foreach ((string needle, string responseMessage) in messages) {
 				if (NeedleContained(message.Content, needle)) {
 					await Messaging.Instance.SendMessage(message.Channel, responseMessage);
@@ -34,7 +35,7 @@ namespace Kudos.Bot {
 		}
 
 		private static async Task AutoReact(SocketMessage message) {
-			ImmutableDictionary<string, string> reactions = message.Settings().AutoReact.Value;
+			message.Settings()[SettingNames.AutoReact].Value(out ImmutableDictionary<string, string> reactions);
 			foreach ((string needle, string emojiString) in reactions) {
 				if (string.IsNullOrWhiteSpace(emojiString)) {
 					continue;
@@ -62,6 +63,7 @@ namespace Kudos.Bot {
 					return true;
 				}
 			}
+
 			// ReSharper disable once InvertIf
 			if (needle.EndsWith("*")) {
 				if (haystack.StartsWith(needle.Substring(0, needle.Length - 1))) {
@@ -72,7 +74,8 @@ namespace Kudos.Bot {
 		}
 
 		public async Task Respond(SocketMessage message) {
-			if (message.Settings().AutoResponses.Value) {
+			message.Settings()[SettingNames.AutoResponses].Value(out bool doRespond);
+			if (doRespond) {
 				await AutoMessage(message);
 				await AutoImage(message);
 				await AutoReact(message);

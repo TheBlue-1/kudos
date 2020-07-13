@@ -32,7 +32,7 @@ namespace Kudos.Bot {
 
 			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 			// ReSharper disable once UnreachableCode
-			_client.SetGameAsync(Program.Debug ? "testing..." : $"with the '{new Settings().Prefix.Value}help' command");
+			_client.SetGameAsync(Program.Debug ? "testing..." : $"with the '{new Settings()[SettingNames.Prefix].StringValue}help' command");
 		#pragma warning restore 162
 
 			_client.MessageReceived += ClientMessageReceived;

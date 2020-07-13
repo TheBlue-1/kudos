@@ -22,7 +22,7 @@ namespace Kudos.Bot {
 		private string[] Parameters { get; }
 
 		public MessageInterpreter(SocketMessage message) {
-			string prefix = message.Settings().Prefix.Value;
+			message.Settings()[SettingNames.Prefix].Value(out string prefix);
 			if (message.Author.IsBot || !message.Content.StartsWith(prefix)) {
 				Executable = false;
 				return;
