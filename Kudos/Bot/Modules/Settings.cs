@@ -52,25 +52,6 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendEmbed(channel, Models.Settings.SettingsAsEmbed());
 		}
 
-		// ReSharper disable once StringLiteralTypo
-		[Command("autoreact", "set automatic reactions to messages")]
-		public async Task SetAutoReact([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string message,
-			[CommandParameter(1, null)] IEmote emoji, [CommandParameter(2, false)] bool forServer, [CommandParameter] SocketUser author) {
-			Models.Settings settings = EditableSettings(forServer, channel, author);
-			settings[SettingNames.AutoReact].AsSetting(out Setting<ImmutableDictionary<string, string>> autoReactSetting);
-			autoReactSetting.SetValue = autoReactSetting.Value.SetItem(message, emoji.ToString());
-			await Messaging.Instance.SendMessage(channel,
-				emoji.ToString() == null
-					? $"unset for `{message}` {(forServer ? "server wide" : "personal")}"
-					: $"set `{emoji}` for `{message}` {(forServer ? "server wide" : "personal")}");
-		}
-
-		[Command("prefix", "changes the prefix")]
-		public async Task SetPrefix([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string prefix,
-			[CommandParameter(1, false)] bool forServer, [CommandParameter] SocketUser author) {
-			EditableSettings(forServer, channel, author)[SettingNames.Prefix].AsSetting(out Setting<string> prefixSetting);
-			prefixSetting.SetValue = prefix;
-			await Messaging.Instance.SendMessage(channel, $"prefix set to `{prefix}` {(forServer ? "server wide" : "personal")}");
-		}
+	
 	}
 }
