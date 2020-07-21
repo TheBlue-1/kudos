@@ -35,16 +35,11 @@ namespace Kudos.Bot {
 		}
 
 		private static async Task AutoReact(SocketMessage message) {
-			message.Settings()[SettingNames.AutoReact].Value(out ImmutableDictionary<string, string> reactions);
-			foreach ((string needle, string emojiString) in reactions) {
+			message.Settings()[SettingNames.AutoReact].Value(out ImmutableDictionary<string, IEmote> reactions);
+			foreach ((string needle, IEmote emoji) in reactions) {
+				string emojiString = emoji.Name;
 				if (string.IsNullOrWhiteSpace(emojiString)) {
 					continue;
-				}
-				IEmote emoji;
-				if (Emote.TryParse(emojiString, out Emote emote)) {
-					emoji = emote;
-				} else {
-					emoji = new Emoji(emojiString);
 				}
 				if (NeedleContained(message.Content, needle)) {
 					await message.AddReactionAsync(emoji);

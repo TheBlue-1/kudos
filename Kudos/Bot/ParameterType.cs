@@ -24,8 +24,10 @@ namespace Kudos.Bot {
 
 		public string Description { get; }
 
+		public static IEnumerable<ParameterType> KnownParameterTypes => ParameterTypes.Values;
+
 		public ParameterAsType ParameterInterpreter { get; }
-		public static ConcurrentDictionary<Type, ParameterType> ParameterTypes { get; } = new ConcurrentDictionary<Type, ParameterType>();
+		private static ConcurrentDictionary<Type, ParameterType> ParameterTypes { get; } = new ConcurrentDictionary<Type, ParameterType>();
 		public Type Type { get; }
 
 		static ParameterType() {
@@ -42,6 +44,8 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(userParameter.Type, userParameter);
 			ParameterType emojiParameter = new ParameterType(typeof (IEmote), 'e', "an emoji", ParameterAsEmote);
 			ParameterTypes.TryAdd(emojiParameter.Type, emojiParameter);
+			ParameterType wordParameter = new ParameterType(typeof (Word), 'w', "a word", ParameterAsWord);
+			ParameterTypes.TryAdd(wordParameter.Type, wordParameter);
 			ParameterType settingsParameter = new ParameterType(typeof (Settings));
 			ParameterTypes.TryAdd(settingsParameter.Type, settingsParameter);
 			ParameterType messageParameter = new ParameterType(typeof (SocketMessage));
@@ -85,6 +89,13 @@ namespace Kudos.Bot {
 			return value;
 		}
 
+		public static ParameterType FromType(Type type) {
+			if (!ParameterTypes.ContainsKey(type)) {
+				throw new KudosInternalException($"Unknown ParameterType ({type})");
+			}
+			return ParameterTypes[type];
+		}
+
 		public object IndexLess(IEnumerable<object> indexLess) {
 			MethodInfo method = GetType().GetMethod(nameof (SetIndexLess))?.MakeGenericMethod(Type);
 			return method?.Invoke(this, new object[] { indexLess });
@@ -92,20 +103,20 @@ namespace Kudos.Bot {
 
 		private static object ParameterAsBool(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
 			object min, object max, bool throwOutOfRange) {
-			if (parameters.Length > index && bool.TryParse(parameters[index], out bool value)) {
+			if (ParameterPresent(parameters, index) && bool.TryParse(parameters[index], out bool value)) {
 				return value;
 			}
 			if (optional) {
 				SetToDefaultValue(out value, defaultValue, indexLess);
 			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a true/false (bool)");
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be true or false (bool)");
 			}
 			return value;
 		}
 
 		private static object ParameterAsEmote(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
 			object min, object max, bool throwOutOfRange) {
-			if (parameters.Length > index && Emote.TryParse(parameters[index], out Emote value)) {
+			if (ParameterPresent(parameters, index) && Emote.TryParse(parameters[index], out Emote value)) {
 				throw new KudosArgumentException("We currently don't support server-emojis");
 			}
 			if (Emojis.Contains(parameters[index])) {
@@ -114,20 +125,20 @@ namespace Kudos.Bot {
 			if (optional) {
 				SetToDefaultValue(out value, defaultValue, indexLess);
 			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a number (int)");
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be an emoji");
 			}
 			return value;
 		}
 
 		private static object ParameterAsInt(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
 			object min, object max, bool throwOutOfRange) {
-			if (parameters.Length > index && int.TryParse(parameters[index], out int value)) {
+			if (ParameterPresent(parameters, index) && int.TryParse(parameters[index], out int value)) {
 				return CheckMinMax(value, index, min, max, throwOutOfRange);
 			}
 			if (optional) {
 				SetToDefaultValue(out value, defaultValue, indexLess);
 			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a number (int)");
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a number (int)");
 			}
 			return value;
 		}
@@ -135,7 +146,7 @@ namespace Kudos.Bot {
 		private static object ParameterAsSocketUser(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
 			object min, object max, bool throwOutOfRange) {
 			SocketUser user;
-			if (parameters.Length > index) {
+			if (ParameterPresent(parameters, index)) {
 				user = UserExtensions.FromMention(parameters[index]);
 				if (user != null) {
 					return user;
@@ -150,7 +161,7 @@ namespace Kudos.Bot {
 				}
 			}
 			if (!optional) {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a user (described in help)");
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a user (described in help)");
 			}
 
 			SetToDefaultValue(out user, defaultValue, indexLess);
@@ -159,20 +170,37 @@ namespace Kudos.Bot {
 
 		private static object ParameterAsULong(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
 			object min, object max, bool throwOutOfRange) {
-			if (parameters.Length > index && ulong.TryParse(parameters[index], out ulong value)) {
+			if (ParameterPresent(parameters, index) && ulong.TryParse(parameters[index], out ulong value)) {
 				return CheckMinMax(value, index, min, max, throwOutOfRange);
 			}
 			if (optional) {
 				SetToDefaultValue(out value, defaultValue, indexLess);
 			} else {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a number (ulong)");
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a number (ulong)");
 			}
 			return value;
 		}
 
+		private static object ParameterAsWord(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
+			object min, object max, bool throwOutOfRange) {
+			Word value;
+			if (ParameterPresent(parameters, index) && (value = Word.Create(parameters[index])) != null) {
+				return value;
+			}
+			if (optional) {
+				SetToDefaultValue(out value, defaultValue, indexLess);
+			} else {
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a word (a-z)");
+			}
+			return value;
+		}
+
+		private static bool ParameterPresent(IReadOnlyList<string> parameters, int index) =>
+			parameters.Count > index && !string.IsNullOrEmpty(parameters[index]) && parameters[index] != "-";
+
 		private static object ParametersAsString(string[] parameters, IEnumerable<object> indexLess, int index, bool optional, Optional<object> defaultValue,
 			object min, object max, bool throwOutOfRange) {
-			if (parameters.Length > index) {
+			if (ParameterPresent(parameters, index)) {
 				if (parameters[index].StartsWith('"') && parameters[index].EndsWith('"')) {
 					return parameters[index].Substring(1, parameters[index].Length - 2);
 				}
@@ -180,7 +208,7 @@ namespace Kudos.Bot {
 				return string.Join(" ", parameters.Skip(index));
 			}
 			if (!optional) {
-				throw new KudosArgumentException($"Parameter {index + 1} must be a text");
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a text");
 			}
 			SetToDefaultValue(out string value, defaultValue, indexLess);
 			return value;

@@ -38,9 +38,11 @@ namespace Kudos.Bot.Modules {
 			}
 			List<IDblEntity> voters = await Program.BotList.ThisBot.GetVotersAsync();
 			var countedVotes = voters.GroupBy(voter => voter.Id).Select(voter => new { voter.First().Id, Count = voter.Count(), voter.First().Username });
-			
-			string message = $"Total Votes: {Program.BotList.ThisBot.Points}\nThis Month Votes: coming soon\nVoters Count: {countedVotes.Count()}\nTheir total votes: {voters.Count}";
-			message = countedVotes.Aggregate(message, (current, voter) => current + $"\n{voter.Username} ({voter.Count})");
+
+			var countedVotesList = countedVotes.ToList();
+			string message =
+				$"Total Votes: {Program.BotList.ThisBot.Points}\nThis Month Votes: coming soon\nVoters Count: {countedVotesList.Count}\nTheir total votes: {voters.Count}";
+			message = countedVotesList.Aggregate(message, (current, voter) => current + $"\n{voter.Username} ({voter.Count})");
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 	}

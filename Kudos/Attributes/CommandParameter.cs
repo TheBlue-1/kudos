@@ -39,7 +39,7 @@ namespace Kudos.Attributes {
 		public object FormParameter(ParameterInfo info, string[] parameters, SocketMessage message) {
 			IEnumerable<object> indexLess = new object[] { message.Author, message.Channel, message, message.Settings() };
 
-			ParameterType parameterType = ParameterType.ParameterTypes[info.ParameterType];
+			ParameterType parameterType = ParameterType.FromType(info.ParameterType);
 
 			if (Index < 0) {
 				return parameterType.IndexLess(indexLess);

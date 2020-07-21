@@ -3,35 +3,35 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using Discord;
+using Kudos.Models.bases;
 #endregion
 
 namespace Kudos.Models {
-	public class Settings : INotifyPropertyChanged {
-		private readonly ImmutableDictionary<SettingNames, Setting> _settings;
+	public class Settings : SettingList, INotifyPropertyChanged {
+		private readonly ImmutableDictionary<SettingNames, SettingBase> _settings;
 
-		public Setting this[SettingNames name] => _settings[name];
+		public SettingBase this[SettingNames name] => _settings[name];
 
-		public Settings() : this(ImmutableDictionary.CreateRange(new[] {
-			new KeyValuePair<SettingNames, Setting>(SettingNames.Prefix, new Setting<string>("k!")),
-			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoResponses, new Setting<bool>(true)),
-			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoReact,
-				new DictionarySetting<string, IEmote>(ImmutableDictionary<string, IEmote>.Empty)),
-			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoImage,
-				new DictionarySetting<string, string>(ImmutableDictionary<string, string>.Empty)),
-			new KeyValuePair<SettingNames, Setting>(SettingNames.AutoMessage,
-				new DictionarySetting<string, string>(ImmutableDictionary<string, string>.Empty))
-		})) { }
-
-		private Settings(ImmutableDictionary<SettingNames, Setting> settings) {
-			_settings = settings;
-			foreach (Setting setting in settings.Values) {
+		public Settings() {
+			IEnumerable<FieldInfo> fields = GetType()
+				.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+				.Where(field => field.FieldType.IsSubclassOf(typeof (SettingBase)));
+			Dictionary<SettingNames, SettingBase> settings = fields.Select(field => (SettingBase)field.GetValue(this)).ToDictionary(setting => setting.Name);
+			foreach (SettingBase setting in settings.Values) {
 				setting.PropertyChanged += SettingChanged;
 			}
+			_settings = settings.ToImmutableDictionary();
 		}
 
-		public Setting<T> GetSetting<T>(SettingNames name) => (Setting<T>)_settings[name];
+		private Settings(ImmutableDictionary<SettingNames, SettingBase> settings) : this() {
+			foreach ((SettingNames key, SettingBase value) in settings) {
+				if (value.IsSet) {
+					_settings[key].ObjectValue = value.ObjectValue;
+				}
+			}
+		}
 
 		public Settings Merge(Settings userSettings) {
 			return new Settings(ImmutableDictionary.CreateRange(userSettings._settings.Select(setting =>
@@ -47,13 +47,5 @@ namespace Kudos.Models {
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
-	}
-
-	public enum SettingNames {
-		Prefix,
-		AutoResponses,
-		AutoReact,
-		AutoImage,
-		AutoMessage
 	}
 }

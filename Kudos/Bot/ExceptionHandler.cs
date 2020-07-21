@@ -35,9 +35,16 @@ namespace Kudos.Bot {
 			Exception exception = Exception;
 			while (true) {
 				if (exception is IKudosException kudosException) {
-					if (sendMessages) {
-						await Messaging.Instance.SendMessage(Channel, kudosException.UserMessage);
+					if (!sendMessages) {
+						return;
 					}
+					string message = kudosException.UserMessage;
+
+					// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+					if (Program.Debug) {
+						message += $"\n Log: {kudosException.Message}";
+					}
+					await Messaging.Instance.SendMessage(Channel, message);
 					return;
 				}
 				if (exception.InnerException == null) {
