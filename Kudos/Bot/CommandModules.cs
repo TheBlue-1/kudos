@@ -50,7 +50,7 @@ namespace Kudos.Bot {
 <p>
 <table>
 ";
-				longDescription = ParameterType.ParameterTypes.Values.Aggregate(longDescription, (current, parameterType) => current + parameterType.ToHtml());
+				longDescription = ParameterType.KnownParameterTypes.Aggregate(longDescription, (current, parameterType) => current + parameterType.ToHtml());
 				longDescription += @"
 </table>
 </p> 
@@ -90,8 +90,9 @@ namespace Kudos.Bot {
 				}
 			}
 			string types =
-				(from value in ParameterType.ParameterTypes.Values let valueString = value.ToString() where valueString != string.Empty select value).Aggregate(
-					"`[x|y?]` x is the Type, y is the name, ? tells it's optional", (current, value) => current + ("\n" + value));
+				(from value in ParameterType.KnownParameterTypes let valueString = value.ToString() where valueString != string.Empty select value).Aggregate(
+					"`[x|y?]` x is the Type, y is the name, ? tells it's optional\n" + "use `-` to skip a parameter",
+					(current, value) => current + ("\n" + value));
 			embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
 			return embedBuilder;
 		}

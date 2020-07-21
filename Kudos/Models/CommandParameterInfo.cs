@@ -15,8 +15,7 @@ namespace Kudos.Models {
 		}
 
 		public override string ToString() {
-			string info =
-				$"[{ParameterType.ParameterTypes[ParameterInfo.ParameterType].Character}|{ParameterInfo.Name}{(CommandParameter.Optional ? "?" : "")}]";
+			string info = $"[{ParameterType.FromType(ParameterInfo.ParameterType).Character}|{ParameterInfo.Name}{(CommandParameter.Optional ? "?" : "")}]";
 			return info;
 		}
 	}

@@ -1,6 +1,5 @@
 ﻿#region
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -48,44 +47,6 @@ namespace Kudos.Bot.Modules {
 		static Reactions() { }
 
 		private Reactions() { }
-
-		public async Task AutoReact(SocketMessage message) {
-			string content = message.Content;
-			ImmutableDictionary<string, string> reactions = message.Settings().AutoReact.Value;
-			foreach ((string needle, string emojiString) in reactions) {
-				if (string.IsNullOrWhiteSpace(emojiString)) {
-					continue;
-				}
-				IEmote emoji;
-				if (Emote.TryParse(emojiString, out Emote emote)) {
-					emoji = emote;
-				} else {
-					emoji = new Emoji(emojiString);
-				}
-
-				if (needle.StartsWith("*")) {
-					if (needle.EndsWith("*")) {
-						if (content.Contains(needle.Substring(1, needle.Length - 2))) {
-							await message.AddReactionAsync(emoji);
-						}
-						continue;
-					}
-					if (content.EndsWith(needle.Substring(1))) {
-						await message.AddReactionAsync(emoji);
-					}
-					continue;
-				}
-				if (needle.EndsWith("*")) {
-					if (content.StartsWith(needle.Substring(0, needle.Length - 1))) {
-						await message.AddReactionAsync(emoji);
-					}
-					continue;
-				}
-				if (content == needle) {
-					await message.AddReactionAsync(emoji);
-				}
-			}
-		}
 
 		[Command("react", "reacts with letters to latest message")]
 		public async Task Delete([CommandParameter] SocketMessage message, [CommandParameter(0)] string text) {

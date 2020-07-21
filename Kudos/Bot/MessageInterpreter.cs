@@ -22,12 +22,12 @@ namespace Kudos.Bot {
 		private string[] Parameters { get; }
 
 		public MessageInterpreter(SocketMessage message) {
-			string prefix = message.Settings().Prefix.Value;
+			message.Settings()[SettingNames.Prefix].Value(out string prefix);
 			if (message.Author.IsBot || !message.Content.StartsWith(prefix)) {
 				Executable = false;
 				return;
 			}
-			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?: @| (?<! @[^#]*?))(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+@|\\s+(?<!\\s+@[^#]*?))(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
 				Executable = false;
 				return;
@@ -71,7 +71,7 @@ namespace Kudos.Bot {
 				Execute();
 			}
 			catch (Exception e) {
-				new ExceptionHandler(e, Message.Channel).Handle();
+				new ExceptionHandler(e, Message.Channel).Handle(true);
 			}
 		}
 	}

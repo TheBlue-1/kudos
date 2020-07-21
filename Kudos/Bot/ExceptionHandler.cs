@@ -17,13 +17,13 @@ namespace Kudos.Bot {
 			Channel = channel;
 		}
 
-		public async void Handle() {
+		public async void Handle(bool sendMessages) {
 			try {
-				await HandleException();
+				await HandleException(sendMessages);
 			}
 			catch (Exception) {
 				try {
-					await SendInternalError();
+					await SendInternalError(sendMessages);
 				}
 				catch (Exception) {
 					//ignored (couldn't send internal error msg, nothing more kudos can do)
@@ -31,11 +31,20 @@ namespace Kudos.Bot {
 			}
 		}
 
-		private async Task HandleException() {
+		private async Task HandleException(bool sendMessages) {
 			Exception exception = Exception;
 			while (true) {
 				if (exception is IKudosException kudosException) {
-					await Messaging.Instance.SendMessage(Channel, kudosException.UserMessage);
+					if (!sendMessages) {
+						return;
+					}
+					string message = kudosException.UserMessage;
+
+					// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+					if (Program.Debug) {
+						message += $"\n Log: {kudosException.Message}";
+					}
+					await Messaging.Instance.SendMessage(Channel, message);
 					return;
 				}
 				if (exception.InnerException == null) {
@@ -43,13 +52,16 @@ namespace Kudos.Bot {
 				}
 				exception = exception.InnerException;
 			}
-
-			await Messaging.Instance.SendMessage(Channel, "unknown error occured");
+			if (sendMessages) {
+				await Messaging.Instance.SendMessage(Channel, "unknown error occured");
+			}
 			FileService.Instance.Log(Exception.ToString());
 		}
 
-		private async Task SendInternalError() {
-			await Messaging.Instance.SendMessage(Channel, "An internal error occured");
+		private async Task SendInternalError(bool sendMessages) {
+			if (sendMessages) {
+				await Messaging.Instance.SendMessage(Channel, "An internal error occured");
+			}
 			FileService.Instance.Log($"error while error handling: \n{Exception}");
 		}
 	}
