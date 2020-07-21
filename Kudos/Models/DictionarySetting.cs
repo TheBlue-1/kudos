@@ -1,5 +1,6 @@
 ﻿#region
 using System.Collections.Immutable;
+using Kudos.Bot;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models.bases;
@@ -7,7 +8,16 @@ using Kudos.Models.bases;
 
 namespace Kudos.Models {
 	public class DictionarySetting<T1, T2> : Setting<ImmutableDictionary<T1, T2>>, IDictionarySetting {
-		protected internal DictionarySetting(SettingNames name, ImmutableDictionary<T1, T2> defaultValue) : base(name, defaultValue) { }
+		public override string HelpText {
+			get {
+				string info = $"[{ParameterType.FromType(typeof (T2)).Character}|value] [{ParameterType.FromType(typeof (T1)).Character}|key]";
+				string text = $"`{Name.ToString().ToLower()} {info}` {Description}";
+				return text;
+			}
+		}
+
+		protected internal DictionarySetting(SettingNames name, ImmutableDictionary<T1, T2> defaultValue, string description) : base(name, defaultValue,
+			description) { }
 
 		public override bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) {
 			if (key == null || !(keyParameterIndex is int notNullKeyParameterIndex)) {

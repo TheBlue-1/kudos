@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Discord;
+using Kudos.Extensions;
 using Kudos.Models.bases;
 #endregion
 
@@ -44,6 +46,28 @@ namespace Kudos.Models {
 
 		private void SettingChanged(object sender, PropertyChangedEventArgs args) {
 			OnPropertyChanged();
+		}
+
+		public static EmbedBuilder SettingsAsEmbed() {
+			EmbedBuilder builder = new EmbedBuilder().SetDefaults();
+
+			EmbedFieldBuilder commandsField = new EmbedFieldBuilder().WithIsInline(false).WithName("Commands");
+			CommandModuleInfo settingsInfo = new CommandModuleInfo(typeof (Bot.Modules.Settings));
+			string commandDescription = settingsInfo.Commands.First(command => command.Command.Name == "s").ToString();
+			commandsField.WithValue(commandDescription);
+			builder.AddField(commandsField);
+			EmbedFieldBuilder settingsField = new EmbedFieldBuilder().WithIsInline(false).WithName("Settings");
+			string settings = string.Empty;
+			Settings defaultSettings = new Settings();
+			settings = defaultSettings._settings.Values.Aggregate(settings, (current, defaultSetting) => current + defaultSetting.HelpText + "\n");
+			builder.AddField(settingsField.WithValue(settings));
+			EmbedFieldBuilder examplesField = new EmbedFieldBuilder().WithIsInline(false).WithName("Examples");
+			string examples = "set `prefix` server wide:\n" + "`k!s prefix \"kudos!\" - true`\n";
+			examples += "unset (to default) `prefix` personal:\n" + "`k!s prefix`\n";
+			examples += "set `autoreact` for messages ending with `haha` to `😂` personal:\n" + "`k!s autoreact \"😂\" \"*haha\"`\n";
+			examples += "unset `autoreact` for messages starting with `haha` server wide:\n" + "`k!s autoreact - \"haha*\" true`\n";
+			examplesField.WithValue(examples);
+			return builder.AddField(examplesField);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

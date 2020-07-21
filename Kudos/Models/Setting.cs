@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Kudos.Bot;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models.bases;
@@ -13,6 +14,14 @@ namespace Kudos.Models {
 		private T _setValue;
 		[JsonIgnore]
 		public T Default { get; }
+
+		public override string HelpText {
+			get {
+				string info = $"[{ParameterType.FromType(typeof (T)).Character}|value]";
+				string text = $"`{Name.ToString().ToLower()} {info}` default: `{Default}` {Description}";
+				return text;
+			}
+		}
 		[JsonIgnore]
 		public override string StringValue => Value.ToString();
 		[JsonIgnore]
@@ -45,8 +54,7 @@ namespace Kudos.Models {
 			}
 		}
 
-		protected internal Setting(SettingNames name, T defaultValue) : base(name) => Default = defaultValue;
-
+		protected internal Setting(SettingNames name, T defaultValue, string description) : base(name, description) => Default = defaultValue;
 		public override event PropertyChangedEventHandler PropertyChanged;
 
 		public override bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) =>
