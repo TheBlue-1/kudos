@@ -35,11 +35,21 @@ namespace Kudos.Bot.Modules {
 			"People really hate you don't they?", "Oh boy you must have done something annoying!", "Watch out we have a real Mr. Trump here!",
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
+		private AsyncThreadsafeFileSyncedDictionary<ulong, int> _usedHonor = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
+		private DateTime _usedHonorDate = DateTime.Now.Date;
 
 		private AsyncThreadsafeFileSyncedDictionary<ulong, int> BalancesPerId { get; } = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("balances");
 		public static Honor Instance { get; } = new Honor();
-		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor { get; } =
-			new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
+		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor {
+			get {
+				// ReSharper disable once InvertIf
+				if (_usedHonorDate != DateTime.Now.Date) {
+					_usedHonor = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
+					_usedHonorDate = DateTime.Now.Date;
+				}
+				return _usedHonor;
+			}
+		}
 
 		static Honor() { }
 
