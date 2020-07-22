@@ -39,5 +39,18 @@ namespace Kudos.Models {
 			SetValue = Value.SetItem(keyValue, valueValue);
 			return true;
 		}
+
+		public override SettingBase Merge(SettingBase serverSetting) {
+			SameTypeCheck(serverSetting);
+			if (!IsSet) {
+				return serverSetting;
+			}
+			if (!serverSetting.IsSet) {
+				return this;
+			}
+			DictionarySetting<T1, T2> setting = Create(Name, Default, Description);
+			setting.SetValue = ((DictionarySetting<T1, T2>)serverSetting).Value.SetItems(Value);
+			return setting;
+		}
 	}
 }

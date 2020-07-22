@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using Kudos.Exceptions;
 #endregion
 
 namespace Kudos.Models.bases {
@@ -23,16 +24,15 @@ namespace Kudos.Models.bases {
 
 		public abstract bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null);
 
+		public abstract SettingBase Merge(SettingBase serverSetting);
+
 		public abstract bool SetValueWithString(string value, int parameterIndex = 1);
 
 		public bool AddOrSetValue(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) => this is IDictionarySetting
 			? AddValueWithString(value, valueParameterIndex, key, keyParameterIndex)
 			: SetValueWithString(value, valueParameterIndex);
 
-		public void AsSetting<T>(out T value)
-			where T : SettingBase {
-			value = this as T;
-		}
+	
 
 		public static Setting<T> Create<T>(SettingNames name, T defaultValue, string description) => new Setting<T>(name, defaultValue, description);
 
@@ -42,6 +42,13 @@ namespace Kudos.Models.bases {
 
 		public static DictionarySetting<T1, T2> Create<T1, T2>(SettingNames name, ImmutableDictionary<T1, T2> defaultValue, string description) =>
 			new DictionarySetting<T1, T2>(name, defaultValue, description);
+
+		protected void SameTypeCheck(SettingBase setting) {
+			if (setting.GetType() == GetType()) {
+				return;
+			}
+			throw new KudosInternalException("setting must be of the same type");
+		}
 
 		public void Value<T>(out T value) {
 			value = this is Setting<T> setting ? setting.Value : default;
