@@ -36,8 +36,11 @@ namespace Kudos.Models {
 		}
 
 		public Settings Merge(Settings userSettings) {
-			return new Settings(ImmutableDictionary.CreateRange(userSettings._settings.Select(setting =>
-				setting.Value.IsSet ? setting : _settings.First(serverSetting => serverSetting.Key == setting.Key))));
+			return new Settings(ImmutableDictionary.CreateRange(userSettings._settings.Select(settingNamePair => {
+				(SettingNames name, SettingBase setting) = settingNamePair;
+				KeyValuePair<SettingNames, SettingBase> serverSetting = _settings.First(serverSettingItem => name == serverSettingItem.Key);
+				return new KeyValuePair<SettingNames, SettingBase>(name, setting.Merge(serverSetting.Value));
+			})));
 		}
 
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {

@@ -55,10 +55,16 @@ namespace Kudos.Models {
 		}
 
 		protected internal Setting(SettingNames name, T defaultValue, string description) : base(name, description) => Default = defaultValue;
+
 		public override event PropertyChangedEventHandler PropertyChanged;
 
 		public override bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) =>
 			throw new NotImplementedException();
+
+		public override SettingBase Merge(SettingBase serverSetting) {
+			SameTypeCheck(serverSetting);
+			return IsSet ? this : serverSetting;
+		}
 
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

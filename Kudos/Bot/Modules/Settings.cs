@@ -1,8 +1,6 @@
 ﻿#region
 using System;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
@@ -51,7 +49,5 @@ namespace Kudos.Bot.Modules {
 		public async Task SendSettingList([CommandParameter] ISocketMessageChannel channel) {
 			await Messaging.Instance.SendEmbed(channel, Models.Settings.SettingsAsEmbed());
 		}
-
-	
 	}
 }
