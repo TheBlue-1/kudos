@@ -15,10 +15,8 @@ namespace Kudos.Extensions {
 			string[] arr = new string[parameterIndex + 1];
 			arr[parameterIndex] = value;
 			try {
-				TValue newValue = (TValue)ParameterType.FromType(typeof (TValue))
-					.ParameterInterpreter.Invoke(arr, new object[0], parameterIndex, false, Optional<object>.Unspecified, null, null,
-						false);
-				return newValue;
+				return ParameterType.InterpretParameter(arr, default, parameterIndex, false, Optional<TValue>.Unspecified, default, default,
+					false);
 			}
 			catch (KudosArgumentTypeException exception) {
 				throw new KudosArgumentTypeException(exception.UserMessage + " as text", exception.Message + " as text");

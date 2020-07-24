@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Discord;
 using Discord.WebSocket;
@@ -39,14 +40,13 @@ namespace Kudos.Attributes {
 		public object FormParameter(ParameterInfo info, string[] parameters, SocketMessage message) {
 			IEnumerable<object> indexLess = new object[] { message.Author, message.Channel, message, message.Settings() };
 
-			ParameterType parameterType = ParameterType.FromType(info.ParameterType);
-
-			if (Index < 0) {
-				return parameterType.IndexLess(indexLess);
+			if (Index >= 0) {
+				return ParameterType.InterpretParameter(info.ParameterType, parameters, indexLess, Index, Optional, DefaultValue, Min,
+					Max, ThrowOutOfRange);
 			}
-
-			return parameterType.ParameterInterpreter(parameters, indexLess, Index, Optional, DefaultValue, Min, Max,
-				ThrowOutOfRange);
+			object value = indexLess.FirstOrDefault(obj => obj.GetType() == info.ParameterType)
+				?? indexLess.FirstOrDefault(obj => info.ParameterType.IsInstanceOfType(obj));
+			return value;
 		}
 	}
 }

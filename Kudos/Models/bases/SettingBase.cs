@@ -32,8 +32,6 @@ namespace Kudos.Models.bases {
 			? AddValueWithString(value, valueParameterIndex, key, keyParameterIndex)
 			: SetValueWithString(value, valueParameterIndex);
 
-	
-
 		public static Setting<T> Create<T>(SettingNames name, T defaultValue, string description) => new Setting<T>(name, defaultValue, description);
 
 		// ReSharper disable once UnusedMember.Global

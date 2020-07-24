@@ -27,7 +27,6 @@ namespace Kudos.Bot {
 
 		public Client(string token) {
 			_client = new DiscordSocketClient();
-
 		#pragma warning disable 162
 
 			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
