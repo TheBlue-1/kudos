@@ -22,8 +22,14 @@ namespace Kudos.Bot.Modules {
 		private Messaging() { }
 
 		[Command("hello", "answers hello")]
-		public async Task Hello([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
+		public async Task Hello([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user)
+		{
 			await SendMessage(channel, HelloText + user.Mention);
+		}
+		[Command("vote", "answers hello")]
+		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user)
+		{
+			await SendMessage(channel, "Here is our vote link: https://top.gg/bot/719571683517792286/vote \nThank you for voting!");
 		}
 
 		[Command("help", "shows all commands")]

@@ -26,6 +26,7 @@ namespace Kudos.Bot {
 		private bool StartedSuccessful { get; set; }
 
 		public Client(string token) {
+
 			_client = new DiscordSocketClient();
 		#pragma warning disable 162
 
