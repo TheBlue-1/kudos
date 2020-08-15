@@ -21,8 +21,8 @@ namespace Kudos.Bot.Modules {
 
 		[Command("guilds", "shows all guilds of the server")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
-			IReadOnlyCollection<SocketGuild> guilds = Program.Client.Guilds;
-			string message = $"I am present on {guilds.Count} guilds";
+			SocketGuild[] guilds = Program.Client.Guilds.OrderBy(guild => guild.Name).ToArray();
+			string message = $"I am present on {guilds.Length} guilds";
 			if (!Program.IsBotListBot) {
 				message += "\nI am not the real Kudos (just a test/beta version)";
 			}

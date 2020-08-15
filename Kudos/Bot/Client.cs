@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
@@ -15,18 +16,18 @@ namespace Kudos.Bot {
 		///     TODO ideas/planned
 		///     sleep rememberer (maybe general rememberer)
 		///     achievements (to make people use features and do crazy stuff)
-		///     stalker (listens in other channel and plays in yours)
 		/// </summary>
 		private readonly DiscordSocketClient _client;
-
+		private volatile bool _connected;
 		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
-		public IReadOnlyCollection<SocketGuild> Guilds => _client.Guilds;
-		public string State => StartedSuccessful ? _client.Status.ToString() : "starting";
 
-		private bool StartedSuccessful { get; set; }
+		private volatile bool _loggedIn;
+		public IReadOnlyCollection<SocketGuild> Guilds => _client.Guilds;
+		public string State => _loggedIn ? _connected ? _client.Status.ToString() : "connecting" : "logging in";
+		private string Token { get; }
 
 		public Client(string token) {
-
+			Token = token;
 			_client = new DiscordSocketClient();
 		#pragma warning disable 162
 
@@ -40,7 +41,15 @@ namespace Kudos.Bot {
 			_client.LatencyUpdated += ClientLatencyUpdated;
 			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
-			Start(token);
+			_client.Disconnected += _ => {
+				_connected = false;
+				return Task.Run(() => { });
+			};
+			_client.LoggedOut += () => {
+				_loggedIn = false;
+				return Task.Run(() => { });
+			};
+			Start();
 		}
 
 		public event Action JoinedNewGuild;
@@ -83,10 +92,28 @@ namespace Kudos.Bot {
 			await Task.Run(() => { JoinedNewGuild?.Invoke(); });
 		}
 
-		private async void Start(string token) {
-			await _client.LoginAsync(TokenType.Bot, token);
-			await _client.StartAsync();
-			StartedSuccessful = true;
+		[SuppressMessage("ReSharper", "InvertIf")]
+		private void Start() {
+			Task connector = new Task(async () => {
+				while (true) {
+					try {
+						if (!_loggedIn) {
+							await _client.LoginAsync(TokenType.Bot, Token);
+							_loggedIn = true;
+						}
+						if (!_connected) {
+							await _client.StartAsync();
+							_connected = true;
+						}
+					}
+					catch (Exception) {
+						// ignored
+					}
+					await Task.Delay(5000);
+				}
+				// ReSharper disable once FunctionNeverReturns
+			});
+			connector.Start();
 		}
 	}
 }
