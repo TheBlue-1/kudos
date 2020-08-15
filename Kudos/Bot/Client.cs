@@ -84,7 +84,6 @@ namespace Kudos.Bot {
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
-		public SocketGuild GetSocketGuildById(ulong id) => _client.GetGuild(id);
 		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
 
