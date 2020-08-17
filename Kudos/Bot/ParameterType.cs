@@ -51,25 +51,32 @@ namespace Kudos.Bot {
 		}
 
 		protected abstract object InterpretParameter(string[] parameters, IEnumerable<object> indexLess, int index, bool optional,
-			Optional<object> defaultValue, object min, object max, bool throwOutOfRange);
+			Optional<object> defaultValue, Optional<object> min, Optional<object> max, bool throwOutOfRange);
 
 		[SuppressMessage("ReSharper", "InvertIf")]
-		private static T CheckMinMax<T>(T value, int index, object min, object max, bool throwOutOfRange)
-			where T : IComparable {
-			if (min != null) {
-				if (value.CompareTo(min) < 0) {
-					if (throwOutOfRange) {
-						throw new KudosArgumentOutOfRangeException($"parameter {index} must be bigger than {min}");
+		private static T CheckMinMax<T>(T value, int index, Optional<T> min, Optional<T> max, bool throwOutOfRange)
+			where T : IComparable
+		{
+			if (min.IsSpecified)
+			{
+				if (value.CompareTo(min.Value) < 0)
+				{
+					if (throwOutOfRange)
+					{
+						throw new KudosArgumentOutOfRangeException($"parameter {index} must be bigger than {min.Value}");
 					}
-					return (T)min;
+					return min.Value;
 				}
 			}
-			if (max != null) {
-				if (value.CompareTo(max) > 0) {
-					if (throwOutOfRange) {
-						throw new KudosArgumentOutOfRangeException($"parameter {index} must be smaller than {max}");
+			if (max.IsSpecified)
+			{
+				if (value.CompareTo(max.Value) > 0)
+				{
+					if (throwOutOfRange)
+					{
+						throw new KudosArgumentOutOfRangeException($"parameter {index} must be smaller than {max.Value}");
 					}
-					return (T)max;
+					return max.Value;
 				}
 			}
 
@@ -83,17 +90,17 @@ namespace Kudos.Bot {
 			return ParameterTypes[type];
 		}
 
-		public static T InterpretParameter<T>(string[] parameters, T indexLess, int index, bool optional, Optional<T> defaultValue, T min, T max,
+		public static T InterpretParameter<T>(string[] parameters, T indexLess, int index, bool optional, Optional<T> defaultValue, Optional<T> min, Optional<T> max,
 			bool throwOutOfRange) =>
 			((ParameterType<T>)ParameterTypes[typeof (T)]).ParameterInterpreter.Invoke(parameters, indexLess, index, optional, defaultValue, min, max,
 				throwOutOfRange);
 
 		public static object InterpretParameter(Type type, string[] parameters, IEnumerable<object> indexLess, int index, bool optional,
-			Optional<object> defaultValue, object min, object max, bool throwOutOfRange) => ParameterTypes[type]
+			Optional<object> defaultValue, Optional<object> min, Optional<object> max, bool throwOutOfRange) => ParameterTypes[type]
 			.InterpretParameter(parameters, indexLess, index, optional, defaultValue, min, max,
 				throwOutOfRange);
 
-		private static bool ParameterAsBool(string[] parameters, bool indexLess, int index, bool optional, Optional<bool> defaultValue, bool min, bool max,
+		private static bool ParameterAsBool(string[] parameters, bool indexLess, int index, bool optional, Optional<bool> defaultValue, Optional<bool> min, Optional<bool> max,
 			bool throwOutOfRange) {
 			if (ParameterPresent(parameters, index) && bool.TryParse(parameters[index], out bool value)) {
 				return value;
@@ -106,8 +113,8 @@ namespace Kudos.Bot {
 			return value;
 		}
 
-		private static IEmote ParameterAsEmote(string[] parameters, IEmote indexLess, int index, bool optional, Optional<IEmote> defaultValue, IEmote min,
-			IEmote max, bool throwOutOfRange) {
+		private static IEmote ParameterAsEmote(string[] parameters, IEmote indexLess, int index, bool optional, Optional<IEmote> defaultValue, Optional<IEmote> min,
+			Optional<IEmote> max, bool throwOutOfRange) {
 			if (ParameterPresent(parameters, index) && Emote.TryParse(parameters[index], out Emote value)) {
 				return value;
 			}
@@ -121,7 +128,7 @@ namespace Kudos.Bot {
 			return emote;
 		}
 
-		private static int ParameterAsInt(string[] parameters, int indexLess, int index, bool optional, Optional<int> defaultValue, int min, int max,
+		private static int ParameterAsInt(string[] parameters, int indexLess, int index, bool optional, Optional<int> defaultValue, Optional<int >min, Optional<int >max,
 			bool throwOutOfRange) {
 			if (ParameterPresent(parameters, index) && int.TryParse(parameters[index], out int value)) {
 				return CheckMinMax(value, index, min, max, throwOutOfRange);
@@ -135,7 +142,7 @@ namespace Kudos.Bot {
 		}
 
 		private static SocketUser ParameterAsSocketUser(string[] parameters, SocketUser indexLess, int index, bool optional, Optional<SocketUser> defaultValue,
-			SocketUser min, SocketUser max, bool throwOutOfRange) {
+			Optional<SocketUser> min, Optional<SocketUser> max, bool throwOutOfRange) {
 			SocketUser user;
 			if (ParameterPresent(parameters, index)) {
 				user = UserExtensions.FromMention(parameters[index]);
@@ -159,8 +166,8 @@ namespace Kudos.Bot {
 			return user;
 		}
 
-		private static ulong ParameterAsULong(string[] parameters, ulong indexLess, int index, bool optional, Optional<ulong> defaultValue, ulong min,
-			ulong max, bool throwOutOfRange) {
+		private static ulong ParameterAsULong(string[] parameters, ulong indexLess, int index, bool optional, Optional<ulong> defaultValue, Optional<ulong >min,
+			Optional<ulong> max, bool throwOutOfRange) {
 			if (ParameterPresent(parameters, index) && ulong.TryParse(parameters[index], out ulong value)) {
 				return CheckMinMax(value, index, min, max, throwOutOfRange);
 			}
@@ -172,7 +179,7 @@ namespace Kudos.Bot {
 			return value;
 		}
 
-		private static Word ParameterAsWord(string[] parameters, Word indexLess, int index, bool optional, Optional<Word> defaultValue, Word min, Word max,
+		private static Word ParameterAsWord(string[] parameters, Word indexLess, int index, bool optional, Optional<Word> defaultValue, Optional<Word >min, Optional<Word >max,
 			bool throwOutOfRange) {
 			Word value;
 			if (ParameterPresent(parameters, index) && (value = Word.Create(parameters[index])) != null) {
@@ -189,8 +196,8 @@ namespace Kudos.Bot {
 		private static bool ParameterPresent(IReadOnlyList<string> parameters, int index) =>
 			parameters.Count > index && !string.IsNullOrEmpty(parameters[index]) && parameters[index] != "-";
 
-		private static string ParametersAsString(string[] parameters, string indexLess, int index, bool optional, Optional<string> defaultValue, string min,
-			string max, bool throwOutOfRange) {
+		private static string ParametersAsString(string[] parameters, string indexLess, int index, bool optional, Optional<string> defaultValue, Optional<string> min,
+			Optional<string >max, bool throwOutOfRange) {
 			if (ParameterPresent(parameters, index)) {
 				if (parameters[index].StartsWith('"') && parameters[index].EndsWith('"')) {
 					return parameters[index].Substring(1, parameters[index].Length - 2);
@@ -205,13 +212,13 @@ namespace Kudos.Bot {
 			return value;
 		}
 
-		private static void SetToDefaultValue<T>(out T value, Optional<object> defaultValue, T indexLess) {
+		private static void SetToDefaultValue<T>(out T value, Optional<T> defaultValue, T indexLess) {
 			if (defaultValue.IsSpecified) {
 				if (defaultValue.Value.Equals(SpecialDefaults.IndexLess)) {
 					value = indexLess;
 					return;
 				}
-				value = (T)defaultValue.Value;
+				value = defaultValue.Value;
 				return;
 			}
 			value = default;
@@ -221,7 +228,7 @@ namespace Kudos.Bot {
 
 		public override string ToString() => Description == null ? string.Empty : $"`{Character}` {Description}";
 
-		protected internal delegate T ParameterAsType<T>(string[] parameters, T indexLess, int index, bool optional, Optional<T> defaultValue, T min, T max,
+		protected internal delegate T ParameterAsType<T>(string[] parameters, T indexLess, int index, bool optional, Optional<T> defaultValue, Optional<T >min, Optional<T> max,
 			bool throwOutOfRange);
 
 		public enum SpecialDefaults {
@@ -242,14 +249,16 @@ namespace Kudos.Bot {
 			Description = description;
 			ParameterInterpreter = parameterInterpreter ?? NotImplemented;
 
-			static T NotImplemented(string[] parameters, T indexLess, int index, bool optional, Optional<T> defaultValue, T min, T max,
+			static T NotImplemented(string[] parameters, T indexLess, int index, bool optional, Optional<T> defaultValue, Optional<T> min, Optional<T> max,
 				bool throwOutOfRange) => throw new NotImplementedException();
 		}
 
 		protected override object InterpretParameter(string[] parameters, IEnumerable<object> indexLess, int index, bool optional,
-			Optional<object> defaultValue, object min, object max, bool throwOutOfRange) {
+			Optional<object> defaultValue, Optional<object> min, Optional<object> max, bool throwOutOfRange)
+		{
 			return ParameterInterpreter.Invoke(parameters, indexLess.FirstOrDefault(obj => obj is T) is T tValue ? tValue : default, index, optional,
-				defaultValue is Optional<T> tOptional ? tOptional : default, min is T tMin ? tMin : default, max is T tMax ? tMax : default, throwOutOfRange);
+				defaultValue is Optional<T> tOptional ? tOptional : default, min is Optional<T> tMin ? tMin : default, max is Optional<T> tMax ? tMax : default,
+				throwOutOfRange);
 		}
 	}
 }
