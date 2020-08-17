@@ -31,7 +31,7 @@ namespace Kudos.Bot {
 <p>
 <ul>
 ";
-				longDescription = Modules.Where(module => !module.Module.Hidden)
+				longDescription = Modules.Where(module => module.Module.Accessibility != Accessibility.Hidden)
 					.Aggregate(longDescription, (current, module) => current + $@"<li>{module.Module.Name}</li>");
 				longDescription += @"
 </ul>
@@ -41,7 +41,7 @@ namespace Kudos.Bot {
 <h2>Commands</h2>
 ";
 
-				longDescription = Modules.Where(module => !module.Module.Hidden)
+				longDescription = Modules.Where(module => module.Module.Accessibility != Accessibility.Hidden)
 					.Aggregate(longDescription, (current, module) => current + module.CommandListAsHtml);
 
 				longDescription += @"

@@ -5,14 +5,20 @@ using System;
 namespace Kudos.Attributes {
 	[AttributeUsage(AttributeTargets.Method)]
 	public class Command : Attribute {
+		public Accessibility Accessibility { get; }
 		public string Description { get; }
-		public bool Hidden { get; }
 		public string Name { get; }
 
-		public Command(string name, string description = "", bool hidden = false) {
+		public Command(string name, string description = "", Accessibility accessibility = Accessibility.Open) {
 			Name = name;
 			Description = description;
-			Hidden = hidden;
+			Accessibility = accessibility;
 		}
+	}
+
+	public enum Accessibility {
+		Open,
+		Admin,
+		Hidden
 	}
 }

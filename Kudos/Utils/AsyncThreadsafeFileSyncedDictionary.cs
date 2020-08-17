@@ -23,9 +23,9 @@ namespace Kudos.Utils {
 				return _dictionaryImplementation;
 			}
 		}
-		public ImmutableDictionary<TKey, TValue> Immutable => RunLocked(() => DictionaryImplementation.ToImmutableDictionary());
 
 		private string FileName { get; }
+		public ImmutableDictionary<TKey, TValue> Immutable => RunLocked(() => DictionaryImplementation.ToImmutableDictionary());
 		public bool IsReadOnly => RunLocked(() => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).IsReadOnly);
 		public ICollection<TKey> Keys => throw new NotSupportedException();
 		public ICollection<TValue> Values => throw new NotSupportedException();

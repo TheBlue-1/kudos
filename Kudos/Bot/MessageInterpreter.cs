@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord.WebSocket;
+using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
@@ -39,16 +40,27 @@ namespace Kudos.Bot {
 
 		public void Execute() {
 			bool isBotAdmin = Message.Author.IsBotAdmin();
-			CommandInfo command = CommandModules.Instance.Modules.Where(module => !module.Module.Hidden || isBotAdmin)
-				.SelectMany(module => module.Commands.Where(commandInfo => (!commandInfo.Command.Hidden || isBotAdmin) && commandInfo.Command.Name == Command))
+			CommandInfo command = CommandModules.Instance.Modules.Where(module => module.Module.Accessibility != Accessibility.Hidden || isBotAdmin)
+				.SelectMany(module => module.Commands.Where(commandInfo =>
+					(commandInfo.Command.Accessibility != Accessibility.Hidden || isBotAdmin) && commandInfo.Command.Name == Command))
 				.FirstOrDefault();
 			if (command == null) {
 				return;
 			}
+
+			if (command.Module.Module.Accessibility == Accessibility.Admin || command.Command.Accessibility == Accessibility.Admin) {
+				if (Message.Channel is SocketGuildChannel guildChannel) {
+					if (!(Message.Author as SocketGuildUser).IsGuildAdmin(guildChannel.Guild)) {
+						throw new KudosUnauthorizedException("You must be server administrator to use this feature!");
+					}
+				}
+			}
+
 			object commandModule = command.Module.Type.GetProperty("Instance")?.GetValue(null);
 			if (commandModule == null) {
 				throw new Exception("command modules must be singletons");
 			}
+
 			CommandParameterInfo[] parameterInfo = command.AllParameter;
 			object[] parameters = new object[parameterInfo.Length];
 			for (int i = 0; i < parameters.Length; i++) {

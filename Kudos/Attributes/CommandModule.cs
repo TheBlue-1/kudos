@@ -5,12 +5,12 @@ using System;
 namespace Kudos.Attributes {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class CommandModule : Attribute {
-		public bool Hidden { get; }
+		public Accessibility Accessibility { get; }
 		public string Name { get; }
 
-		public CommandModule(string name, bool hidden = false) {
+		public CommandModule(string name, Accessibility accessibility = Accessibility.Open) {
 			Name = name;
-			Hidden = hidden;
+			Accessibility = accessibility;
 		}
 	}
 }
