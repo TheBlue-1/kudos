@@ -19,7 +19,7 @@ namespace Kudos.Bot.Modules {
 
 		private Settings() { }
 
-		[Command("s", "change settings")]
+		[Command("s", "change settings", Accessibility.Admin)]
 		public async Task ChangeSetting([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] Word setting,
 			[CommandParameter(1, null)] string value, [CommandParameter(2, null)] string key, [CommandParameter(3, false)] bool forServer,
 			[CommandParameter] SocketUser author) {

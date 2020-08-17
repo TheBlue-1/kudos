@@ -16,7 +16,8 @@ namespace Kudos.Models {
 <h3>{Module.Name}</h3>
 <table>
 ";
-				htmlList = Commands.Where(command => !command.Command.Hidden).Aggregate(htmlList, (current, commandInfo) => current + commandInfo.ToHtml());
+				htmlList = Commands.Where(command => command.Command.Accessibility != Accessibility.Hidden)
+					.Aggregate(htmlList, (current, commandInfo) => current + commandInfo.ToHtml());
 				htmlList += @"
 </table>
 </p> 
@@ -37,11 +38,12 @@ namespace Kudos.Models {
 		}
 
 		public EmbedFieldBuilder CommandListAsEmbedField(bool isBotAdmin) {
-			if (Module.Hidden && !isBotAdmin) {
+			if (Module.Accessibility == Accessibility.Hidden && !isBotAdmin) {
 				return null;
 			}
 			EmbedFieldBuilder fieldBuilder = new EmbedFieldBuilder().WithName(Module.Name).WithIsInline(false);
-			string commands = Commands.Where(command => !command.Command.Hidden || isBotAdmin).Aggregate("", (current, command) => current + (command + "\n"));
+			string commands = Commands.Where(command => command.Command.Accessibility != Accessibility.Hidden || isBotAdmin)
+				.Aggregate("", (current, command) => current + (command + "\n"));
 			return string.IsNullOrEmpty(commands) ? null : fieldBuilder.WithValue(commands);
 		}
 	}

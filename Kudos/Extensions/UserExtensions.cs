@@ -37,6 +37,11 @@ namespace Kudos.Extensions {
 
 		public static bool IsBotAdmin(this IUser user) => BotAdmins.Contains(user.Id);
 
+		public static bool IsGuildAdmin(this SocketGuildUser user, SocketGuild guild) {
+			IEnumerable<SocketRole> adminRoles = guild.Roles.Where(role => role.Permissions.Administrator);
+			return user.Roles.Any(role => adminRoles.Contains(role));
+		}
+
 		public static async Task<RestUser> RestUser(this SocketUser user) => await Program.Client.GetRestUserById(user.Id);
 	}
 }

@@ -52,9 +52,10 @@ namespace Kudos.Bot.Modules {
 
 		[Command("vote", "answers hello")]
 		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
-			await SendMessage(channel, "Vote for our bot: [bot vote](https://top.gg/bot/719571683517792286/vote) \n" + 
-				"Vote for our server: [server vote](https://top.gg/servers/631180888394301451/vote) \n" +
-				"Thank you for voting!");
+			await SendMessage(channel,
+				"Vote for our bot: [bot vote](https://top.gg/bot/719571683517792286/vote) \n"
+				+ "Vote for our server: [server vote](https://top.gg/servers/631180888394301451/vote) \n"
+				+ "Thank you for voting!");
 		}
 	}
 }

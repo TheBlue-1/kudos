@@ -11,7 +11,7 @@ using Kudos.Exceptions;
 #endregion
 
 namespace Kudos.Bot.Modules {
-	[CommandModule("BotAdministration", true)]
+	[CommandModule("BotAdministration", Accessibility.Hidden)]
 	public sealed class BotAdministration {
 		public static BotAdministration Instance { get; } = new BotAdministration();
 

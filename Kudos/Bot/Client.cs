@@ -19,9 +19,9 @@ namespace Kudos.Bot {
 		/// </summary>
 		private readonly DiscordSocketClient _client;
 		private volatile bool _connected;
-		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
 
 		private volatile bool _loggedIn;
+		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
 		public IReadOnlyCollection<SocketGuild> Guilds => _client.Guilds;
 		public string State => _loggedIn ? _connected ? _client.Status.ToString() : "connecting" : "logging in";
 		private string Token { get; }
@@ -110,6 +110,7 @@ namespace Kudos.Bot {
 					}
 					await Task.Delay(5000);
 				}
+
 				// ReSharper disable once FunctionNeverReturns
 			});
 			connector.Start();
