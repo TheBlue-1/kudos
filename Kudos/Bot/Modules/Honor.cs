@@ -1,9 +1,13 @@
 ﻿#region
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -103,6 +107,29 @@ namespace Kudos.Bot.Modules {
 		private void HonorUser(ulong userId, int count) {
 			int honorBalance = BalancesPerId.ContainsKey(userId) ? BalancesPerId[userId] : 0;
 			BalancesPerId[userId] = honorBalance + count;
+		}
+
+		[Command("leaders", "shows the most highly honored people of the server")]
+		public async Task SendGuildStats([CommandParameter] ISocketMessageChannel channel) {
+			if (!(channel is SocketGuildChannel guildChannel)) {
+				throw new KudosUnauthorizedException("this command can only be used servers");
+			}
+			SocketGuildUser[] users = guildChannel.Guild.Users.Where(user => BalancesPerId.ContainsKey(user.Id)).ToArray();
+			IOrderedEnumerable<KeyValuePair<ulong, int>> balances = BalancesPerId.Immutable
+				.Where(balance => users.Select(user => user.Id).Contains(balance.Key))
+				.OrderBy(balance => balance.Value);
+			EmbedBuilder embed = new EmbedBuilder().SetDefaults().WithTitle("🌟Leader board🌟");
+			string text = "";
+			int counter = 1;
+			foreach ((ulong id, int balance) in balances) {
+				text += $"{counter}. *{users.First(user => user.Id == id)}* with an honor of **{balance}** \n";
+				if (counter == 20) {
+					return;
+				}
+				counter++;
+			}
+			embed.WithDescription(text);
+			await Messaging.Instance.SendEmbed(channel, embed);
 		}
 
 		[Command("balance", "shows the honor point balance")]
