@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Discord;
 using Discord.WebSocket;
@@ -11,10 +12,10 @@ using Kudos.Extensions;
 namespace Kudos.Attributes {
 	[AttributeUsage(AttributeTargets.Parameter)]
 	public class CommandParameter : Attribute {
-		public Optional<object> DefaultValue { get; }
+		public ParameterType.DefaultValue<object> DefaultValue { get; }
 		public int Index { get; }
-		public object Max { get; }
-		public object Min { get; }
+		public Optional<object> Max { get; }
+		public Optional<object> Min { get; }
 		public bool Optional { get; }
 
 		public bool ThrowOutOfRange { get; }
@@ -22,11 +23,12 @@ namespace Kudos.Attributes {
 		private CommandParameter(int index = -1, object min = null, object max = null, bool optional = true, bool throwOutOfRange = false,
 			object defaultValue = null) {
 			Index = index;
-			Min = min;
-			Max = max;
+			Min = min == null ? new Optional<object>() : new Optional<object>(min);
+
+			Max = max == null ? new Optional<object>() : new Optional<object>(max);
 			Optional = optional;
 
-			DefaultValue = defaultValue == null ? new Optional<object>() : new Optional<object>(defaultValue);
+			DefaultValue = ParameterType.DefaultValue<object>.Create(defaultValue);
 			ThrowOutOfRange = throwOutOfRange;
 		}
 
@@ -39,14 +41,13 @@ namespace Kudos.Attributes {
 		public object FormParameter(ParameterInfo info, string[] parameters, SocketMessage message) {
 			IEnumerable<object> indexLess = new object[] { message.Author, message.Channel, message, message.Settings() };
 
-			ParameterType parameterType = ParameterType.ParameterTypes[info.ParameterType];
-
-			if (Index < 0) {
-				return parameterType.IndexLess(indexLess);
+			if (Index >= 0) {
+				return ParameterType.InterpretParameter(info.ParameterType, parameters, indexLess, Index, Optional, DefaultValue, Min,
+					Max, ThrowOutOfRange);
 			}
-
-			return parameterType.ParameterInterpreter(parameters, indexLess, Index, Optional, DefaultValue, Min, Max,
-				ThrowOutOfRange);
+			object value = indexLess.FirstOrDefault(obj => obj.GetType() == info.ParameterType)
+				?? indexLess.FirstOrDefault(obj => info.ParameterType.IsInstanceOfType(obj));
+			return value;
 		}
 	}
 }

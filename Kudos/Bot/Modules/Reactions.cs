@@ -1,9 +1,10 @@
 ﻿#region
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
@@ -49,38 +50,6 @@ namespace Kudos.Bot.Modules {
 
 		private Reactions() { }
 
-		public async Task AutoReact(SocketMessage message) {
-			string content = message.Content;
-			ImmutableDictionary<string, string> reactions = message.Settings().AutoReact.Value;
-			foreach ((string needle, string emojiString) in reactions) {
-				if (string.IsNullOrWhiteSpace(emojiString)) {
-					continue;
-				}
-				Emoji emoji = new Emoji(emojiString);
-				if (needle.StartsWith("*")) {
-					if (needle.EndsWith("*")) {
-						if (content.Contains(needle.Substring(1, needle.Length - 2))) {
-							await message.AddReactionAsync(emoji);
-						}
-						continue;
-					}
-					if (content.EndsWith(needle.Substring(1))) {
-						await message.AddReactionAsync(emoji);
-					}
-					continue;
-				}
-				if (needle.EndsWith("*")) {
-					if (content.StartsWith(needle.Substring(0, needle.Length - 1))) {
-						await message.AddReactionAsync(emoji);
-					}
-					continue;
-				}
-				if (content == needle) {
-					await message.AddReactionAsync(emoji);
-				}
-			}
-		}
-
 		[Command("react", "reacts with letters to latest message")]
 		public async Task Delete([CommandParameter] SocketMessage message, [CommandParameter(0)] string text) {
 			text = text.ToLower();
@@ -96,7 +65,16 @@ namespace Kudos.Bot.Modules {
 				}
 			});
 			foreach (char c in text) {
-				await reactMessage.AddReactionAsync(EmoteMap[c]);
+				try {
+					await reactMessage.AddReactionAsync(EmoteMap[c]);
+				}
+				catch (HttpException e) {
+					if (e.HttpCode != HttpStatusCode.Forbidden) {
+						throw;
+					}
+					throw new KudosArgumentException(
+						"Kudos cant react to the message anymore (maximum different emojis reached / bot has insufficient rights)");
+				}
 			}
 		}
 	}

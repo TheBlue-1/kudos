@@ -11,7 +11,7 @@ using Kudos.Exceptions;
 #endregion
 
 namespace Kudos.Bot.Modules {
-	[CommandModule("BotAdministration", true)]
+	[CommandModule("BotAdministration", Accessibility.Hidden)]
 	public sealed class BotAdministration {
 		public static BotAdministration Instance { get; } = new BotAdministration();
 
@@ -21,8 +21,8 @@ namespace Kudos.Bot.Modules {
 
 		[Command("guilds", "shows all guilds of the server")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
-			IReadOnlyCollection<SocketGuild> guilds = Program.Client.Guilds;
-			string message = $"I am present on {guilds.Count} guilds";
+			SocketGuild[] guilds = Program.Client.Guilds.OrderBy(guild => guild.Name).ToArray();
+			string message = $"I am present on {guilds.Length} guilds";
 			if (!Program.IsBotListBot) {
 				message += "\nI am not the real Kudos (just a test/beta version)";
 			}
@@ -37,8 +37,12 @@ namespace Kudos.Bot.Modules {
 				throw new KudosUnauthorizedException("bot is not allowed to see this information");
 			}
 			List<IDblEntity> voters = await Program.BotList.ThisBot.GetVotersAsync();
-			string message = $"Count: {voters.Count}";
-			message = voters.Aggregate(message, (current, voter) => current + $"\n{voter.Username}");
+			var countedVotes = voters.GroupBy(voter => voter.Id).Select(voter => new { voter.First().Id, Count = voter.Count(), voter.First().Username });
+
+			var countedVotesList = countedVotes.ToList();
+			string message =
+				$"Total Votes: {Program.BotList.ThisBot.Points}\nThis Month Votes: coming soon\nVoters Count: {countedVotesList.Count}\nTheir total votes: {voters.Count}";
+			message = countedVotesList.Aggregate(message, (current, voter) => current + $"\n{voter.Username} ({voter.Count})");
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 	}

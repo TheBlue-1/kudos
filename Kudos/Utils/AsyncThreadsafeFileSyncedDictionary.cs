@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Kudos.Extensions;
@@ -24,6 +25,7 @@ namespace Kudos.Utils {
 		}
 
 		private string FileName { get; }
+		public ImmutableDictionary<TKey, TValue> Immutable => RunLocked(() => DictionaryImplementation.ToImmutableDictionary());
 		public bool IsReadOnly => RunLocked(() => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).IsReadOnly);
 		public ICollection<TKey> Keys => throw new NotSupportedException();
 		public ICollection<TValue> Values => throw new NotSupportedException();

@@ -1,9 +1,13 @@
 ﻿#region
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -35,11 +39,22 @@ namespace Kudos.Bot.Modules {
 			"People really hate you don't they?", "Oh boy you must have done something annoying!", "Watch out we have a real Mr. Trump here!",
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
+		private AsyncThreadsafeFileSyncedDictionary<ulong, int> _usedHonor =
+			new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
+		private DateTime _usedHonorDate = DateTime.Now.Date;
 
 		private AsyncThreadsafeFileSyncedDictionary<ulong, int> BalancesPerId { get; } = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("balances");
 		public static Honor Instance { get; } = new Honor();
-		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor { get; } =
-			new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
+		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor {
+			get {
+				// ReSharper disable once InvertIf
+				if (_usedHonorDate != DateTime.Now.Date) {
+					_usedHonor = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
+					_usedHonorDate = DateTime.Now.Date;
+				}
+				return _usedHonor;
+			}
+		}
 
 		static Honor() { }
 
@@ -92,6 +107,29 @@ namespace Kudos.Bot.Modules {
 		private void HonorUser(ulong userId, int count) {
 			int honorBalance = BalancesPerId.ContainsKey(userId) ? BalancesPerId[userId] : 0;
 			BalancesPerId[userId] = honorBalance + count;
+		}
+
+		[Command("leaders", "shows the most highly honored people of the server")]
+		public async Task SendGuildStats([CommandParameter] ISocketMessageChannel channel) {
+			if (!(channel is SocketGuildChannel guildChannel)) {
+				throw new KudosUnauthorizedException("this command can only be used servers");
+			}
+			SocketGuildUser[] users = guildChannel.Guild.Users.Where(user => BalancesPerId.ContainsKey(user.Id)).ToArray();
+			IOrderedEnumerable<KeyValuePair<ulong, int>> balances = BalancesPerId.Immutable
+				.Where(balance => users.Select(user => user.Id).Contains(balance.Key))
+				.OrderByDescending(balance => balance.Value);
+			EmbedBuilder embed = new EmbedBuilder().SetDefaults().WithTitle("🌟Leader board🌟");
+			string text = "";
+			int counter = 1;
+			foreach ((ulong id, int balance) in balances) {
+				text += $"{counter}. *{users.First(user => user.Id == id)}* with an honor of **{balance}** \n";
+				if (counter == 20) {
+					return;
+				}
+				counter++;
+			}
+			embed.WithDescription(text);
+			await Messaging.Instance.SendEmbed(channel, embed);
 		}
 
 		[Command("balance", "shows the honor point balance")]

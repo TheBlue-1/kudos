@@ -14,7 +14,6 @@ using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot.Modules {
-	
 	[CommandModule("AnonymousQuestions")]
 	public class AnonymousQuestion {
 		private AsyncThreadsafeFileSyncedDictionary<ulong, QuestionData> AnonymousQuestions { get; } =
@@ -77,7 +76,7 @@ namespace Kudos.Bot.Modules {
 			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
 			try {
 				await Messaging.Instance.SendMessage(answererChannel,
-					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{SettingsManager.Instance.SettingsFor(answerer.Id).Prefix.Value}answer {id} [answer]`.");
+					$"Hello, someone has a question for you, but wants to stay anonymous. Here it is: ```{message}``` To answer the question please write `{SettingsManager.Instance.SettingsFor(answerer.Id)[SettingNames.Prefix].StringValue}answer {id} [answer]`.");
 				await Messaging.Instance.SendMessage(questionnaireChannel, "Question sent successfully. Answer will be sent to you.");
 			}
 			catch (Exception) {
