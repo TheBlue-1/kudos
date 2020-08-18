@@ -49,8 +49,8 @@ namespace Kudos.Bot {
 			}
 
 			if (command.Module.Module.Accessibility == Accessibility.Admin || command.Command.Accessibility == Accessibility.Admin) {
-				if (Message.Channel is SocketGuildChannel guildChannel) {
-					if (!(Message.Author as SocketGuildUser).IsGuildAdmin(guildChannel.Guild)) {
+				if (Message.Author is SocketGuildUser guildUser) {
+					if (!guildUser.IsGuildAdmin()) {
 						throw new KudosUnauthorizedException("You must be server administrator to use this feature!");
 					}
 				}

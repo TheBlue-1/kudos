@@ -1,8 +1,10 @@
 ﻿#region
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
@@ -63,7 +65,16 @@ namespace Kudos.Bot.Modules {
 				}
 			});
 			foreach (char c in text) {
-				await reactMessage.AddReactionAsync(EmoteMap[c]);
+				try {
+					await reactMessage.AddReactionAsync(EmoteMap[c]);
+				}
+				catch (HttpException e) {
+					if (e.HttpCode != HttpStatusCode.Forbidden) {
+						throw;
+					}
+					throw new KudosArgumentException(
+						"Kudos cant react to the message anymore (maximum different emojis reached / bot has insufficient rights)");
+				}
 			}
 		}
 	}

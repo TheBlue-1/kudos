@@ -1,6 +1,5 @@
 ﻿#region
 using System.Text.RegularExpressions;
-using Discord;
 using Kudos.Bot;
 using Kudos.Exceptions;
 #endregion
@@ -15,7 +14,7 @@ namespace Kudos.Extensions {
 			string[] arr = new string[parameterIndex + 1];
 			arr[parameterIndex] = value;
 			try {
-				return ParameterType.InterpretParameter(arr, default, parameterIndex, false, Optional<TValue>.Unspecified, default, default,
+				return ParameterType.InterpretParameter(arr, default, parameterIndex, false, new ParameterType.DefaultValue<TValue>(), default, default,
 					false);
 			}
 			catch (KudosArgumentTypeException exception) {
