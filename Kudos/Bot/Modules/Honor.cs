@@ -117,7 +117,7 @@ namespace Kudos.Bot.Modules {
 			SocketGuildUser[] users = guildChannel.Guild.Users.Where(user => BalancesPerId.ContainsKey(user.Id)).ToArray();
 			IOrderedEnumerable<KeyValuePair<ulong, int>> balances = BalancesPerId.Immutable
 				.Where(balance => users.Select(user => user.Id).Contains(balance.Key))
-				.OrderBy(balance => balance.Value);
+				.OrderByDescending(balance => balance.Value);
 			EmbedBuilder embed = new EmbedBuilder().SetDefaults().WithTitle("🌟Leader board🌟");
 			string text = "";
 			int counter = 1;

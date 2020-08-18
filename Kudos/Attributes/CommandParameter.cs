@@ -12,7 +12,7 @@ using Kudos.Extensions;
 namespace Kudos.Attributes {
 	[AttributeUsage(AttributeTargets.Parameter)]
 	public class CommandParameter : Attribute {
-		public Optional<object> DefaultValue { get; }
+		public ParameterType.DefaultValue<object> DefaultValue { get; }
 		public int Index { get; }
 		public Optional<object> Max { get; }
 		public Optional<object> Min { get; }
@@ -28,7 +28,7 @@ namespace Kudos.Attributes {
 			Max = max == null ? new Optional<object>() : new Optional<object>(max);
 			Optional = optional;
 
-			DefaultValue = defaultValue == null ? new Optional<object>() : new Optional<object>(defaultValue);
+			DefaultValue = ParameterType.DefaultValue<object>.Create(defaultValue);
 			ThrowOutOfRange = throwOutOfRange;
 		}
 

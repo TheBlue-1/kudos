@@ -21,7 +21,7 @@ namespace Kudos.Models {
 
 		public override bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) {
 			if (key == null || !(keyParameterIndex is int notNullKeyParameterIndex)) {
-				throw new KudosInternalException("dictionarySetting needs key and keyParameterIndex");
+				throw new KudosArgumentException($"{Name} is a dictionary setting so it needs a 'key'");
 			}
 			T1 keyValue = key.ToValue<T1>(notNullKeyParameterIndex);
 			if (keyValue == null) {

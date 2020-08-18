@@ -28,9 +28,11 @@ namespace Kudos.Bot.Modules {
 				throw new KudosArgumentException($"Setting `{setting}` doesn't exist");
 			}
 			if (settings[settingName].AddOrSetValue(value, 1, key, 2)) {
-				await Messaging.Instance.SendMessage(channel, $"`{setting}` set to `{value}` {(forServer ? "server wide" : "personal")}");
+				await Messaging.Instance.SendMessage(channel,
+					$"`{(key != null ? $"{setting} - {key}" : setting.ToString())}` set to `{value}` {(forServer ? "server wide" : "personal")}");
 			} else {
-				await Messaging.Instance.SendMessage(channel, $"`{setting}` unset {(forServer ? "server wide" : "personal")}");
+				await Messaging.Instance.SendMessage(channel,
+					$"`{(key != null ? $"{setting} - {key}" : setting.ToString())}` unset {(forServer ? "server wide" : "personal")}");
 			}
 		}
 

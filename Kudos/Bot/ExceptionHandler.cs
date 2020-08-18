@@ -9,6 +9,7 @@ using Kudos.Utils;
 
 namespace Kudos.Bot {
 	public class ExceptionHandler {
+		private static readonly TimeSpan ExceptionMessageLifeTime = new TimeSpan(0, 0, 10);
 		private ISocketMessageChannel Channel { get; }
 		private Exception Exception { get; }
 
@@ -44,7 +45,7 @@ namespace Kudos.Bot {
 					if (Program.Debug) {
 						message += $"\n Log: {kudosException.Message}";
 					}
-					await Messaging.Instance.SendMessage(Channel, message);
+					await Messaging.Instance.SendExpiringMessage(Channel, message, ExceptionMessageLifeTime);
 					return;
 				}
 				if (exception.InnerException == null) {
@@ -53,14 +54,14 @@ namespace Kudos.Bot {
 				exception = exception.InnerException;
 			}
 			if (sendMessages) {
-				await Messaging.Instance.SendMessage(Channel, "unknown error occured");
+				await Messaging.Instance.SendExpiringMessage(Channel, "unknown error occured", ExceptionMessageLifeTime);
 			}
 			FileService.Instance.Log(Exception.ToString());
 		}
 
 		private async Task SendInternalError(bool sendMessages) {
 			if (sendMessages) {
-				await Messaging.Instance.SendMessage(Channel, "An internal error occured");
+				await Messaging.Instance.SendExpiringMessage(Channel, "An internal error occured", ExceptionMessageLifeTime);
 			}
 			FileService.Instance.Log($"error while error handling: \n{Exception}");
 		}

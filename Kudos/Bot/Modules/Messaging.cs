@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -31,8 +32,13 @@ namespace Kudos.Bot.Modules {
 			await SendEmbed(channel, CommandModules.Instance.CommandListAsEmbed(author.IsBotAdmin()));
 		}
 
-		public async Task SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) {
+		public async Task<IUserMessage> SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) =>
 			await channel.SendMessageAsync(embed: embedBuilder.Build());
+
+		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan) {
+			IUserMessage message = await SendMessage(channel, text);
+			await Task.Delay(timeSpan);
+			await message.DeleteAsync();
 		}
 
 		public async Task SendImage(IMessageChannel channel, string imageUrl) {
@@ -41,16 +47,15 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("say", "says whatever you write behind say")]
-		public async Task SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
+		public async Task<IUserMessage> SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) =>
 			await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
-		}
 
 		[Command("ping", "shows the last pings")]
 		public async Task SendPing([CommandParameter] ISocketMessageChannel channel) {
 			await SendMessage(channel, PingMessage);
 		}
 
-		[Command("vote", "answers hello")]
+		[Command("vote", "sends our vote links")]
 		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
 			await SendMessage(channel,
 				"Vote for our bot: [bot vote](https://top.gg/bot/719571683517792286/vote) \n"
