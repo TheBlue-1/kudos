@@ -52,8 +52,9 @@ namespace Kudos.Bot {
 ";
 				longDescription = ParameterType.KnownParameterTypes.Aggregate(longDescription, (current, parameterType) => current + parameterType.ToHtml());
 				longDescription += @"
-</table>
-</p> 
+</table>";
+				longDescription += Settings.SettingsListAsHtml;
+				longDescription += @"</p> 
 <h2>Kudos Beta</h2>
 <p><b>For more recent features and updates make sure to invite <a href='https://discord.com/oauth2/authorize?client_id=720622422654451763&permissions=8&scope=bot'>Kudos - Beta</a> to your Server</b></p>
 </div>

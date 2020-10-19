@@ -15,6 +15,13 @@ namespace Kudos.Models {
 				return text;
 			}
 		}
+		public override string HtmlHelpText {
+			get {
+				string info = $"[{ParameterType.FromType(typeof (T2)).Character}|value] [{ParameterType.FromType(typeof (T1)).Character}|key]";
+				string text = $"<tr><td><b>{Name.ToString().ToLower()} {info}</b></td><td>{Description}</td></tr>";
+				return text;
+			}
+		}
 
 		protected internal DictionarySetting(SettingNames name, ImmutableDictionary<T1, T2> defaultValue, string description) : base(name, defaultValue,
 			description) { }
