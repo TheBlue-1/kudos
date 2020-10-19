@@ -2,14 +2,16 @@
 using System;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Kudos.Exceptions;
 #endregion
 
 namespace Kudos.Models.bases {
 	public abstract class SettingBase : INotifyPropertyChanged {
 		public abstract string HelpText { get; }
+		public abstract string HtmlHelpText { get; }
 		public abstract string StringValue { get; }
-
+		[JsonIgnore]
 		public string Description { get; }
 		public SettingNames Name { get; }
 

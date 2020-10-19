@@ -14,11 +14,19 @@ namespace Kudos.Models {
 		private T _setValue;
 		[JsonIgnore]
 		public T Default { get; }
-
+		[JsonIgnore]
 		public override string HelpText {
 			get {
 				string info = $"[{ParameterType.FromType(typeof (T)).Character}|value]";
 				string text = $"`{Name.ToString().ToLower()} {info}` default: `{Default}` {Description}";
+				return text;
+			}
+		}
+		[JsonIgnore]
+		public override string HtmlHelpText {
+			get {
+				string info = $"[{ParameterType.FromType(typeof (T)).Character}|value]";
+				string text = $"<tr><td><b>{Name.ToString().ToLower()} {info}</b></td><td> default: <b>{Default}</b> {Description}</td></tr>";
 				return text;
 			}
 		}
