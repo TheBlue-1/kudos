@@ -31,6 +31,11 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 
+		[Command("gleaders", "shows the global leader board")]
+		public async Task SendLeaders([CommandParameter] ISocketMessageChannel channel) {
+			await Messaging.Instance.SendEmbed(channel, Honor.Instance.GuildStatsEmbed(null));
+		}
+
 		[Command("votes", "shows who voted for the server")]
 		public async Task SendVotes([CommandParameter] ISocketMessageChannel channel) {
 			if (Program.BotList == null) {

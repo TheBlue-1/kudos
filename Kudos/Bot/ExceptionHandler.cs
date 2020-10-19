@@ -54,14 +54,14 @@ namespace Kudos.Bot {
 				exception = exception.InnerException;
 			}
 			if (sendMessages) {
-				await Messaging.Instance.SendExpiringMessage(Channel, "unknown error occured", ExceptionMessageLifeTime);
+				await Messaging.Instance.SendExpiringMessage(Channel, "unknown error occurred", ExceptionMessageLifeTime);
 			}
 			FileService.Instance.Log(Exception.ToString());
 		}
 
 		private async Task SendInternalError(bool sendMessages) {
 			if (sendMessages) {
-				await Messaging.Instance.SendExpiringMessage(Channel, "An internal error occured", ExceptionMessageLifeTime);
+				await Messaging.Instance.SendExpiringMessage(Channel, "An internal error occurred", ExceptionMessageLifeTime);
 			}
 			FileService.Instance.Log($"error while error handling: \n{Exception}");
 		}

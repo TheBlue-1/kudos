@@ -55,6 +55,22 @@ namespace Kudos.Bot.Modules {
 			await SendMessage(channel, PingMessage);
 		}
 
+		public async Task SendWelcomeMessage(SocketGuild guild) {
+			string message =
+				$"Hello,\n I'm Kudos and I was added to {guild.Name}.\n As an administrator you can use all of my features!\n You can also DM me. \n For a description and a list just type `k!help` or visit [Top.gg](https://top.gg/bot/719571683517792286)";
+			foreach (SocketGuildUser guildUser in guild.Users) {
+				if (!guildUser.IsGuildAdmin()) {
+					continue;
+				}
+				try {
+					await SendMessage(await guildUser.GetOrCreateDMChannelAsync(), message);
+				}
+				catch {
+					// ignored
+				}
+			}
+		}
+
 		[Command("vote", "sends our vote links")]
 		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
 			await SendMessage(channel,

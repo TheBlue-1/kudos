@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Kudos.Bot.Modules;
 using Kudos.Models;
 using Kudos.Utils;
+using Settings = Kudos.Models.Settings;
 #endregion
 
 namespace Kudos.Bot {
@@ -89,6 +91,7 @@ namespace Kudos.Bot {
 
 		private async Task JoinedGuild(SocketGuild arg) {
 			await Task.Run(() => { JoinedNewGuild?.Invoke(); });
+			await Messaging.Instance.SendWelcomeMessage(arg);
 		}
 
 		[SuppressMessage("ReSharper", "InvertIf")]

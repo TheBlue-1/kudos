@@ -76,6 +76,25 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
 
+		public EmbedBuilder GuildStatsEmbed(SocketUser[] users) {
+			IOrderedEnumerable<KeyValuePair<ulong, int>> balances = users != null
+				? BalancesPerId.Immutable.Where(balance => users.Select(user => user.Id).Contains(balance.Key)).OrderByDescending(balance => balance.Value)
+				: BalancesPerId.Immutable.OrderByDescending(balance => balance.Value);
+			
+			EmbedBuilder embed = new EmbedBuilder().SetDefaults().WithTitle("🌟Leader board🌟");
+			string text = "";
+			int counter = 1;
+			foreach ((ulong id, int balance) in balances) {
+				text += $"{counter}. *{Program.Client.GetSocketUserById(id)}* with an honor of **{balance}** \n";
+				if (counter == 20) {
+					break;
+				}
+				counter++;
+			}
+			embed.WithDescription(text);
+			return embed;
+		}
+
 		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count) {
 			if (honoringUser.Id == honoredUser.Id) {
 				throw new KudosUnauthorizedException("You are not allowed to honor yourself");
@@ -114,22 +133,9 @@ namespace Kudos.Bot.Modules {
 			if (!(channel is SocketGuildChannel guildChannel)) {
 				throw new KudosUnauthorizedException("this command can only be used servers");
 			}
-			SocketGuildUser[] users = guildChannel.Guild.Users.Where(user => BalancesPerId.ContainsKey(user.Id)).ToArray();
-			IOrderedEnumerable<KeyValuePair<ulong, int>> balances = BalancesPerId.Immutable
-				.Where(balance => users.Select(user => user.Id).Contains(balance.Key))
-				.OrderByDescending(balance => balance.Value);
-			EmbedBuilder embed = new EmbedBuilder().SetDefaults().WithTitle("🌟Leader board🌟");
-			string text = "";
-			int counter = 1;
-			foreach ((ulong id, int balance) in balances) {
-				text += $"{counter}. *{users.First(user => user.Id == id)}* with an honor of **{balance}** \n";
-				if (counter == 20) {
-					return;
-				}
-				counter++;
-			}
-			embed.WithDescription(text);
-			await Messaging.Instance.SendEmbed(channel, embed);
+			// ReSharper disable once CoVariantArrayConversion
+			SocketUser[] users = guildChannel.Guild.Users.Where(user => BalancesPerId.ContainsKey(user.Id)).ToArray();
+			await Messaging.Instance.SendEmbed(channel, GuildStatsEmbed(users));
 		}
 
 		[Command("balance", "shows the honor point balance")]
