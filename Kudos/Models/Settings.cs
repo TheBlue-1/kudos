@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -64,7 +65,10 @@ namespace Kudos.Models {
 			IEnumerable<FieldInfo> fields = GetType()
 				.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
 				.Where(field => field.FieldType.IsSubclassOf(typeof (SettingBase)));
-			Dictionary<SettingNames, SettingBase> settings = fields.Select(field => (SettingBase)field.GetValue(this)).ToDictionary(setting => setting.Name);
+			Dictionary<SettingNames, SettingBase> settings = fields.Select(field => (SettingBase)field.GetValue(this)).ToDictionary(setting => {
+				Debug.Assert(setting != null, nameof (setting) + " != null");
+				return setting.Name;
+			});
 			foreach (SettingBase setting in settings.Values) {
 				setting.PropertyChanged += SettingChanged;
 			}
