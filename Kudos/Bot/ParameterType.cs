@@ -40,6 +40,8 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(emojiParameter.Type, emojiParameter);
 			ParameterType wordParameter = new ParameterType<Word>('w', "a word", ParameterAsWord);
 			ParameterTypes.TryAdd(wordParameter.Type, wordParameter);
+			ParameterType timespanParameter = new ParameterType<TimeSpan>('s', "a timespan in format 30d24h59m59s (also 40d2s)", ParameterAsTimespan);
+			ParameterTypes.TryAdd(timespanParameter.Type, timespanParameter);
 			ParameterType settingsParameter = new ParameterType<Settings>();
 			ParameterTypes.TryAdd(settingsParameter.Type, settingsParameter);
 			ParameterType messageParameter = new ParameterType<SocketMessage>();
@@ -157,6 +159,24 @@ namespace Kudos.Bot {
 
 			SetToDefaultValue(out user, defaultValue, indexLess);
 			return user;
+		}
+
+		[SuppressMessage("ReSharper", "StringLiteralTypo")]
+		private static TimeSpan ParameterAsTimespan(string[] parameters, TimeSpan indexLess, int index, bool optional, DefaultValue<TimeSpan> defaultValue,
+			Optional<TimeSpan> min, Optional<TimeSpan> max, bool throwOutOfRange) {
+			string[] formats = {
+				"d'd'", "h'h'", "m'm'", "s's'", "d'd'h'h'", "d'd'm'm'", "d'd's's'", "h'h'm'm'", "h'h's's'", "m'm's's'", "d'd'h'h'm'm'", "d'd'h'h's's'",
+				"d'd'm'm's's'", "h'h'm'm's's'", "d'd'h'h'm'm's's'",
+			};
+			if (ParameterPresent(parameters, index) && TimeSpan.TryParseExact(parameters[index], formats, null, out TimeSpan value)) {
+				return CheckMinMax(value, index, min, max, throwOutOfRange);
+			}
+			if (optional) {
+				SetToDefaultValue(out value, defaultValue, indexLess);
+			} else {
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a timespan");
+			}
+			return value;
 		}
 
 		private static ulong ParameterAsULong(string[] parameters, ulong indexLess, int index, bool optional, DefaultValue<ulong> defaultValue,
