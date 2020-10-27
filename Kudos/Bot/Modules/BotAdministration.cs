@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,8 +33,8 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("gleaders", "shows the global leader board")]
-		public async Task SendLeaders([CommandParameter] ISocketMessageChannel channel) {
-			await Messaging.Instance.SendEmbed(channel, Honor.Instance.GuildStatsEmbed(null));
+		public async Task SendLeaders([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0, 0, 0)] TimeSpan time) {
+			await Messaging.Instance.SendEmbed(channel, Honor.Instance.GuildStatsEmbed(null, time));
 		}
 
 		[Command("votes", "shows who voted for the server")]

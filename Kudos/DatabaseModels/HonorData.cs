@@ -11,6 +11,7 @@ namespace Kudos.DatabaseModels {
 		public ulong Honorer { get; set; }
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+
 		// ReSharper disable once UnusedMember.Global
 		public ulong Id { get; set; }
 		public DateTime Timestamp { get; set; }

@@ -62,13 +62,17 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
 
-		public EmbedBuilder GuildStatsEmbed(IEnumerable<SocketUser> users) {
-			users ??= HonorData.Select(honorData => honorData.Honored).Distinct().Select(id => Program.Client.GetSocketUserById(id));
+		public EmbedBuilder GuildStatsEmbed(IEnumerable<SocketUser> users, TimeSpan time) {
+			IEnumerable<HonorData> filteredHonorData = HonorData;
+			if (time > new TimeSpan(0)) {
+				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.Now - time);
+			}
+			users ??= filteredHonorData.Select(honorData => honorData.Honored).Distinct().Select(id => Program.Client.GetSocketUserById(id));
 
 			IEnumerable<SocketUser> socketUsers = users as SocketUser[] ?? users.ToArray();
 			IEnumerable<ulong> ids = socketUsers.Select(socketUser => socketUser.Id);
 
-			var balances = HonorData.GroupBy(honorData => honorData.Honored)
+			var balances = filteredHonorData.GroupBy(honorData => honorData.Honored)
 				.Where(honorData => ids.Contains(honorData.Key))
 				.Select(honorData => new { Value = honorData.Sum(y => y.Honor), User = socketUsers.First(socketUser => socketUser.Id == honorData.Key) })
 				.OrderByDescending(pair => pair.Value);
@@ -112,14 +116,14 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("leaders", "shows the most highly honored people of the server")]
-		public async Task SendGuildStats([CommandParameter] ISocketMessageChannel channel) {
+		public async Task SendGuildStats([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0, 0)] TimeSpan time) {
 			if (!(channel is SocketGuildChannel guildChannel)) {
 				throw new KudosUnauthorizedException("this command can only be used servers");
 			}
 
 			// ReSharper disable once CoVariantArrayConversion
 			IEnumerable<SocketUser> users = guildChannel.Guild.Users;
-			await Messaging.Instance.SendEmbed(channel, GuildStatsEmbed(users));
+			await Messaging.Instance.SendEmbed(channel, GuildStatsEmbed(users, time));
 		}
 
 		[Command("balance", "shows the honor point balance")]

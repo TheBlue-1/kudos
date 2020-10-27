@@ -25,6 +25,7 @@ namespace Kudos.Utils {
 		}
 
 		private string FileName { get; }
+
 		// ReSharper disable once UnusedMember.Global
 		public ImmutableDictionary<TKey, TValue> Immutable => RunLocked(() => DictionaryImplementation.ToImmutableDictionary());
 		public bool IsReadOnly => RunLocked(() => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).IsReadOnly);
