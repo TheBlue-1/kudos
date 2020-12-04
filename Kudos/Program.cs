@@ -3,7 +3,9 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kudos.Bot;
+using Kudos.DatabaseModels;
 using Kudos.Utils;
+using Microsoft.EntityFrameworkCore;
 #endregion
 
 namespace Kudos {
@@ -28,6 +30,8 @@ namespace Kudos {
 	#endif
 
 		private static void Main() {
+			KudosDataContext db = new KudosDataContext();
+			db.Database.Migrate();
 			string botToken;
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
 			if (settings.ContainsKey("bot_list_token")) {

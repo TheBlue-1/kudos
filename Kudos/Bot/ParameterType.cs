@@ -166,7 +166,7 @@ namespace Kudos.Bot {
 			Optional<TimeSpan> min, Optional<TimeSpan> max, bool throwOutOfRange) {
 			string[] formats = {
 				"d'd'", "h'h'", "m'm'", "s's'", "d'd'h'h'", "d'd'm'm'", "d'd's's'", "h'h'm'm'", "h'h's's'", "m'm's's'", "d'd'h'h'm'm'", "d'd'h'h's's'",
-				"d'd'm'm's's'", "h'h'm'm's's'", "d'd'h'h'm'm's's'",
+				"d'd'm'm's's'", "h'h'm'm's's'", "d'd'h'h'm'm's's'"
 			};
 			if (ParameterPresent(parameters, index) && TimeSpan.TryParseExact(parameters[index], formats, null, out TimeSpan value)) {
 				return CheckMinMax(value, index, min, max, throwOutOfRange);

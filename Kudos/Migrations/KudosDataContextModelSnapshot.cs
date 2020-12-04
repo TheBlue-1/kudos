@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Kudos.Migrations {
 	[DbContext(typeof (KudosDataContext))]
+	// ReSharper disable once UnusedMember.Global
 	internal class KudosDataContextModelSnapshot : ModelSnapshot {
 		protected override void BuildModel(ModelBuilder modelBuilder) {
 		#pragma warning disable 612, 618
