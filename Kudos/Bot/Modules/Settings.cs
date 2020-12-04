@@ -1,9 +1,12 @@
 ﻿#region
 using System;
+using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Models;
 using Kudos.Utils;
 
@@ -24,7 +27,7 @@ namespace Kudos.Bot.Modules {
 			[CommandParameter(1, null)] string value, [CommandParameter(2, null)] string key, [CommandParameter(3, false)] bool forServer,
 			[CommandParameter] SocketUser author) {
 			Models.Settings settings = EditableSettings(forServer, channel, author);
-			if (!Enum.TryParse(setting.Value, true, out SettingNames settingName)) {
+			if (!Enum.TryParse(setting, true, out SettingNames settingName)) {
 				throw new KudosArgumentException($"Setting `{setting}` doesn't exist");
 			}
 			if (settings[settingName].AddOrSetValue(value, 1, key, 2)) {
@@ -50,6 +53,25 @@ namespace Kudos.Bot.Modules {
 		[Command("settings", "shows all settings")]
 		public async Task SendSettingList([CommandParameter] ISocketMessageChannel channel) {
 			await Messaging.Instance.SendEmbed(channel, Models.Settings.SettingsAsEmbed());
+		}
+
+		[Command("svalue", "shows the current value of the setting (this shows the used value, so user settings override server settings)")]
+		public async Task SendSettingsValue([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] Word setting,
+			[CommandParameter] SocketMessage message) {
+			if (!Enum.TryParse(setting, true, out SettingNames settingName)) {
+				throw new KudosArgumentException($"Setting `{setting}` doesn't exist");
+			}
+			string settingsValue = "";
+			object settingValueObject = message.Settings()[settingName].ObjectValue;
+			switch (settingValueObject) {
+				case IDictionary dictionary : settingsValue = dictionary.ToDictionary().Aggregate(settingsValue, (current, pair) => current + $"key: `{pair.Key}` value: `{pair.Value}` \n");
+					break;
+				case null : settingsValue += "value: not set";
+					break;
+				default : settingsValue += $"value: `{settingValueObject}`";
+					break;
+			}
+			await Messaging.Instance.SendMessage(channel, settingsValue);
 		}
 	}
 }
