@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -12,6 +13,7 @@ using Kudos.Utils;
 
 namespace Kudos.Bot.Modules {
 	[CommandModule("Server Group Calls")]
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class ServerGroupCalls {
 		private DatabaseSyncedList<GroupData> Groups { get; } = new DatabaseSyncedList<GroupData>();
 

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 #endregion
 
 namespace Kudos.Migrations {
+	// ReSharper disable once UnusedMember.Global
 	public partial class GroupCalls : Migration {
 		protected override void Down(MigrationBuilder migrationBuilder) {
 			migrationBuilder.DropTable("GroupData");
