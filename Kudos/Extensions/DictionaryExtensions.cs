@@ -7,7 +7,12 @@ using System.Linq;
 namespace Kudos.Extensions {
 	public static class DictionaryExtensions {
 		public static Dictionary<object, object> ToDictionary(this IDictionary dictionary) {
-			return dictionary.Cast<DictionaryEntry>().ToDictionary(o => o.Key, o => o.Value);
+			Dictionary<object, object> objectDictionary=new Dictionary<object,object>();
+			// ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+			foreach (DictionaryEntry o in dictionary) {
+				objectDictionary.Add(o.Key,o.Value);
+			}
+			return objectDictionary;
 		}
 	}
 }
