@@ -23,7 +23,6 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal
 
-
         #deploy
         #only if push
       - name: Publish
@@ -31,10 +30,10 @@ jobs:
         run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=false --runtime linux-x64 --self-contained true
       - name: Set RealeaseType master
         if: ${{ github.ref=='refs/heads/master' && github.event_name=='push'}}
-        run: echo ::set-env name=REALEASE_TYPE::$(echo "public/")
+        run: echo "REALEASE_TYPE=public/" >> $GITHUB_ENV
       - name: Set RealeaseType dev
         if: ${{ github.ref=='refs/heads/dev' && github.event_name=='push'}}
-        run: echo ::set-env name=REALEASE_TYPE::$(echo "beta/")
+        run: echo "REALEASE_TYPE=beta/" >> $GITHUB_ENV
       - name: Deploy to Server
         if: ${{ github.event_name=='push'}}
         uses: easingthemes/ssh-deploy@v2.1.1
