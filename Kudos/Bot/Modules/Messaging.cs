@@ -72,7 +72,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("vote", "sends our vote links")]
-		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
+		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel) {
 			await SendMessage(channel,
 				"Vote for our bot: [bot vote](https://top.gg/bot/719571683517792286/vote) \n"
 				+ "Vote for our server: [server vote](https://top.gg/servers/631180888394301451/vote) \n"

@@ -20,7 +20,7 @@ namespace Kudos.Bot.Modules {
 
 		private BotAdministration() { }
 
-		[Command("guilds", "shows all guilds of the server")]
+		[Command("guilds", "shows all guilds of the bot")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
 			SocketGuild[] guilds = Program.Client.Guilds.OrderBy(guild => guild.Name).ToArray();
 			string message = $"I am present on {guilds.Length} guilds";
@@ -37,7 +37,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendEmbed(channel, Honor.Instance.GuildStatsEmbed(null, time));
 		}
 
-		[Command("votes", "shows who voted for the server")]
+		[Command("votes", "shows who voted for the bot")]
 		public async Task SendVotes([CommandParameter] ISocketMessageChannel channel) {
 			if (Program.BotList == null) {
 				throw new KudosUnauthorizedException("bot is not allowed to see this information");

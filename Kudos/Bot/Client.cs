@@ -37,7 +37,6 @@ namespace Kudos.Bot {
 			// ReSharper disable once UnreachableCode
 			_client.SetGameAsync(Program.Debug ? "testing..." : $"with the '{new Settings()[SettingNames.Prefix].StringValue}help' command");
 		#pragma warning restore 162
-
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
 			_client.LatencyUpdated += ClientLatencyUpdated;
@@ -86,7 +85,9 @@ namespace Kudos.Bot {
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
+
 		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
+
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
 
 		private async Task JoinedGuild(SocketGuild arg) {
