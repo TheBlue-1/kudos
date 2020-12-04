@@ -60,7 +60,7 @@ namespace Kudos.Bot.Modules {
 
 		public async Task SendWelcomeMessage(SocketGuild guild) {
 			string message =
-				$"Hello,\n I'm Kudos and I was added to {guild.Name}.\n As an administrator you can use all of my features!\n You can also DM me. \n For a description and a list just type `k!help` or visit [Top.gg](https://top.gg/bot/719571683517792286)";
+				$"Hello,\n I'm Kudos and I was added to {guild.Name}.\n As an administrator you can use all of my features!\n You can also DM me. \n For a description and a list just type `k!help` or visit [Top.gg](https://top.gg/bot/719571683517792286) \n If you like the Bot please give us 5 Stars at [Top.gg Reviews](https://top.gg/bot/719571683517792286#reviews)";
 			foreach (SocketGuildUser guildUser in guild.Users) {
 				if (!guildUser.IsGuildAdmin()) {
 					continue;
