@@ -37,12 +37,12 @@ namespace Kudos.Bot {
 			// ReSharper disable once UnreachableCode
 			_client.SetGameAsync(Program.Debug ? "testing..." : $"with the '{new Settings()[SettingNames.Prefix].StringValue}help' command");
 		#pragma warning restore 162
-
 			_client.MessageReceived += ClientMessageReceived;
 			_client.ReactionAdded += ClientReactionAdded;
 			_client.LatencyUpdated += ClientLatencyUpdated;
 			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
+			_client.UserVoiceStateUpdated += UserCallInteraction;
 			_client.Disconnected += _ => {
 				_connected = false;
 				return Task.Run(() => { });
@@ -86,7 +86,9 @@ namespace Kudos.Bot {
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
+
 		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
+
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
 
 		private async Task JoinedGuild(SocketGuild arg) {
@@ -117,6 +119,14 @@ namespace Kudos.Bot {
 				// ReSharper disable once FunctionNeverReturns
 			});
 			connector.Start();
+		}
+
+		private static async Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
+			await Task.Run(async () => {
+				if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
+					await ServerGroupCalls.Instance.CheckEntering(user, newState.VoiceChannel);
+				}
+			});
 		}
 	}
 }

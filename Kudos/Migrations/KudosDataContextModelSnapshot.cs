@@ -7,12 +7,22 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Kudos.Migrations {
 	[DbContext(typeof (KudosDataContext))]
-
-	// ReSharper disable once UnusedMember.Global
 	internal class KudosDataContextModelSnapshot : ModelSnapshot {
 		protected override void BuildModel(ModelBuilder modelBuilder) {
 		#pragma warning disable 612, 618
 			modelBuilder.HasAnnotation("ProductVersion", "3.1.9");
+
+			modelBuilder.Entity("Kudos.DatabaseModels.GroupData", b => {
+				b.Property<ulong>("ChannelId").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+
+				b.Property<bool>("Auto").HasColumnType("INTEGER");
+
+				b.Property<string>("UserIds").HasColumnType("TEXT");
+
+				b.HasKey("ChannelId");
+
+				b.ToTable("GroupData");
+			});
 
 			modelBuilder.Entity("Kudos.DatabaseModels.HonorData", b => {
 				b.Property<ulong>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");

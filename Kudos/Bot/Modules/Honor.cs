@@ -53,8 +53,8 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("dishonor", "removes honor points for user")]
-		public async Task DishonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
-			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
+		public async Task DishonorUser([CommandParameter(0)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(1, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorData.Add(new HonorData { Honor = -count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
@@ -106,8 +106,8 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("honor", "adds honor points for user")]
-		public async Task HonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
-			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
+		public async Task HonorUser([CommandParameter(0)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(1, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });

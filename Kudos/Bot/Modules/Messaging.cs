@@ -35,7 +35,10 @@ namespace Kudos.Bot.Modules {
 		public async Task<IUserMessage> SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) =>
 			await channel.SendMessageAsync(embed: embedBuilder.Build());
 
-		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan) {
+		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan = default) {
+			if (timeSpan == default) {
+				timeSpan = new TimeSpan(0, 0, 3);
+			}
 			IUserMessage message = await SendMessage(channel, text);
 			await Task.Delay(timeSpan);
 			await message.DeleteAsync();
@@ -72,7 +75,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("vote", "sends our vote links")]
-		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
+		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel) {
 			await SendMessage(channel,
 				"Vote for our bot: [bot vote](https://top.gg/bot/719571683517792286/vote) \n"
 				+ "Vote for our server: [server vote](https://top.gg/servers/631180888394301451/vote) \n"
