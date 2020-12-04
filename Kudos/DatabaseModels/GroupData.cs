@@ -1,17 +1,14 @@
-﻿using System;
+﻿#region
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+#endregion
 
-namespace Kudos.DatabaseModels
-{
-   public class GroupData
-    {
-        public bool Auto { get; set; }
-        public List<ulong> UserIds { get; set; }
+namespace Kudos.DatabaseModels {
+	public class GroupData {
+		public bool Auto { get; set; }
 
 		[Key]
-        public ulong ChannelId { get; set; }
-    }
+		public ulong ChannelId { get; set; }
+		public List<ulong> UserIds { get; set; } = new List<ulong>();
+	}
 }

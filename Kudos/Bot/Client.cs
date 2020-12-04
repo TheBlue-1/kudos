@@ -42,6 +42,7 @@ namespace Kudos.Bot {
 			_client.LatencyUpdated += ClientLatencyUpdated;
 			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
+			_client.UserVoiceStateUpdated += UserCallInteraction;
 			_client.Disconnected += _ => {
 				_connected = false;
 				return Task.Run(() => { });
@@ -118,6 +119,14 @@ namespace Kudos.Bot {
 				// ReSharper disable once FunctionNeverReturns
 			});
 			connector.Start();
+		}
+
+		private static async Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
+			await Task.Run(async () => {
+				if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
+					await ServerGroupCalls.Instance.CheckEntering(user, newState.VoiceChannel);
+				}
+			});
 		}
 	}
 }

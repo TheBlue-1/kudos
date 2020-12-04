@@ -35,7 +35,10 @@ namespace Kudos.Bot.Modules {
 		public async Task<IUserMessage> SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) =>
 			await channel.SendMessageAsync(embed: embedBuilder.Build());
 
-		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan) {
+		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan = default) {
+			if (timeSpan == default) {
+				timeSpan = new TimeSpan(0, 0, 3);
+			}
 			IUserMessage message = await SendMessage(channel, text);
 			await Task.Delay(timeSpan);
 			await message.DeleteAsync();
