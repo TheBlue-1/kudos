@@ -56,4 +56,3 @@ jobs:
             kill $pid
             nohup ./Kudos >/dev/null 2>&1 &
             echo "$!" > last.pid
-            ~.
