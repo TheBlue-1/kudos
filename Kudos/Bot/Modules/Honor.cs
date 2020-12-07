@@ -108,14 +108,18 @@ namespace Kudos.Bot.Modules {
 			return count;
 		}
 
-		[Command("honor", "adds honor points for user")]
-		public async Task HonorUser([CommandParameter(0)] IUser honoredUser, [CommandParameter] IUser honoringUser, [CommandParameter(1, 1)] int count,
-			[CommandParameter] IMessageChannel channel) {
+		public async Task HonorUser(IUser honoredUser, IUser honoringUser, int count, IMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
 
 			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
+		}
+
+		[Command("honor", "adds honor points for user")]
+		public async Task HonorUserCommand([CommandParameter(0)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(1, 1)] int count, [CommandParameter] IMessageChannel channel) {
+			await HonorUser(honoredUser, honoringUser, count, channel);
 		}
 
 		public async Task HonorUserWithReaction(IUserMessage message, SocketReaction reaction) {
