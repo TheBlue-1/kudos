@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
@@ -102,6 +103,7 @@ namespace Kudos.Bot {
 		}
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
+		public SocketRole GetRoleById(ulong id) => _client.Guilds.SelectMany(guild => guild.Roles).FirstOrDefault(role => role.Id == id);
 
 		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
 
