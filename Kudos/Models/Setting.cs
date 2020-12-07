@@ -69,9 +69,9 @@ namespace Kudos.Models {
 		public override bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) =>
 			throw new NotImplementedException();
 
-		public override SettingBase Merge(SettingBase serverSetting) {
-			SameTypeCheck(serverSetting);
-			return IsSet ? this : serverSetting;
+		public override SettingBase Merge(SettingBase guildSetting) {
+			SameTypeCheck(guildSetting);
+			return IsSet ? this : guildSetting;
 		}
 
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {

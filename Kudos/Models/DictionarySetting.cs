@@ -47,16 +47,16 @@ namespace Kudos.Models {
 			return true;
 		}
 
-		public override SettingBase Merge(SettingBase serverSetting) {
-			SameTypeCheck(serverSetting);
+		public override SettingBase Merge(SettingBase guildSetting) {
+			SameTypeCheck(guildSetting);
 			if (!IsSet) {
-				return serverSetting;
+				return guildSetting;
 			}
-			if (!serverSetting.IsSet) {
+			if (!guildSetting.IsSet) {
 				return this;
 			}
 			DictionarySetting<T1, T2> setting = Create(Name, Default, Description);
-			setting.SetValue = ((DictionarySetting<T1, T2>)serverSetting).Value.SetItems(Value);
+			setting.SetValue = ((DictionarySetting<T1, T2>)guildSetting).Value.SetItems(Value);
 			return setting;
 		}
 	}

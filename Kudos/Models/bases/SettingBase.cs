@@ -1,5 +1,4 @@
 ﻿#region
-using System;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
@@ -26,7 +25,7 @@ namespace Kudos.Models.bases {
 
 		public abstract bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null);
 
-		public abstract SettingBase Merge(SettingBase serverSetting);
+		public abstract SettingBase Merge(SettingBase guildSetting);
 
 		public abstract bool SetValueWithString(string value, int parameterIndex = 1);
 
@@ -36,9 +35,8 @@ namespace Kudos.Models.bases {
 
 		public static Setting<T> Create<T>(SettingNames name, T defaultValue, string description) => new Setting<T>(name, defaultValue, description);
 
-		// ReSharper disable once UnusedMember.Global
-		public static Setting<ImmutableList<T>> Create<T>(SettingNames name, ImmutableList<T> defaultValue) =>
-			throw new NotImplementedException("List Settings not implemented");
+		public static ListSetting<T> Create<T>(SettingNames name, ImmutableHashSet<T> defaultValue, string description) =>
+			new ListSetting<T>(name, defaultValue, description);
 
 		public static DictionarySetting<T1, T2> Create<T1, T2>(SettingNames name, ImmutableDictionary<T1, T2> defaultValue, string description) =>
 			new DictionarySetting<T1, T2>(name, defaultValue, description);

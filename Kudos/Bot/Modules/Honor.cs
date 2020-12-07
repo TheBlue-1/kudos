@@ -18,6 +18,9 @@ namespace Kudos.Bot.Modules {
 	[CommandModule("Honor")]
 	public sealed class Honor {
 		private const byte MaxHonorPerDay = 7;
+		public static readonly IEmote[] HonorEmojis = {
+			new Emoji("1️⃣"), new Emoji("2️⃣"), new Emoji("3️⃣"), new Emoji("4️⃣"), new Emoji("5️⃣"), new Emoji("6️⃣"), new Emoji("7️⃣")
+		};
 		private static readonly string[] HonorFeedbackHigh = {
 			"You gained some honor... Keep it up!", "“I would prefer even to fail with honor than win by cheating.” Sophocles",
 			"You officially fulfill the conditions to become a Medal-Of-Honor candidate"
@@ -91,7 +94,7 @@ namespace Kudos.Bot.Modules {
 			return embed;
 		}
 
-		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count) {
+		public int HonorCount(IUser honoredUser, IUser honoringUser, int count) {
 			if (honoringUser.Id == honoredUser.Id) {
 				throw new KudosUnauthorizedException("You are not allowed to honor yourself");
 			}
@@ -106,13 +109,27 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("honor", "adds honor points for user")]
-		public async Task HonorUser([CommandParameter(0)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
-			[CommandParameter(1, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
+		public async Task HonorUser([CommandParameter(0)] IUser honoredUser, [CommandParameter] IUser honoringUser, [CommandParameter(1, 1)] int count,
+			[CommandParameter] IMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
 
 			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
+		}
+
+		public async Task HonorUserWithReaction(IUserMessage message, SocketReaction reaction) {
+			if (message.Embeds.FirstOrDefault() == null || !message.Embeds.First().Description.StartsWith("Hey, do you want to honor ")) {
+				return;
+			}
+			int honor = HonorEmojis.ToList().IndexOf(reaction.Emote) + 1;
+			if (honor == 0) {
+				return;
+			}
+			IUser honorer = reaction.User.Value;
+			string description = message.Embeds.First().Description;
+			SocketUser honored = description.Substring(26, description.Length - 102).ToValue<SocketUser>(0);
+			await HonorUser(honored, honorer, honor, message.Channel);
 		}
 
 		[Command("leaders", "shows the most highly honored people of the server")]

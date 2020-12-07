@@ -35,13 +35,22 @@ namespace Kudos.Bot.Modules {
 		public async Task<IUserMessage> SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) =>
 			await channel.SendMessageAsync(embed: embedBuilder.Build());
 
-		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan = default) {
+		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan = default, IEmote[] reactions = null) {
 			if (timeSpan == default) {
 				timeSpan = new TimeSpan(0, 0, 3);
 			}
 			IUserMessage message = await SendMessage(channel, text);
+			if (reactions != null) {
+				await message.AddReactionsAsync(reactions);
+			}
 			await Task.Delay(timeSpan);
 			await message.DeleteAsync();
+		}
+
+		public async Task SendHonorMessage(IMessageChannel channel, SocketUser mentionedUser) {
+			await SendExpiringMessage(channel,
+				$"Hey, do you want to honor {mentionedUser}? Select number of honor points! (this message will delete itself in 10 sec)",
+				new TimeSpan(0, 0, 10), Honor.HonorEmojis);
 		}
 
 		public async Task SendImage(IMessageChannel channel, string imageUrl) {
