@@ -79,10 +79,16 @@ namespace Kudos.Bot {
 		}
 
 		public static ParameterType FromType(Type type) {
-			if (!ParameterTypes.ContainsKey(type)) {
-				throw new KudosInternalException($"Unknown ParameterType ({type})");
+			if (ParameterTypes.ContainsKey(type)) {
+				return ParameterTypes[type];
 			}
-			return ParameterTypes[type];
+			foreach ((Type key, ParameterType value) in ParameterTypes) {
+				if (type.IsAssignableFrom(key)) {
+					return value;
+				}
+			}
+
+			throw new KudosInternalException($"Unknown ParameterType ({type})");
 		}
 
 		public static T InterpretParameter<T>(string[] parameters, T indexLess, int index, bool optional, DefaultValue<T> defaultValue, Optional<T> min,

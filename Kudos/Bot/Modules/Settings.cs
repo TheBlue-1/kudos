@@ -68,6 +68,9 @@ namespace Kudos.Bot.Modules {
 					settingsValue = dictionary.ToDictionary()
 						.Aggregate(settingsValue, (current, pair) => current + $"key: `{pair.Key}` value: `{pair.Value}` \n");
 					break;
+				case ICollection collection :
+					settingsValue = collection.ToCollection().Aggregate(settingsValue, (current, o) => current + $"`{o}`\n");
+					break;
 				case null :
 					settingsValue += "value: not set";
 					break;

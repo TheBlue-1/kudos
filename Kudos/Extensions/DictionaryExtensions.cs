@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace Kudos.Extensions {
 	public static class DictionaryExtensions {
-		public static Dictionary<object, object> ToDictionary(this IDictionary dictionary) {
-			Dictionary<object, object> objectDictionary = new Dictionary<object, object>();
+		public static IDictionary<object, object> ToDictionary(this IDictionary dictionary) {
+			IDictionary<object, object> objectDictionary = new Dictionary<object, object>();
 
 			// ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 			foreach (DictionaryEntry o in dictionary) {
