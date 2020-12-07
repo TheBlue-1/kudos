@@ -1,5 +1,6 @@
 ﻿#region
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -15,6 +16,17 @@ namespace Kudos.Bot {
 		static AutoResponse() { }
 
 		private AutoResponse() { }
+
+		private static async Task AutoHonor(SocketMessage message) {
+			message.Settings()[SettingNames.AutoHonor].Value(out ImmutableHashSet<string> messages);
+			if (messages.Any(needle => NeedleContained(message.Content, needle))) {
+				if (message.MentionedUsers.Count != 1) {
+					return;
+				}
+
+				await Messaging.Instance.SendHonorMessage(message.Channel, message.MentionedUsers.First());
+			}
+		}
 
 		private static async Task AutoImage(SocketMessage message) {
 			message.Settings()[SettingNames.AutoImage].Value(out ImmutableDictionary<string, string> images);
@@ -74,6 +86,7 @@ namespace Kudos.Bot {
 				await AutoMessage(message);
 				await AutoImage(message);
 				await AutoReact(message);
+				await AutoHonor(message);
 			}
 		}
 	}

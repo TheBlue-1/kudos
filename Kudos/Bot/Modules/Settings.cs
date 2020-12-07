@@ -55,7 +55,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendEmbed(channel, Models.Settings.SettingsAsEmbed());
 		}
 
-		[Command("svalue", "shows the current value of the setting (this shows the used value, so user settings override server settings)")]
+		[Command("svalue", "shows the current value of the setting (this shows the used value (user settings override server settings))")]
 		public async Task SendSettingsValue([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] Word setting,
 			[CommandParameter] SocketMessage message) {
 			if (!Enum.TryParse(setting, true, out SettingNames settingName)) {
@@ -64,11 +64,15 @@ namespace Kudos.Bot.Modules {
 			string settingsValue = "";
 			object settingValueObject = message.Settings()[settingName].ObjectValue;
 			switch (settingValueObject) {
-				case IDictionary dictionary : settingsValue = dictionary.ToDictionary().Aggregate(settingsValue, (current, pair) => current + $"key: `{pair.Key}` value: `{pair.Value}` \n");
+				case IDictionary dictionary :
+					settingsValue = dictionary.ToDictionary()
+						.Aggregate(settingsValue, (current, pair) => current + $"key: `{pair.Key}` value: `{pair.Value}` \n");
 					break;
-				case null : settingsValue += "value: not set";
+				case null :
+					settingsValue += "value: not set";
 					break;
-				default : settingsValue += $"value: `{settingValueObject}`";
+				default :
+					settingsValue += $"value: `{settingValueObject}`";
 					break;
 			}
 			await Messaging.Instance.SendMessage(channel, settingsValue);

@@ -4,6 +4,7 @@
 		AutoResponses,
 		AutoReact,
 		AutoImage,
-		AutoMessage
+		AutoMessage,
+		AutoHonor
 	}
 }
