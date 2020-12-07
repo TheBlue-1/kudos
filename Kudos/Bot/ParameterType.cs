@@ -7,8 +7,8 @@ using System.Linq;
 using Discord;
 using Discord.WebSocket;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Models;
-using UserExtensions = Kudos.Extensions.UserExtensions;
 #endregion
 
 namespace Kudos.Bot {
@@ -36,6 +36,8 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(stringParameter.Type, stringParameter);
 			ParameterType userParameter = new ParameterType<SocketUser>('u', "a user mention or @username#number", ParameterAsSocketUser);
 			ParameterTypes.TryAdd(userParameter.Type, userParameter);
+			ParameterType roleParameter = new ParameterType<SocketRole>('r', "a role mention", ParameterAsSocketRole);
+			ParameterTypes.TryAdd(roleParameter.Type, roleParameter);
 			ParameterType emojiParameter = new ParameterType<IEmote>('e', "an emoji", ParameterAsEmote);
 			ParameterTypes.TryAdd(emojiParameter.Type, emojiParameter);
 			ParameterType wordParameter = new ParameterType<Word>('w', "a word", ParameterAsWord);
@@ -142,11 +144,28 @@ namespace Kudos.Bot {
 			return value;
 		}
 
+		private static SocketRole ParameterAsSocketRole(string[] parameters, SocketRole indexLess, int index, bool optional,
+			DefaultValue<SocketRole> defaultValue, Optional<SocketRole> min, Optional<SocketRole> max, bool throwOutOfRange) {
+			SocketRole role;
+			if (ParameterPresent(parameters, index)) {
+				role = parameters[index].RoleFromMention();
+				if (role != null) {
+					return role;
+				}
+			}
+			if (!optional) {
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a mentioned role");
+			}
+
+			SetToDefaultValue(out role, defaultValue, indexLess);
+			return role;
+		}
+
 		private static SocketUser ParameterAsSocketUser(string[] parameters, SocketUser indexLess, int index, bool optional,
 			DefaultValue<SocketUser> defaultValue, Optional<SocketUser> min, Optional<SocketUser> max, bool throwOutOfRange) {
 			SocketUser user;
 			if (ParameterPresent(parameters, index)) {
-				user = UserExtensions.FromMention(parameters[index]);
+				user = parameters[index].FromMention();
 				if (user != null) {
 					return user;
 				}

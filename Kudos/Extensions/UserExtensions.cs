@@ -24,7 +24,7 @@ namespace Kudos.Extensions {
 			return channel;
 		}
 
-		public static SocketUser FromMention(string mention) {
+		public static SocketUser FromMention(this string mention) {
 			Regex regex = new Regex("^<@!{0,1}(\\d+)>$");
 			Match match = regex.Match(mention);
 			if (!match.Success) {
@@ -35,10 +35,26 @@ namespace Kudos.Extensions {
 			return Program.Client.GetSocketUserById(id);
 		}
 
+		// ReSharper disable once UnusedMember.Global
+		public static bool HasRole(this IGuildUser user, params IRole[] roles) => user.HasRoleId(roles.Select(role => role.Id).ToArray());
+
+		public static bool HasRoleId(this IGuildUser user, params ulong[] roleIds) =>
+			(from roleId in roleIds from userRoleId in user.RoleIds where roleId == userRoleId select roleId).Any();
+
 		public static bool IsBotAdmin(this IUser user) => BotAdmins.Contains(user.Id);
 
 		public static bool IsGuildAdmin(this SocketGuildUser user) => user.GuildPermissions.Administrator;
-
 		public static async Task<RestUser> RestUser(this SocketUser user) => await Program.Client.GetRestUserById(user.Id);
+
+		public static SocketRole RoleFromMention(this string mention) {
+			Regex regex = new Regex("^<@&{0,1}(\\d+)>$");
+			Match match = regex.Match(mention);
+			if (!match.Success) {
+				return null;
+			}
+
+			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+			return Program.Client.GetRoleById(id);
+		}
 	}
 }

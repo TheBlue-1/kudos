@@ -19,6 +19,8 @@ namespace Kudos.Migrations {
 
 				b.Property<bool>("Auto").HasColumnType("INTEGER");
 
+				b.Property<string>("RoleIds").HasColumnType("TEXT");
+
 				b.Property<string>("UserIds").HasColumnType("TEXT");
 
 				b.HasKey("ChannelId");

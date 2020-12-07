@@ -29,6 +29,9 @@ namespace Kudos.DatabaseModels {
 			modelBuilder.Entity<GroupData>()
 				.Property(group => group.UserIds)
 				.HasConversion(v => string.Join(';', v), v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(ulong.Parse).ToList());
+			modelBuilder.Entity<GroupData>()
+				.Property(group => group.RoleIds)
+				.HasConversion(v => string.Join(';', v), v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(ulong.Parse).ToList());
 		}
 
 		// ReSharper disable once PartialMethodWithSinglePart
