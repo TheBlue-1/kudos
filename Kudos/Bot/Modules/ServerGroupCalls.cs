@@ -89,7 +89,7 @@ namespace Kudos.Bot.Modules {
 			ulong[] roleUserIds = (await RolesUserIds(channel.Guild, group)).ToArray();
 			if (group.Auto && (group.UserIds.Contains(user.Id) || roleUserIds.Contains(user.Id))) {
 				if ((await UsersInChannel(channel, group, roleUserIds)).Count() == 1) {
-					await SendInvites(group, channel, user);
+					await SendInvites(group, channel, user, roleUserIds);
 				}
 			}
 		}
@@ -147,10 +147,11 @@ namespace Kudos.Bot.Modules {
 			if (group == null) {
 				throw new KudosInvalidOperationException("This channel has no group (an admin can create one)");
 			}
-			if (!group.UserIds.Contains(user.Id)) {
+			ulong[] roleUserIds = (await RolesUserIds(channel.Guild, group)).ToArray();
+			if (!group.UserIds.Contains(user.Id) && !roleUserIds.Contains(user.Id)) {
 				throw new KudosInvalidOperationException("You are no member of the group in this channel");
 			}
-			await SendInvites(group, channel, user);
+			await SendInvites(group, channel, user, roleUserIds);
 			await Messaging.Instance.SendExpiringMessage(textChannel, "Group invited successfully");
 		}
 
@@ -198,7 +199,7 @@ namespace Kudos.Bot.Modules {
 			return (await guild.GetUsersAsync()).Where(guildUser => guildUser.HasRoleId(group.RoleIds.ToArray())).Select(guildUser => guildUser.Id);
 		}
 
-		private async Task SendInvites(GroupData group, IGuildChannel channel, IUser user) {
+		private async Task SendInvites(GroupData group, IGuildChannel channel, IUser user, ulong[] roleUserIds) {
 			if (Timeouts.ContainsKey(group.ChannelId)) {
 				TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.Now.AddMinutes(-5);
 				if (timeout > new TimeSpan(0)) {
@@ -208,7 +209,6 @@ namespace Kudos.Bot.Modules {
 			int errorCount = 0;
 			HashSet<ulong> userIds = new HashSet<ulong>();
 			userIds.UnionWith(group.UserIds);
-			ulong[] roleUserIds = (await RolesUserIds(channel.Guild, group)).ToArray();
 			userIds.UnionWith(roleUserIds);
 			IEnumerable<IGuildUser> alreadyInChannel = await UsersInChannel(channel, group, roleUserIds);
 			foreach (ulong groupUserId in userIds.Where(groupUserId => alreadyInChannel.All(channelUser => channelUser.Id != groupUserId))) {
