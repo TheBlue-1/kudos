@@ -145,8 +145,14 @@ namespace Kudos.Bot {
 
 		private static Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
 			_ = Task.Run(async () => {
+				//entering
 				if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
 					await ServerGroupCalls.Instance.CheckEntering(user, newState.VoiceChannel);
+				}
+
+				//leaving
+				if (oldState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
+					await ServerGroupCalls.Instance.CheckLeaving(user, oldState.VoiceChannel);
 				}
 			});
 			return Task.Run(() => true);

@@ -20,6 +20,7 @@ namespace Kudos.Bot.Modules {
 		private DatabaseSyncedList<GroupData> Groups { get; } = new DatabaseSyncedList<GroupData>();
 
 		public static ServerGroupCalls Instance { get; } = new ServerGroupCalls();
+		private Dictionary<ulong, DateTime> Timeouts { get; } = new Dictionary<ulong, DateTime>();
 
 		static ServerGroupCalls() { }
 
@@ -89,6 +90,20 @@ namespace Kudos.Bot.Modules {
 			if (group.Auto && (group.UserIds.Contains(user.Id) || roleUserIds.Contains(user.Id))) {
 				if ((await UsersInChannel(channel, group, roleUserIds)).Count() == 1) {
 					await SendInvites(group, channel, user);
+				}
+			}
+		}
+
+		public async Task CheckLeaving(SocketUser user, IVoiceChannel channel) {
+			GroupData group = Groups.FirstOrDefault(g => g.ChannelId == channel.Id);
+			if (group == null) {
+				return;
+			}
+
+			ulong[] roleUserIds = (await RolesUserIds(channel.Guild, group)).ToArray();
+			if (group.Auto && (group.UserIds.Contains(user.Id) || roleUserIds.Contains(user.Id))) {
+				if (!(await UsersInChannel(channel, group, roleUserIds)).Any()) {
+					Timeouts[group.ChannelId] = DateTime.Now;
 				}
 			}
 		}
@@ -183,7 +198,13 @@ namespace Kudos.Bot.Modules {
 			return (await guild.GetUsersAsync()).Where(guildUser => guildUser.HasRoleId(group.RoleIds.ToArray())).Select(guildUser => guildUser.Id);
 		}
 
-		private static async Task SendInvites(GroupData group, IGuildChannel channel, IUser user) {
+		private async Task SendInvites(GroupData group, IGuildChannel channel, IUser user) {
+			if (Timeouts.ContainsKey(group.ChannelId)) {
+				TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.Now.AddMinutes(-5);
+				if (timeout > new TimeSpan(0)) {
+					throw new KudosInvalidOperationException($"There is still a Timeout for {timeout}");
+				}
+			}
 			int errorCount = 0;
 			HashSet<ulong> userIds = new HashSet<ulong>();
 			userIds.UnionWith(group.UserIds);
@@ -205,6 +226,8 @@ namespace Kudos.Bot.Modules {
 			if (errorCount > 0) {
 				throw new KudosUnauthorizedException($"{errorCount} users could not be notified");
 			}
+
+			Timeouts[group.ChannelId] = DateTime.Now;
 		}
 
 		private static async Task<IEnumerable<IGuildUser>> UsersInChannel(IGuildChannel channel, GroupData group, IEnumerable<ulong> roleUserIds) {
