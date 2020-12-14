@@ -22,22 +22,41 @@ namespace Kudos.Bot.Modules {
 
 		private Settings() { }
 
-		[Command("s", "change settings", Accessibility.Admin)]
-		public async Task ChangeSetting([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] Word setting,
-			[CommandParameter(1, null)] string value, [CommandParameter(2, null)] string key, [CommandParameter(3, false)] bool forServer,
-			[CommandParameter] SocketUser author) {
+		[Command("gs", "change guild settings", Accessibility.Admin)]
+		public async Task ChangeGuildSetting([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] Word setting,
+			[CommandParameter(1, null)] string value, [CommandParameter(2, null)] string key,
+			[CommandParameter] SocketUser author)
+		{
+			await ChangeSetting(channel, setting, value, key, true, author);
+		}
+		[Command("s", "change settings")]
+		public async Task ChangePersonalSetting([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] Word setting,
+			[CommandParameter(1, null)] string value, [CommandParameter(2, null)] string key,
+			[CommandParameter] SocketUser author)
+		{
+			await ChangeSetting(channel, setting, value, key, false, author);
+		}
+		public async Task ChangeSetting( ISocketMessageChannel channel, Word setting,
+			string value,  string key, bool forServer,
+			 SocketUser author)
+		{
 			Models.Settings settings = EditableSettings(forServer, channel, author);
-			if (!Enum.TryParse(setting, true, out SettingNames settingName)) {
+			if (!Enum.TryParse(setting, true, out SettingNames settingName))
+			{
 				throw new KudosArgumentException($"Setting `{setting}` doesn't exist");
 			}
-			if (settings[settingName].AddOrSetValue(value, 1, key, 2)) {
+			if (settings[settingName].AddOrSetValue(value, 1, key, 2))
+			{
 				await Messaging.Instance.SendMessage(channel,
 					$"`{(key != null ? $"{setting} - {key}" : setting.ToString())}` set to `{value}` {(forServer ? "server wide" : "personal")}");
-			} else {
+			}
+			else
+			{
 				await Messaging.Instance.SendMessage(channel,
 					$"`{(key != null ? $"{setting} - {key}" : setting.ToString())}` unset {(forServer ? "server wide" : "personal")}");
 			}
 		}
+
 
 		private static Models.Settings EditableSettings(bool forServer, ISocketMessageChannel channel, SocketUser author) {
 			if (!forServer) {

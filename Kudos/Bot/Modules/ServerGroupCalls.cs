@@ -217,7 +217,7 @@ namespace Kudos.Bot.Modules {
 					IDMChannel groupUserChannel = await groupUser.GetOrCreateDMChannelAsync();
 
 					await Messaging.Instance.SendMessage(groupUserChannel,
-						$"Hey, {user.Username} invited you to join the voice call {channel.Name} in {channel.Guild.Name}");
+						$"Hey, **{user.Username}** invited you to join the voice call **{channel.Name}** in {channel.Guild.Name}");
 				}
 				catch (Exception) {
 					errorCount++;
