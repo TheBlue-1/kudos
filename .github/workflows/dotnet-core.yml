@@ -54,5 +54,5 @@ jobs:
             cd Kudos/${{ env.REALEASE_TYPE }}publish
             pid=$(cat 'last.pid')
             kill $pid
-            nohup ./Kudos &>> runningLog.txt
+            nohup ./Kudos &>> runningLog.txt &
             echo "$!" > last.pid
