@@ -95,11 +95,12 @@ namespace Kudos.Bot {
 
 		public static T InterpretParameter<T>(string[] parameters, T indexLess, int index, bool optional, DefaultValue<T> defaultValue, Optional<T> min,
 			Optional<T> max, bool throwOutOfRange) =>
-			((ParameterType<T>)ParameterTypes[typeof (T)]).ParameterInterpreter.Invoke(parameters, indexLess, index, optional, defaultValue, min, max,
+			((ParameterType<T>)FromType(typeof (T))).ParameterInterpreter.Invoke(parameters, indexLess, index, optional, defaultValue, min, max,
 				throwOutOfRange);
 
 		public static object InterpretParameter(Type type, string[] parameters, IEnumerable<object> indexLess, int index, bool optional,
-			DefaultValue<object> defaultValue, Optional<object> min, Optional<object> max, bool throwOutOfRange) => ParameterTypes[type]
+			DefaultValue<object> defaultValue, Optional<object> min, Optional<object> max, bool throwOutOfRange) =>
+			FromType(type)
 			.InterpretParameter(parameters, indexLess, index, optional, defaultValue, min, max,
 				throwOutOfRange);
 
