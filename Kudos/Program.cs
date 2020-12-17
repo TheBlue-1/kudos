@@ -29,6 +29,7 @@ namespace Kudos {
 	#endif
 
 		private static void Main() {
+            AppDomain.CurrentDomain.ProcessExit += OnClose;
 			KudosDataContext db = new KudosDataContext();
 			db.Database.Migrate();
 			string botToken;
@@ -61,7 +62,12 @@ namespace Kudos {
 			// ReSharper disable once FunctionNeverReturns
 		}
 
-		private static async void RefreshBotListDocs() {
+        private static void OnClose(object sender, EventArgs e)
+        {
+			Console.WriteLine("#################APP SHUTS DOWN#################");
+		}
+
+        private static async void RefreshBotListDocs() {
 			if (BotListToken == null) {
 				return;
 			}
