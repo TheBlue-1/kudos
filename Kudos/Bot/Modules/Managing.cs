@@ -1,9 +1,13 @@
 ﻿#region
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.Exceptions;
 
 // ReSharper disable UnusedMember.Global
 #endregion
@@ -17,19 +21,28 @@ namespace Kudos.Bot.Modules {
 
 		private Managing() { }
 
-		public void Delete(ISocketMessageChannel channel, int count = 1) {
+		public async Task Delete(ISocketMessageChannel channel, int count = 1) {
 			IAsyncEnumerable<IReadOnlyCollection<IMessage>> messageCollections = channel.GetMessagesAsync(count);
-			messageCollections.ForEachAsync(messages => {
+
+			await messageCollections.ForEachAwaitAsync(async messages => {
 				foreach (IMessage message in messages) {
-					channel.DeleteMessageAsync(message);
+					try {
+						await channel.DeleteMessageAsync(message);
+					}
+					catch (HttpException e) {
+						if (e.HttpCode == HttpStatusCode.NotFound) {
+							throw new KudosInvalidOperationException("a message you wanted me to delete was already deleted (I stopped deleting)",
+								"tried to delete msg already deleted");
+						}
+					}
 				}
 			});
 		}
 
 		[Command("delete", "deletes messages in the channel", Accessibility.Admin)]
-		public void DeletePerCommand([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0, 1, 1, 100)] int count) {
+		public async Task DeletePerCommand([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0, 1, 1, 100)] int count) {
 			count++;
-			Delete(channel, count);
+			await Delete(channel, count);
 		}
 	}
 }

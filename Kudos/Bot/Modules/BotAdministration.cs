@@ -51,5 +51,11 @@ namespace Kudos.Bot.Modules {
 			message = countedVotesList.Aggregate(message, (current, voter) => current + $"\n{voter.Username} ({voter.Count})");
 			await Messaging.Instance.SendMessage(channel, message);
 		}
+
+		[Command("wait", "waits the given time and sends a response after that")]
+		public async Task WaitAndRespond([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] TimeSpan span) {
+			await Task.Delay(span);
+			await Messaging.Instance.SendMessage(channel, $"waited for {span}");
+		}
 	}
 }
