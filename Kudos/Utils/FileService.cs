@@ -17,7 +17,6 @@ namespace Kudos.Utils {
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
 		public static FileService Instance { get; } = new FileService();
 
-		public AsyncThreadsafeFileSyncedDictionary<string, string> Settings { get; } = new AsyncThreadsafeFileSyncedDictionary<string, string>("settings");
 		static FileService() { }
 
 		private FileService() {
@@ -26,12 +25,7 @@ namespace Kudos.Utils {
 			}
 		}
 
-		public void Log(string message) {
-			string fileName = Path.Combine(ApplicationFolderPath, "log.txt");
-			message = $"{DateTime.Now}: {message}\n";
-			File.AppendAllText(fileName, message);
-		}
-
+	
 		public async Task<T> ReadJsonFromFile<T>(string fileName)
 			where T : new() {
 			return await Task.Run(() => {
@@ -53,8 +47,6 @@ namespace Kudos.Utils {
 			});
 		}
 
-		public void WriteFile(string name, string content) {
-			File.WriteAllText(Path.Combine(ApplicationFolderPath, name), content);
-		}
+	
 	}
 }

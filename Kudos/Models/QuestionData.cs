@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+// ReSharper disable UnusedMember.Global
 #endregion
 
 namespace Kudos.Models {
