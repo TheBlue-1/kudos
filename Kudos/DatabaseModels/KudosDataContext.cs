@@ -1,7 +1,9 @@
 ﻿#region
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using Kudos.Utils;
 using Microsoft.EntityFrameworkCore;
 #endregion
 
@@ -19,7 +21,7 @@ namespace Kudos.DatabaseModels {
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
 			if (!optionsBuilder.IsConfigured) {
-				optionsBuilder.UseSqlite("DataSource=KudosData.db");
+				optionsBuilder.UseSqlite("DataSource=" + Path.Combine(FileService.Instance.ApplicationFolderPath, "KudosData.db"));
 			}
 		}
 
