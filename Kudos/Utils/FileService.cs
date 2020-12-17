@@ -49,6 +49,7 @@ namespace Kudos.Utils {
 			await Task.Run(() => {
 				fileName = Path.Combine(ApplicationFolderPath, fileName + JsonFileEnding);
 				string json = JsonConvert.SerializeObject(content, JsonSettings);
+
 				File.WriteAllText(fileName, json);
 			});
 		}

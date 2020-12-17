@@ -10,8 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Kudos {
 	internal class Program {
-		private const string Dot = ".";
-		private const int WaitingTimeInMs = 250;
+		private const int WaitingTimeInMs = 10000;
 		public static Random Random { get; } = new Random();
 
 		public static Version Version { get; } = Assembly.GetExecutingAssembly().GetName().Version;
@@ -49,17 +48,14 @@ namespace Kudos {
 			}
 			Client = new Client(botToken);
 			RefreshBotListDocs();
+			string lastState = "";
 			while (true) {
 				string state = Client.State;
-				Console.Write(state);
+				if (lastState != state) {
+					Console.WriteLine("#################" + state + "#################");
+					lastState = state;
+				}
 				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Write(Dot);
-				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Write(Dot);
-				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Write(Dot);
-				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Clear();
 			}
 
 			// ReSharper disable once FunctionNeverReturns

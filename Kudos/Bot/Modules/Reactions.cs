@@ -56,7 +56,7 @@ namespace Kudos.Bot.Modules {
 			if (!(text.JustNormalChars() && text.UniqueChars())) {
 				throw new KudosArgumentException("Reaction text can just use a-z and each character just one time.");
 			}
-			Managing.Instance.Delete(message.Channel);
+			await Managing.Instance.Delete(message.Channel);
 			IMessage reactMessage = null;
 			IAsyncEnumerable<IReadOnlyCollection<IMessage>> messageCollections = message.Channel.GetMessagesAsync(message, Direction.Before, 1);
 			await messageCollections.ForEachAsync(messages => {

@@ -79,9 +79,14 @@ namespace Kudos.Bot {
 
 		private static Task ClientMessageReceived(SocketMessage arg) {
 			_ = Task.Run(() => {
-				MessageInterpreter interpreter = new MessageInterpreter(arg);
-				if (interpreter.Executable) {
-					interpreter.TryExecute();
+				try {
+					MessageInterpreter interpreter = new MessageInterpreter(arg);
+					if (interpreter.Executable) {
+						interpreter.TryExecute();
+					}
+				}
+				catch (Exception e) {
+					new ExceptionHandler(e, arg.Channel).Handle(false);
 				}
 			});
 			return Task.Run(() => true);
@@ -111,8 +116,13 @@ namespace Kudos.Bot {
 
 		private Task JoinedGuild(SocketGuild arg) {
 			_ = Task.Run(async () => {
-				JoinedNewGuild?.Invoke();
-				await Messaging.Instance.SendWelcomeMessage(arg);
+				try {
+					JoinedNewGuild?.Invoke();
+					await Messaging.Instance.SendWelcomeMessage(arg);
+				}
+				catch (Exception e) {
+					new ExceptionHandler(e, arg.DefaultChannel).Handle(false);
+				}
 			});
 
 			return Task.Run(() => true);
@@ -145,14 +155,19 @@ namespace Kudos.Bot {
 
 		private static Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
 			_ = Task.Run(async () => {
-				//entering
-				if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
-					await ServerGroupCalls.Instance.CheckEntering(user, newState.VoiceChannel);
-				}
+				try {
+					//entering
+					if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
+						await ServerGroupCalls.Instance.CheckEntering(user, newState.VoiceChannel);
+					}
 
-				//leaving
-				if (oldState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
-					await ServerGroupCalls.Instance.CheckLeaving(user, oldState.VoiceChannel);
+					//leaving
+					if (oldState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
+						await ServerGroupCalls.Instance.CheckLeaving(user, oldState.VoiceChannel);
+					}
+				}
+				catch (Exception e) {
+					new ExceptionHandler(e, null).Handle(false);
 				}
 			});
 			return Task.Run(() => true);

@@ -44,7 +44,13 @@ namespace Kudos.Bot.Modules {
 				await message.AddReactionsAsync(reactions);
 			}
 			await Task.Delay(timeSpan);
-			await message.DeleteAsync();
+			try {
+				await message.DeleteAsync();
+			}
+			catch (Exception) {
+				//message deletion didn't work
+				//ignored
+			}
 		}
 
 		public async Task SendHonorMessage(IMessageChannel channel, SocketUser mentionedUser) {
