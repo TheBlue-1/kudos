@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -15,12 +16,60 @@ namespace Kudos.Models {
 		private readonly ImmutableDictionary<SettingNames, SettingBase> _settings;
 
 		public SettingBase this[SettingNames name] => _settings[name];
+		public static string SettingsListAsHtml {
+			get {
+				string htmlList = @"
+<h2>Settings</h2>
+<p>
+<h3>Commands</h3>
+<table>
+";
+				CommandModuleInfo settingsInfo = new CommandModuleInfo(typeof (Bot.Modules.Settings));
+				CommandInfo settingCommand = settingsInfo.Commands.First(command => command.Command.Name == "s");
+				htmlList += settingCommand.ToHtml();
+				htmlList += @"
+</table>
+</p> 
+";
+				htmlList += @"
+
+<p>
+<h3>Settings</h3>
+<table>
+";
+				string settings = string.Empty;
+				Settings defaultSettings = new Settings();
+				settings = defaultSettings._settings.Values.Aggregate(settings, (current, defaultSetting) => current + defaultSetting.HtmlHelpText);
+				htmlList += settings;
+				htmlList += @"
+</table>
+</p> 
+";
+				htmlList += @"
+
+<p>
+<h3>Examples</h3>
+<table>
+";
+				htmlList +=
+					"<tr><td>set <b>prefix</b> server wide</td><td><b>k!s prefix \"kudos!\" - true</b></td></tr><tr><td>unset(to default) <b> prefix </b> personal</td><td><b> k!s prefix</b></td></tr><tr><td>set <b> autoreact </b> for messages ending with <b> haha </b> to <b>😂</b> personal</td><td><b> k!s autoreact \"😂\" \"*haha\"</b></td></tr><tr><td>unset <b> autoreact </b> for messages starting with <b> haha </b> server wide</td><td><b> k!s autoreact - \"haha*\" true</b></td></tr>";
+				htmlList += @"
+</table>
+</p> 
+";
+				return htmlList;
+			}
+		}
 
 		public Settings() {
 			IEnumerable<FieldInfo> fields = GetType()
 				.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
 				.Where(field => field.FieldType.IsSubclassOf(typeof (SettingBase)));
-			Dictionary<SettingNames, SettingBase> settings = fields.Select(field => (SettingBase)field.GetValue(this)).ToDictionary(setting => setting.Name);
+			Dictionary<SettingNames, SettingBase> settings = fields.Select(field => (SettingBase)field.GetValue(this))
+				.ToDictionary(setting => {
+					Debug.Assert(setting != null, nameof (setting) + " != null");
+					return setting.Name;
+				});
 			foreach (SettingBase setting in settings.Values) {
 				setting.PropertyChanged += SettingChanged;
 			}

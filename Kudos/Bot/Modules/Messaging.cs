@@ -35,10 +35,28 @@ namespace Kudos.Bot.Modules {
 		public async Task<IUserMessage> SendEmbed(IMessageChannel channel, EmbedBuilder embedBuilder) =>
 			await channel.SendMessageAsync(embed: embedBuilder.Build());
 
-		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan) {
+		public async Task SendExpiringMessage(IMessageChannel channel, string text, TimeSpan timeSpan = default, IEmote[] reactions = null) {
+			if (timeSpan == default) {
+				timeSpan = new TimeSpan(0, 0, 3);
+			}
 			IUserMessage message = await SendMessage(channel, text);
+			if (reactions != null) {
+				await message.AddReactionsAsync(reactions);
+			}
 			await Task.Delay(timeSpan);
-			await message.DeleteAsync();
+			try {
+				await message.DeleteAsync();
+			}
+			catch (Exception) {
+				//message deletion didn't work
+				//ignored
+			}
+		}
+
+		public async Task SendHonorMessage(IMessageChannel channel, SocketUser mentionedUser) {
+			await SendExpiringMessage(channel,
+				$"Hey, do you want to honor {mentionedUser}? Select number of honor points! (this message will delete itself in 10 sec)",
+				new TimeSpan(0, 0, 10), Honor.HonorEmojis);
 		}
 
 		public async Task SendImage(IMessageChannel channel, string imageUrl) {
@@ -55,8 +73,24 @@ namespace Kudos.Bot.Modules {
 			await SendMessage(channel, PingMessage);
 		}
 
+		public async Task SendWelcomeMessage(SocketGuild guild) {
+			string message =
+				$"Hello,\n I'm Kudos and I was added to {guild.Name}.\n As an administrator you can use all of my features!\n You can also DM me. \n For a description and a list just type `k!help` or visit [Top.gg](https://top.gg/bot/719571683517792286) \n If you like the Bot please give us 5 Stars at [Top.gg Reviews](https://top.gg/bot/719571683517792286#reviews)";
+			foreach (SocketGuildUser guildUser in guild.Users) {
+				if (!guildUser.IsGuildAdmin()) {
+					continue;
+				}
+				try {
+					await SendMessage(await guildUser.GetOrCreateDMChannelAsync(), message);
+				}
+				catch {
+					// ignored
+				}
+			}
+		}
+
 		[Command("vote", "sends our vote links")]
-		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser user) {
+		public async Task VoteLink([CommandParameter] ISocketMessageChannel channel) {
 			await SendMessage(channel,
 				"Vote for our bot: [bot vote](https://top.gg/bot/719571683517792286/vote) \n"
 				+ "Vote for our server: [server vote](https://top.gg/servers/631180888394301451/vote) \n"

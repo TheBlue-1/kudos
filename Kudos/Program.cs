@@ -3,13 +3,14 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kudos.Bot;
+using Kudos.DatabaseModels;
 using Kudos.Utils;
+using Microsoft.EntityFrameworkCore;
 #endregion
 
 namespace Kudos {
 	internal class Program {
-		private const string Dot = ".";
-		private const int WaitingTimeInMs = 250;
+		private const int WaitingTimeInMs = 10000;
 		public static Random Random { get; } = new Random();
 
 		public static Version Version { get; } = Assembly.GetExecutingAssembly().GetName().Version;
@@ -28,6 +29,9 @@ namespace Kudos {
 	#endif
 
 		private static void Main() {
+			AppDomain.CurrentDomain.ProcessExit += OnClose;
+			KudosDataContext db = new KudosDataContext();
+			db.Database.Migrate();
 			string botToken;
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
 			if (settings.ContainsKey("bot_list_token")) {
@@ -45,20 +49,21 @@ namespace Kudos {
 			}
 			Client = new Client(botToken);
 			RefreshBotListDocs();
+			string lastState = "";
 			while (true) {
 				string state = Client.State;
-				Console.Write(state);
+				if (lastState != state) {
+					Console.WriteLine("#################" + state + "#################");
+					lastState = state;
+				}
 				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Write(Dot);
-				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Write(Dot);
-				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Write(Dot);
-				Task.Delay(WaitingTimeInMs).Wait();
-				Console.Clear();
 			}
 
 			// ReSharper disable once FunctionNeverReturns
+		}
+
+		private static void OnClose(object sender, EventArgs e) {
+			Console.WriteLine("#################APP SHUTS DOWN#################");
 		}
 
 		private static async void RefreshBotListDocs() {

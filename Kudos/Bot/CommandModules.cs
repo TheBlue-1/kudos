@@ -52,8 +52,9 @@ namespace Kudos.Bot {
 ";
 				longDescription = ParameterType.KnownParameterTypes.Aggregate(longDescription, (current, parameterType) => current + parameterType.ToHtml());
 				longDescription += @"
-</table>
-</p> 
+</table>";
+				longDescription += Settings.SettingsListAsHtml;
+				longDescription += @"</p> 
 <h2>Kudos Beta</h2>
 <p><b>For more recent features and updates make sure to invite <a href='https://discord.com/oauth2/authorize?client_id=720622422654451763&permissions=8&scope=bot'>Kudos - Beta</a> to your Server</b></p>
 </div>
@@ -91,7 +92,7 @@ namespace Kudos.Bot {
 			}
 			string types =
 				(from value in ParameterType.KnownParameterTypes let valueString = value.ToString() where valueString != string.Empty select value).Aggregate(
-					"`[x|y?]` x is the Type, y is the name, ? tells it's optional\n" + "use `-` to skip a parameter",
+					"`[t|n?(d)]` t is the Type, n is the name, ? tells it's optional and d is the default value\n" + "use `-` to skip a parameter",
 					(current, value) => current + ("\n" + value));
 			embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
 			return embedBuilder;

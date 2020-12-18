@@ -7,8 +7,8 @@ using System.Linq;
 using Discord;
 using Discord.WebSocket;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Models;
-using UserExtensions = Kudos.Extensions.UserExtensions;
 #endregion
 
 namespace Kudos.Bot {
@@ -36,10 +36,14 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(stringParameter.Type, stringParameter);
 			ParameterType userParameter = new ParameterType<SocketUser>('u', "a user mention or @username#number", ParameterAsSocketUser);
 			ParameterTypes.TryAdd(userParameter.Type, userParameter);
+			ParameterType roleParameter = new ParameterType<SocketRole>('r', "a role mention", ParameterAsSocketRole);
+			ParameterTypes.TryAdd(roleParameter.Type, roleParameter);
 			ParameterType emojiParameter = new ParameterType<IEmote>('e', "an emoji", ParameterAsEmote);
 			ParameterTypes.TryAdd(emojiParameter.Type, emojiParameter);
 			ParameterType wordParameter = new ParameterType<Word>('w', "a word", ParameterAsWord);
 			ParameterTypes.TryAdd(wordParameter.Type, wordParameter);
+			ParameterType timespanParameter = new ParameterType<TimeSpan>('s', "a timespan in format 30d24h59m59s (also 40d2s)", ParameterAsTimespan);
+			ParameterTypes.TryAdd(timespanParameter.Type, timespanParameter);
 			ParameterType settingsParameter = new ParameterType<Settings>();
 			ParameterTypes.TryAdd(settingsParameter.Type, settingsParameter);
 			ParameterType messageParameter = new ParameterType<SocketMessage>();
@@ -77,19 +81,26 @@ namespace Kudos.Bot {
 		}
 
 		public static ParameterType FromType(Type type) {
-			if (!ParameterTypes.ContainsKey(type)) {
-				throw new KudosInternalException($"Unknown ParameterType ({type})");
+			if (ParameterTypes.ContainsKey(type)) {
+				return ParameterTypes[type];
 			}
-			return ParameterTypes[type];
+			foreach ((Type key, ParameterType value) in ParameterTypes) {
+				if (type.IsAssignableFrom(key)) {
+					return value;
+				}
+			}
+
+			throw new KudosInternalException($"Unknown ParameterType ({type})");
 		}
 
 		public static T InterpretParameter<T>(string[] parameters, T indexLess, int index, bool optional, DefaultValue<T> defaultValue, Optional<T> min,
 			Optional<T> max, bool throwOutOfRange) =>
-			((ParameterType<T>)ParameterTypes[typeof (T)]).ParameterInterpreter.Invoke(parameters, indexLess, index, optional, defaultValue, min, max,
+			((ParameterType<T>)FromType(typeof (T))).ParameterInterpreter.Invoke(parameters, indexLess, index, optional, defaultValue, min, max,
 				throwOutOfRange);
 
 		public static object InterpretParameter(Type type, string[] parameters, IEnumerable<object> indexLess, int index, bool optional,
-			DefaultValue<object> defaultValue, Optional<object> min, Optional<object> max, bool throwOutOfRange) => ParameterTypes[type]
+			DefaultValue<object> defaultValue, Optional<object> min, Optional<object> max, bool throwOutOfRange) =>
+			FromType(type)
 			.InterpretParameter(parameters, indexLess, index, optional, defaultValue, min, max,
 				throwOutOfRange);
 
@@ -134,11 +145,28 @@ namespace Kudos.Bot {
 			return value;
 		}
 
+		private static SocketRole ParameterAsSocketRole(string[] parameters, SocketRole indexLess, int index, bool optional,
+			DefaultValue<SocketRole> defaultValue, Optional<SocketRole> min, Optional<SocketRole> max, bool throwOutOfRange) {
+			SocketRole role;
+			if (ParameterPresent(parameters, index)) {
+				role = parameters[index].RoleFromMention();
+				if (role != null) {
+					return role;
+				}
+			}
+			if (!optional) {
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a mentioned role");
+			}
+
+			SetToDefaultValue(out role, defaultValue, indexLess);
+			return role;
+		}
+
 		private static SocketUser ParameterAsSocketUser(string[] parameters, SocketUser indexLess, int index, bool optional,
 			DefaultValue<SocketUser> defaultValue, Optional<SocketUser> min, Optional<SocketUser> max, bool throwOutOfRange) {
 			SocketUser user;
 			if (ParameterPresent(parameters, index)) {
-				user = UserExtensions.FromMention(parameters[index]);
+				user = parameters[index].FromMention();
 				if (user != null) {
 					return user;
 				}
@@ -157,6 +185,24 @@ namespace Kudos.Bot {
 
 			SetToDefaultValue(out user, defaultValue, indexLess);
 			return user;
+		}
+
+		[SuppressMessage("ReSharper", "StringLiteralTypo")]
+		private static TimeSpan ParameterAsTimespan(string[] parameters, TimeSpan indexLess, int index, bool optional, DefaultValue<TimeSpan> defaultValue,
+			Optional<TimeSpan> min, Optional<TimeSpan> max, bool throwOutOfRange) {
+			string[] formats = {
+				"d'd'", "h'h'", "m'm'", "s's'", "d'd'h'h'", "d'd'm'm'", "d'd's's'", "h'h'm'm'", "h'h's's'", "m'm's's'", "d'd'h'h'm'm'", "d'd'h'h's's'",
+				"d'd'm'm's's'", "h'h'm'm's's'", "d'd'h'h'm'm's's'"
+			};
+			if (ParameterPresent(parameters, index) && TimeSpan.TryParseExact(parameters[index], formats, null, out TimeSpan value)) {
+				return CheckMinMax(value, index, min, max, throwOutOfRange);
+			}
+			if (optional) {
+				SetToDefaultValue(out value, defaultValue, indexLess);
+			} else {
+				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a timespan");
+			}
+			return value;
 		}
 
 		private static ulong ParameterAsULong(string[] parameters, ulong indexLess, int index, bool optional, DefaultValue<ulong> defaultValue,

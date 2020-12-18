@@ -1,10 +1,12 @@
 ﻿#region
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.DatabaseModels;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
@@ -16,15 +18,14 @@ using Kudos.Utils;
 namespace Kudos.Bot.Modules {
 	[CommandModule("AnonymousQuestions")]
 	public class AnonymousQuestion {
-		private AsyncThreadsafeFileSyncedDictionary<ulong, QuestionData> AnonymousQuestions { get; } =
-			new AsyncThreadsafeFileSyncedDictionary<ulong, QuestionData>("anonymousQuestions");
+		private DatabaseSyncedList<QuestionData> AnonymousQuestions { get; } = new DatabaseSyncedList<QuestionData>();
 
 		public static AnonymousQuestion Instance { get; } = new AnonymousQuestion();
 
 		private ulong NextId {
 			get {
 				for (ulong i = 0; i < ulong.MaxValue; i++) {
-					if (!AnonymousQuestions.ContainsKey(i)) {
+					if (AnonymousQuestions.All(questionData => questionData.Id != i)) {
 						return i;
 					}
 				}
@@ -39,11 +40,9 @@ namespace Kudos.Bot.Modules {
 
 		[Command("answer", "answers anonymous question")]
 		public async Task Answer([CommandParameter(0)] ulong questionId, [CommandParameter(1)] string message, [CommandParameter] SocketUser answerer) {
-			if (!AnonymousQuestions.ContainsKey(questionId)) {
-				throw new KudosKeyNotFoundException($"No question found for id {questionId}");
-			}
+			QuestionData question = AnonymousQuestions.FirstOrDefault(questionData => questionData.Id == questionId)
+				?? throw new KudosKeyNotFoundException($"No question found for id {questionId}");
 
-			QuestionData question = AnonymousQuestions[questionId];
 			if (answerer.Id != question.Answerer) {
 				throw new KudosUnauthorizedException("The question with this id isn't meant for you", "User with wrong id tried to answer the question");
 			}
@@ -60,14 +59,14 @@ namespace Kudos.Bot.Modules {
 			catch (Exception) {
 				throw new KudosUnauthorizedException("You or the questionnaire has disabled private messages from this server", "user has dms disabled");
 			}
-			AnonymousQuestions.Remove(questionId);
+			AnonymousQuestions.Remove(question);
 		}
 
 		[Command("ask", "asks anonymous question")]
 		public async Task AskAnonymous([CommandParameter(1)] string message, [CommandParameter(0)] SocketUser answerer,
 			[CommandParameter] SocketUser questionnaire) {
 			ulong id = NextId;
-			AnonymousQuestions[id] = new QuestionData { Question = message, Questionnaire = questionnaire.Id, Answerer = answerer.Id };
+			AnonymousQuestions.Add(new QuestionData { Id = id, Question = message, Questionnaire = questionnaire.Id, Answerer = answerer.Id });
 
 			RestUser restAnswerer = await Program.Client.GetRestUserById(answerer.Id);
 			RestUser restQuestionnaire = await Program.Client.GetRestUserById(questionnaire.Id);

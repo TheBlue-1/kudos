@@ -10,5 +10,8 @@ namespace Kudos.Models {
 
 		public static Word Create(string word) => word.JustNormalChars() ? new Word(word) : null;
 		public override string ToString() => Value;
+
+		public static implicit operator string(Word word) => word.Value;
+		public static implicit operator Word(string word) => Create(word);
 	}
 }

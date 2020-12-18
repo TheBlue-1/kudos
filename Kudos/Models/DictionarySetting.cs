@@ -15,6 +15,13 @@ namespace Kudos.Models {
 				return text;
 			}
 		}
+		public override string HtmlHelpText {
+			get {
+				string info = $"[{ParameterType.FromType(typeof (T2)).Character}|value] [{ParameterType.FromType(typeof (T1)).Character}|key]";
+				string text = $"<tr><td><b>{Name.ToString().ToLower()} {info}</b></td><td>{Description}</td></tr>";
+				return text;
+			}
+		}
 
 		protected internal DictionarySetting(SettingNames name, ImmutableDictionary<T1, T2> defaultValue, string description) : base(name, defaultValue,
 			description) { }
@@ -40,16 +47,16 @@ namespace Kudos.Models {
 			return true;
 		}
 
-		public override SettingBase Merge(SettingBase serverSetting) {
-			SameTypeCheck(serverSetting);
+		public override SettingBase Merge(SettingBase guildSetting) {
+			SameTypeCheck(guildSetting);
 			if (!IsSet) {
-				return serverSetting;
+				return guildSetting;
 			}
-			if (!serverSetting.IsSet) {
+			if (!guildSetting.IsSet) {
 				return this;
 			}
 			DictionarySetting<T1, T2> setting = Create(Name, Default, Description);
-			setting.SetValue = ((DictionarySetting<T1, T2>)serverSetting).Value.SetItems(Value);
+			setting.SetValue = ((DictionarySetting<T1, T2>)guildSetting).Value.SetItems(Value);
 			return setting;
 		}
 	}

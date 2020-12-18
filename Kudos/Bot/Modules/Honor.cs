@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.DatabaseModels;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Utils;
@@ -17,6 +18,9 @@ namespace Kudos.Bot.Modules {
 	[CommandModule("Honor")]
 	public sealed class Honor {
 		private const byte MaxHonorPerDay = 7;
+		public static readonly IEmote[] HonorEmojis = {
+			new Emoji("1️⃣"), new Emoji("2️⃣"), new Emoji("3️⃣"), new Emoji("4️⃣"), new Emoji("5️⃣"), new Emoji("6️⃣"), new Emoji("7️⃣")
+		};
 		private static readonly string[] HonorFeedbackHigh = {
 			"You gained some honor... Keep it up!", "“I would prefer even to fail with honor than win by cheating.” Sophocles",
 			"You officially fulfill the conditions to become a Medal-Of-Honor candidate"
@@ -39,52 +43,63 @@ namespace Kudos.Bot.Modules {
 			"People really hate you don't they?", "Oh boy you must have done something annoying!", "Watch out we have a real Mr. Trump here!",
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
-		private AsyncThreadsafeFileSyncedDictionary<ulong, int> _usedHonor =
-			new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
-		private DateTime _usedHonorDate = DateTime.Now.Date;
 
-		private AsyncThreadsafeFileSyncedDictionary<ulong, int> BalancesPerId { get; } = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("balances");
+		private DatabaseSyncedList<HonorData> HonorData { get; } = new DatabaseSyncedList<HonorData>();
 		public static Honor Instance { get; } = new Honor();
-		private AsyncThreadsafeFileSyncedDictionary<ulong, int> UsedHonor {
-			get {
-				// ReSharper disable once InvertIf
-				if (_usedHonorDate != DateTime.Now.Date) {
-					_usedHonor = new AsyncThreadsafeFileSyncedDictionary<ulong, int>("honorUsage" + DateTime.Now.Date.ToShortDateString());
-					_usedHonorDate = DateTime.Now.Date;
-				}
-				return _usedHonor;
-			}
-		}
 
 		static Honor() { }
 
 		private Honor() { }
 
-		private void ChangeUsersUsedHonor(ulong userId, int count) {
-			int honoringBalance = UsedHonor.ContainsKey(userId) ? UsedHonor[userId] : 0;
-			UsedHonor[userId] = honoringBalance + count;
+		private int BalanceOf(ulong userId) {
+			return HonorData.Where(honorData => honorData.Honored == userId).Sum(honorData => honorData.Honor);
 		}
 
 		[Command("dishonor", "removes honor points for user")]
-		public async Task DishonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
-			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
+		public async Task DishonorUser([CommandParameter(0)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
+			[CommandParameter(1, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
-			HonorUser(honoredUser.Id, -count);
-			ChangeUsersUsedHonor(honoringUser.Id, count);
+			HonorData.Add(new HonorData { Honor = -count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
 
 			await Messaging.Instance.SendMessage(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
 
-		public int HonorCount(SocketUser honoredUser, SocketUser honoringUser, int count) {
+		public EmbedBuilder GuildStatsEmbed(IEnumerable<SocketUser> users, TimeSpan time) {
+			IEnumerable<HonorData> filteredHonorData = HonorData;
+			if (time > new TimeSpan(0)) {
+				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.Now - time);
+			}
+			users ??= filteredHonorData.Select(honorData => honorData.Honored).Distinct().Select(id => Program.Client.GetSocketUserById(id));
+
+			IEnumerable<SocketUser> socketUsers = users as SocketUser[] ?? users.ToArray();
+			IEnumerable<ulong> ids = socketUsers.Select(socketUser => socketUser.Id);
+
+			var balances = filteredHonorData.GroupBy(honorData => honorData.Honored)
+				.Where(honorData => ids.Contains(honorData.Key))
+				.Select(honorData => new { Value = honorData.Sum(y => y.Honor), User = socketUsers.First(socketUser => socketUser.Id == honorData.Key) })
+				.OrderByDescending(pair => pair.Value);
+
+			EmbedBuilder embed = new EmbedBuilder().SetDefaults().WithTitle("🌟Leader board🌟");
+			string text = "";
+			int counter = 1;
+			foreach (var balance in balances) {
+				text += $"{counter}. *{balance.User}* with an honor of **{balance.Value}** \n";
+				if (counter == 20) {
+					break;
+				}
+				counter++;
+			}
+			embed.WithDescription(text);
+			return embed;
+		}
+
+		public int HonorCount(IUser honoredUser, IUser honoringUser, int count) {
 			if (honoringUser.Id == honoredUser.Id) {
 				throw new KudosUnauthorizedException("You are not allowed to honor yourself");
 			}
 
-			int usedHonor = 0;
-			if (UsedHonor.ContainsKey(honoringUser.Id)) {
-				usedHonor = UsedHonor[honoringUser.Id];
-			}
+			int usedHonor = UsedHonorOf(honoringUser.Id);
 
 			count = count >= MaxHonorPerDay - usedHonor ? MaxHonorPerDay - usedHonor : count <= 0 ? 1 : count;
 			if (count == 0) {
@@ -94,48 +109,44 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("honor", "adds honor points for user")]
-		public async Task HonorUser([CommandParameter(1)] SocketUser honoredUser, [CommandParameter] SocketUser honoringUser,
-			[CommandParameter(0, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
+		public async Task HonorUser([CommandParameter(0)] IUser honoredUser, [CommandParameter] IUser honoringUser, [CommandParameter(1, 1)] int count,
+			[CommandParameter] IMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
-			HonorUser(honoredUser.Id, count);
-			ChangeUsersUsedHonor(honoringUser.Id, count);
+			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
 
 			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
 		}
 
-		private void HonorUser(ulong userId, int count) {
-			int honorBalance = BalancesPerId.ContainsKey(userId) ? BalancesPerId[userId] : 0;
-			BalancesPerId[userId] = honorBalance + count;
+		public async Task HonorUserWithReaction(IUserMessage message, SocketReaction reaction) {
+			if (message.Embeds.FirstOrDefault() == null || !message.Embeds.First().Description.StartsWith("Hey, do you want to honor ")) {
+				return;
+			}
+			int honor = HonorEmojis.ToList().IndexOf(reaction.Emote) + 1;
+			if (honor == 0) {
+				return;
+			}
+			IUser honorer = reaction.User.Value;
+			string description = message.Embeds.First().Description;
+			SocketUser honored = description.Substring(26, description.Length - 102).ToValue<SocketUser>(0);
+			await HonorUser(honored, honorer, honor, message.Channel);
 		}
 
 		[Command("leaders", "shows the most highly honored people of the server")]
-		public async Task SendGuildStats([CommandParameter] ISocketMessageChannel channel) {
+		public async Task SendGuildStats([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0, 0)] TimeSpan time) {
 			if (!(channel is SocketGuildChannel guildChannel)) {
 				throw new KudosUnauthorizedException("this command can only be used servers");
 			}
-			SocketGuildUser[] users = guildChannel.Guild.Users.Where(user => BalancesPerId.ContainsKey(user.Id)).ToArray();
-			IOrderedEnumerable<KeyValuePair<ulong, int>> balances = BalancesPerId.Immutable
-				.Where(balance => users.Select(user => user.Id).Contains(balance.Key))
-				.OrderByDescending(balance => balance.Value);
-			EmbedBuilder embed = new EmbedBuilder().SetDefaults().WithTitle("🌟Leader board🌟");
-			string text = "";
-			int counter = 1;
-			foreach ((ulong id, int balance) in balances) {
-				text += $"{counter}. *{users.First(user => user.Id == id)}* with an honor of **{balance}** \n";
-				if (counter == 20) {
-					return;
-				}
-				counter++;
-			}
-			embed.WithDescription(text);
-			await Messaging.Instance.SendEmbed(channel, embed);
+
+			// ReSharper disable once CoVariantArrayConversion
+			IEnumerable<SocketUser> users = guildChannel.Guild.Users;
+			await Messaging.Instance.SendEmbed(channel, GuildStatsEmbed(users, time));
 		}
 
 		[Command("balance", "shows the honor point balance")]
 		public async Task SendHonorBalance([CommandParameter(0, ParameterType.SpecialDefaults.IndexLess)]
 			SocketUser user, [CommandParameter] ISocketMessageChannel channel) {
-			int honor = BalancesPerId.ContainsKey(user.Id) ? BalancesPerId[user.Id] : 0;
+			int honor = BalanceOf(user.Id);
 			string honorMessage;
 
 			if (honor < -100) {
@@ -159,6 +170,11 @@ namespace Kudos.Bot.Modules {
 			}
 
 			await Messaging.Instance.SendMessage(channel, $"***{user.Mention}*** has ***{honor}*** honor points. \n***{honorMessage}***");
+		}
+
+		private int UsedHonorOf(ulong userId) {
+			return HonorData.Where(honorData => honorData.Honorer == userId && honorData.Timestamp > DateTime.Now.AddHours(-24))
+				.Sum(honorData => Math.Abs(honorData.Honor));
 		}
 	}
 }
