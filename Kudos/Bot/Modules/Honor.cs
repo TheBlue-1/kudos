@@ -174,7 +174,7 @@ namespace Kudos.Bot.Modules {
 
 		private int UsedHonorOf(ulong userId) {
 			return HonorData.Where(honorData => honorData.Honorer == userId && honorData.Timestamp > DateTime.Now.AddHours(-24))
-				.Sum(honorData => honorData.Honor);
+				.Sum(honorData => Math.Abs(honorData.Honor));
 		}
 	}
 }

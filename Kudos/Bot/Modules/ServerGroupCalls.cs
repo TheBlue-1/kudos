@@ -167,12 +167,12 @@ namespace Kudos.Bot.Modules {
 				throw new KudosInvalidOperationException("You must first create a group in your voice channel");
 			}
 			if (!group.RoleIds.Contains(removedRole.Id)) {
-				throw new KudosInvalidOperationException("The user you want to remove is not in the current call group");
+				throw new KudosInvalidOperationException("The role you want to remove is not in the current call group");
 			}
 
 			group.RoleIds.Remove(removedRole.Id);
 			Groups.Update(group);
-			await Messaging.Instance.SendExpiringMessage(textChannel, "User removed successfully");
+			await Messaging.Instance.SendExpiringMessage(textChannel, "Role removed successfully");
 		}
 
 		[Command("removegroupuser", "removes a user from the current call group", Accessibility.Admin)]
