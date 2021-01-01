@@ -48,21 +48,22 @@ namespace Kudos {
 				settings["bot_token"] = botToken;
 			}
 			Client = new Client(botToken);
+            Client.StateChanged += ClientStateChanged;
+			Client.Start();
 			RefreshBotListDocs();
-			string lastState = "";
 			while (true) {
-				string state = Client.State;
-				if (lastState != state) {
-					Console.WriteLine("#################" + state + "#################");
-					lastState = state;
-				}
 				Task.Delay(WaitingTimeInMs).Wait();
 			}
 
 			// ReSharper disable once FunctionNeverReturns
 		}
 
-		private static void OnClose(object sender, EventArgs e) {
+        private static void ClientStateChanged(object sender, Client.StateChangedData e)
+        {
+			Console.WriteLine(DateTime.Now +": "+ e);
+		}
+
+        private static void OnClose(object sender, EventArgs e) {
 			Console.WriteLine("#################APP SHUTS DOWN#################");
 		}
 

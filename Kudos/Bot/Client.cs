@@ -10,6 +10,7 @@ using Discord.WebSocket;
 using Kudos.Bot.Modules;
 using Kudos.Models;
 using Kudos.Utils;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Settings = Kudos.Models.Settings;
 #endregion
 
@@ -31,6 +32,14 @@ namespace Kudos.Bot {
 		public string State => _loggedIn ? _connected ? _client.Status.ToString() : "connecting" : "logging in";
 		private string Token { get; }
 
+		public event EventHandler<StateChangedData>  StateChanged;
+
+		public class StateChangedData {
+			private string _value;
+			public static implicit operator string(StateChangedData s) => s._value;
+			public static implicit operator StateChangedData(string s) => new StateChangedData{_value = s};
+		}
+
 		public Client(string token) {
 			Token = token;
 			_client = new DiscordSocketClient();
@@ -48,13 +57,14 @@ namespace Kudos.Bot {
 			_client.UserVoiceStateUpdated += UserCallInteraction;
 			_client.Disconnected += _ => {
 				_connected = false;
+				StateChanged?.Invoke(this, State);
 				return Task.Run(() => { });
 			};
 			_client.LoggedOut += () => {
 				_loggedIn = false;
+				StateChanged?.Invoke(this, State);
 				return Task.Run(() => { });
 			};
-			Start();
 		}
 
 		public event Action JoinedNewGuild;
@@ -129,17 +139,20 @@ namespace Kudos.Bot {
 		}
 
 		[SuppressMessage("ReSharper", "InvertIf")]
-		private void Start() {
+		public void Start() {
+			StateChanged?.Invoke(this, State);
 			Task connector = new Task(async () => {
 				while (true) {
 					try {
 						if (!_loggedIn) {
 							await _client.LoginAsync(TokenType.Bot, Token);
 							_loggedIn = true;
+							StateChanged?.Invoke(this, State);
 						}
 						if (!_connected) {
 							await _client.StartAsync();
 							_connected = true;
+							StateChanged?.Invoke(this, State);
 						}
 					}
 					catch (Exception) {
