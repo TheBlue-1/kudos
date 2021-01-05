@@ -13,6 +13,8 @@ namespace Kudos.Utils {
 		private static readonly JsonSerializerSettings JsonSettings =
 			new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, Converters = { new JsonIEmoteConverter() } };
 
+		private readonly object _logFile = new object();
+
 		public string ApplicationFolderPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
 		public static FileService Instance { get; } = new FileService();
 
@@ -25,10 +27,12 @@ namespace Kudos.Utils {
 			}
 		}
 
-		public void Log(string message) {
-			string fileName = Path.Combine(ApplicationFolderPath, "log.txt");
+		public void Log(string message, string filePrefix = "") {
+			string fileName = Path.Combine(ApplicationFolderPath, filePrefix + "log.txt");
 			message = $"{DateTime.Now}: {message}\n";
-			File.AppendAllText(fileName, message);
+			lock (_logFile) {
+				File.AppendAllText(fileName, message);
+			}
 		}
 
 		public async Task<T> ReadJsonFromFile<T>(string fileName)

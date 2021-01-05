@@ -10,7 +10,6 @@ using Discord.WebSocket;
 using Kudos.Bot.Modules;
 using Kudos.Models;
 using Kudos.Utils;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Settings = Kudos.Models.Settings;
 #endregion
 
@@ -23,6 +22,7 @@ namespace Kudos.Bot {
 		/// </summary>
 		private readonly DiscordSocketClient _client;
 		private volatile bool _connected;
+		private string _lastState;
 
 		private volatile bool _loggedIn;
 		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
@@ -31,14 +31,6 @@ namespace Kudos.Bot {
 		public IReadOnlyCollection<SocketGuild> Guilds => _client.Guilds;
 		public string State => _loggedIn ? _connected ? _client.Status.ToString() : "connecting" : "logging in";
 		private string Token { get; }
-
-		public event EventHandler<StateChangedData>  StateChanged;
-
-		public class StateChangedData {
-			private string _value;
-			public static implicit operator string(StateChangedData s) => s._value;
-			public static implicit operator StateChangedData(string s) => new StateChangedData{_value = s};
-		}
 
 		public Client(string token) {
 			Token = token;
@@ -57,17 +49,19 @@ namespace Kudos.Bot {
 			_client.UserVoiceStateUpdated += UserCallInteraction;
 			_client.Disconnected += _ => {
 				_connected = false;
-				StateChanged?.Invoke(this, State);
+				StateChange();
 				return Task.Run(() => { });
 			};
 			_client.LoggedOut += () => {
 				_loggedIn = false;
-				StateChanged?.Invoke(this, State);
+				StateChange();
 				return Task.Run(() => { });
 			};
 		}
 
 		public event Action JoinedNewGuild;
+
+		public event EventHandler<StateChangedData> StateChanged;
 
 		private static Task AutoResponseMessageReceived(SocketMessage arg) {
 			_ = Task.Run(async () => {
@@ -140,19 +134,19 @@ namespace Kudos.Bot {
 
 		[SuppressMessage("ReSharper", "InvertIf")]
 		public void Start() {
-			StateChanged?.Invoke(this, State);
+			StateChange();
 			Task connector = new Task(async () => {
 				while (true) {
 					try {
 						if (!_loggedIn) {
 							await _client.LoginAsync(TokenType.Bot, Token);
 							_loggedIn = true;
-							StateChanged?.Invoke(this, State);
+							StateChange();
 						}
 						if (!_connected) {
 							await _client.StartAsync();
 							_connected = true;
-							StateChanged?.Invoke(this, State);
+							StateChange();
 						}
 					}
 					catch (Exception) {
@@ -164,6 +158,15 @@ namespace Kudos.Bot {
 				// ReSharper disable once FunctionNeverReturns
 			});
 			connector.Start();
+		}
+
+		private void StateChange() {
+			if (State == _lastState) {
+				return;
+			}
+
+			_lastState = State;
+			StateChanged?.Invoke(this, State);
 		}
 
 		private static Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
@@ -184,6 +187,12 @@ namespace Kudos.Bot {
 				}
 			});
 			return Task.Run(() => true);
+		}
+
+		public class StateChangedData {
+			private string _value;
+			public static implicit operator string(StateChangedData s) => s._value;
+			public static implicit operator StateChangedData(string s) => new StateChangedData { _value = s };
 		}
 	}
 }

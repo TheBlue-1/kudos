@@ -48,7 +48,7 @@ namespace Kudos {
 				settings["bot_token"] = botToken;
 			}
 			Client = new Client(botToken);
-            Client.StateChanged += ClientStateChanged;
+			Client.StateChanged += ClientStateChanged;
 			Client.Start();
 			RefreshBotListDocs();
 			while (true) {
@@ -58,12 +58,11 @@ namespace Kudos {
 			// ReSharper disable once FunctionNeverReturns
 		}
 
-        private static void ClientStateChanged(object sender, Client.StateChangedData e)
-        {
-			Console.WriteLine(DateTime.Now +": "+ e);
+		private static void ClientStateChanged(object sender, Client.StateChangedData e) {
+			Console.WriteLine(DateTime.Now + ": " + e);
 		}
 
-        private static void OnClose(object sender, EventArgs e) {
+		private static void OnClose(object sender, EventArgs e) {
 			Console.WriteLine("#################APP SHUTS DOWN#################");
 		}
 
