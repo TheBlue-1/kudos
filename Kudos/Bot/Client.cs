@@ -22,6 +22,7 @@ namespace Kudos.Bot {
 		/// </summary>
 		private readonly DiscordSocketClient _client;
 		private volatile bool _connected;
+		private string _lastState;
 
 		private volatile bool _loggedIn;
 		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
@@ -48,16 +49,19 @@ namespace Kudos.Bot {
 			_client.UserVoiceStateUpdated += UserCallInteraction;
 			_client.Disconnected += _ => {
 				_connected = false;
+				StateChange();
 				return Task.Run(() => { });
 			};
 			_client.LoggedOut += () => {
 				_loggedIn = false;
+				StateChange();
 				return Task.Run(() => { });
 			};
-			Start();
 		}
 
 		public event Action JoinedNewGuild;
+
+		public event EventHandler<StateChangedData> StateChanged;
 
 		private static Task AutoResponseMessageReceived(SocketMessage arg) {
 			_ = Task.Run(async () => {
@@ -129,17 +133,20 @@ namespace Kudos.Bot {
 		}
 
 		[SuppressMessage("ReSharper", "InvertIf")]
-		private void Start() {
+		public void Start() {
+			StateChange();
 			Task connector = new Task(async () => {
 				while (true) {
 					try {
 						if (!_loggedIn) {
 							await _client.LoginAsync(TokenType.Bot, Token);
 							_loggedIn = true;
+							StateChange();
 						}
 						if (!_connected) {
 							await _client.StartAsync();
 							_connected = true;
+							StateChange();
 						}
 					}
 					catch (Exception) {
@@ -151,6 +158,15 @@ namespace Kudos.Bot {
 				// ReSharper disable once FunctionNeverReturns
 			});
 			connector.Start();
+		}
+
+		private void StateChange() {
+			if (State == _lastState) {
+				return;
+			}
+
+			_lastState = State;
+			StateChanged?.Invoke(this, State);
 		}
 
 		private static Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
@@ -171,6 +187,12 @@ namespace Kudos.Bot {
 				}
 			});
 			return Task.Run(() => true);
+		}
+
+		public class StateChangedData {
+			private string _value;
+			public static implicit operator string(StateChangedData s) => s._value;
+			public static implicit operator StateChangedData(string s) => new StateChangedData { _value = s };
 		}
 	}
 }

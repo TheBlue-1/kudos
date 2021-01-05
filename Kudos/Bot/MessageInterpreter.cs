@@ -10,6 +10,7 @@ using Kudos.Attributes;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
+using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot {
@@ -36,6 +37,7 @@ namespace Kudos.Bot {
 			Message = message;
 			Command = contentParts[0].ToLower();
 			Parameters = contentParts.Skip(1).ToArray();
+			FileService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", "access-");
 		}
 
 		public void Execute() {
