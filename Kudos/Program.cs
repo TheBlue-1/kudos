@@ -51,6 +51,7 @@ namespace Kudos {
 			Client.StateChanged += ClientStateChanged;
 			Client.Start();
 			RefreshBotListDocs();
+			string lastState = "";
 			while (true) {
 				Task.Delay(WaitingTimeInMs).Wait();
 			}
