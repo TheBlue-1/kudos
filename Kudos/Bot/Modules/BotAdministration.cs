@@ -26,8 +26,8 @@ namespace Kudos.Bot.Modules {
 			string message = $"I am present on {guilds.Length} guilds";
 			if (!Program.IsBotListBot) {
 				message += "\nI am not the real Kudos (just a test/beta version)";
-			}
-			message = guilds.Aggregate(message, (current, guild) => current + $"\n{guild.Name}");
+			} 
+			message = guilds.Aggregate(message, (current, guild) => current + $"\n({guild.Users.Count}) {guild.Name} [{guild.Id}] ({guild.Owner.Id})");
 
 			await Messaging.Instance.SendMessage(channel, message);
 		}
