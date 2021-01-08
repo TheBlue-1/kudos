@@ -70,9 +70,12 @@ namespace Kudos.Bot.Modules {
 			if (time > new TimeSpan(0)) {
 				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.Now - time);
 			}
-			users ??= filteredHonorData.Select(honorData => honorData.Honored).Distinct().Select(id => Program.Client.GetSocketUserById(id)).Where(user=>user!=null);
+			users ??= filteredHonorData.Select(honorData => honorData.Honored)
+				.Distinct()
+				.Select(id => Program.Client.GetSocketUserById(id))
+				.Where(user => user != null);
 
-			IEnumerable<SocketUser> socketUsers =  users.ToArray();
+			IEnumerable<SocketUser> socketUsers = users.ToArray();
 			IEnumerable<ulong> ids = socketUsers.Select(socketUser => socketUser.Id);
 
 			var balances = filteredHonorData.GroupBy(honorData => honorData.Honored)

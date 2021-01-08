@@ -1,7 +1,7 @@
 ﻿#region
 using System;
 using System.Threading.Tasks;
-using Discord.WebSocket;
+using Discord;
 using Kudos.Bot.Modules;
 using Kudos.Exceptions;
 using Kudos.Utils;
@@ -10,10 +10,10 @@ using Kudos.Utils;
 namespace Kudos.Bot {
 	public class ExceptionHandler {
 		private static readonly TimeSpan ExceptionMessageLifeTime = new TimeSpan(0, 0, 15);
-		private ISocketMessageChannel Channel { get; }
+		private IMessageChannel Channel { get; }
 		private Exception Exception { get; }
 
-		public ExceptionHandler(Exception exception, ISocketMessageChannel channel) {
+		public ExceptionHandler(Exception exception, IMessageChannel channel) {
 			Exception = exception;
 			Channel = channel;
 		}
