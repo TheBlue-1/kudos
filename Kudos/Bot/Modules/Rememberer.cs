@@ -29,6 +29,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		private void CreateTimer(TimerData timerData, bool add = true) {
+			if(add)
 			TimerData.Add(timerData);
 			Timer timer = new Timer(timerData);
 			timer.TimerDead += RemoveTimer;
@@ -37,10 +38,11 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("remember", "remembers")]
-		public void Remember([CommandParameter] SocketTextChannel channel, [CommandParameter(0)] DateTime end, [CommandParameter(1)] string message,
+		public async Task Remember([CommandParameter] SocketTextChannel channel, [CommandParameter(0)] DateTime end, [CommandParameter(1)] string message,
 			[CommandParameter(2, null)] IMessageChannel messageChannel, [CommandParameter(3, 0)] TimeSpan repeat) {
 			TimerData timerData = new TimerData { ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat };
 			CreateTimer(timerData);
+			await Messaging.Instance.SendExpiringMessage(channel, $"You will be remembered in {end-DateTime.Now}");
 		}
 
 		private void RemoveTimer(object sender, TimerData data) {
