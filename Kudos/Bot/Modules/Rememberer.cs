@@ -27,7 +27,12 @@ namespace Kudos.Bot.Modules {
 				}
 			}).RunAsyncSave();
 		}
-
+		/*
+		 * TODO
+		 * \reminders
+		 * \delreminder
+		 * bessere antwort auf neue reminder
+		 */
 		private void CreateTimer(TimerData timerData, bool add = true) {
 			if(add)
 			TimerData.Add(timerData);
@@ -52,7 +57,7 @@ namespace Kudos.Bot.Modules {
 		private void SendRememberer(object sender, TimerData data) {
 			new Func<Task>(async () => {
 				IMessageChannel channel = Program.Client.GetMessageChannelById(data.ChannelId);
-				await Messaging.Instance.SendMessage(channel, data.Message);
+				await Messaging.Instance.SendMessage(channel,"**Reminder:**"+ data.Message);
 			}).RunAsyncSave();
 		}
 	}

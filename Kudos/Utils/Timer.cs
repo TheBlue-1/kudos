@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Kudos.Bot;
 using Kudos.DatabaseModels;
@@ -42,8 +43,13 @@ namespace Kudos.Utils {
 
 		private void Run() {
 			Task.Run(async () => {
+				
 				try {
-					await Task.Delay(Data.End - DateTime.Now);
+					TimeSpan time = Data.End - DateTime.Now;
+					while (time.TotalMilliseconds > int.MaxValue) {
+						await Task.Delay(int.MaxValue); time = Data.End - DateTime.Now;
+					}
+					await Task.Delay(time);
 					EndTimer();
 				}
 				catch (Exception e) {
@@ -51,6 +57,8 @@ namespace Kudos.Utils {
 				}
 			});
 		}
+
+		
 
 		public void Start() {
 			if (AdjustData()) {
