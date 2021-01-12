@@ -37,6 +37,11 @@ namespace Kudos.Bot {
 			Message = message;
 			Command = contentParts[0].ToLower();
 			Parameters = contentParts.Skip(1).ToArray();
+			for (int i = 0; i < Parameters.Length; i++) {
+				if (Parameters[i].StartsWith('"') && Parameters[i].EndsWith('"')) {
+					Parameters[i] = Parameters[i].Substring(1, Parameters[i].Length - 2);
+				}
+			}
 			FileService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", "access-");
 		}
 

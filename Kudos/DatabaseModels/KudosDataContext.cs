@@ -14,6 +14,7 @@ namespace Kudos.DatabaseModels {
 		public DbSet<GroupData> GroupData { get; set; }
 		public DbSet<HonorData> HonorData { get; set; }
 		public DbSet<QuestionData> QuestionData { get; set; }
+		public DbSet<TimerData> TimerData { get; set; }
 
 		public KudosDataContext() { }
 

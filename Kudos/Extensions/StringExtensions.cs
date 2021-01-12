@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using System.Text.RegularExpressions;
 using Kudos.Bot;
 using Kudos.Exceptions;
@@ -9,6 +10,46 @@ namespace Kudos.Extensions {
 		private static readonly Regex NotNormalChars = new Regex("[^a-zA-Z]");
 		private static readonly Regex NotUniqueChars = new Regex("(.).*\\1");
 		public static bool JustNormalChars(this string text) => !NotNormalChars.IsMatch(text);
+
+		public static string LikeInput(this TimeSpan timeSpan) {
+			string readable = string.Empty;
+			if ((int)timeSpan.TotalDays > 0) {
+				readable += $"{(int)timeSpan.TotalDays}d";
+			}
+			if (timeSpan.Hours > 0) {
+				readable += $"{timeSpan.Hours}h";
+			}
+			if (timeSpan.Minutes > 0) {
+				readable += $"{timeSpan.Minutes}m";
+			}
+			if (timeSpan.Seconds > 0) {
+				readable += $"{timeSpan.Seconds}s";
+			}
+			if (readable == "") {
+				readable += "0";
+			}
+			return readable;
+		}
+
+		public static string Readable(this TimeSpan timeSpan) {
+			string readable = string.Empty;
+			if ((int)timeSpan.TotalDays > 0) {
+				readable += $"{(int)timeSpan.TotalDays} Days ";
+			}
+			if (timeSpan.Hours > 0) {
+				readable += $"{timeSpan.Hours} Hours ";
+			}
+			if (timeSpan.Minutes > 0) {
+				readable += $"{timeSpan.Minutes} Minutes ";
+			}
+			if (timeSpan.Seconds > 0) {
+				readable += $"{timeSpan.Seconds} Seconds ";
+			}
+			if (readable == "") {
+				readable += "now ";
+			}
+			return readable;
+		}
 
 		public static TValue ToValue<TValue>(this string value, int parameterIndex) {
 			string[] arr = new string[parameterIndex + 1];

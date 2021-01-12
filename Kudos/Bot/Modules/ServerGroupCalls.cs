@@ -202,7 +202,7 @@ namespace Kudos.Bot.Modules {
 		private async Task SendInvites(GroupData group, IGuildChannel channel, IUser user, ulong[] roleUserIds) {
 			if (Timeouts.ContainsKey(group.ChannelId)) {
 				TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.Now.AddMinutes(-5);
-				if (timeout > new TimeSpan(0)) {
+				if (timeout > TimeSpan.Zero) {
 					throw new KudosInvalidOperationException($"There is still a Timeout for {timeout}");
 				}
 			}

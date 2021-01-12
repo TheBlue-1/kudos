@@ -3,12 +3,12 @@ using System;
 using Kudos.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+
+// ReSharper disable UnusedMember.Global
 #endregion
 
 namespace Kudos.Migrations {
 	[DbContext(typeof (KudosDataContext))]
-
-	// ReSharper disable once UnusedMember.Global
 	internal class KudosDataContextModelSnapshot : ModelSnapshot {
 		protected override void BuildModel(ModelBuilder modelBuilder) {
 		#pragma warning disable 612, 618
@@ -56,6 +56,24 @@ namespace Kudos.Migrations {
 				b.HasKey("Id");
 
 				b.ToTable("QuestionData");
+			});
+
+			modelBuilder.Entity("Kudos.DatabaseModels.TimerData", b => {
+				b.Property<string>("Id").ValueGeneratedOnAdd().HasColumnType("TEXT");
+
+				b.Property<ulong>("ChannelId").HasColumnType("INTEGER");
+
+				b.Property<DateTime>("End").HasColumnType("TEXT");
+
+				b.Property<string>("Message").HasColumnType("TEXT");
+
+				b.Property<ulong>("OwnerId").HasColumnType("INTEGER");
+
+				b.Property<TimeSpan>("Repeat").HasColumnType("TEXT");
+
+				b.HasKey("Id");
+
+				b.ToTable("TimerData");
 			});
 		#pragma warning restore 612, 618
 		}

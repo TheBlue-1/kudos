@@ -92,7 +92,8 @@ namespace Kudos.Bot {
 			}
 			string types =
 				(from value in ParameterType.KnownParameterTypes let valueString = value.ToString() where valueString != string.Empty select value).Aggregate(
-					"`[t|n?(d)]` t is the Type, n is the name, ? tells it's optional and d is the default value\n" + "use `-` to skip a parameter",
+					"`[t|n?(d)]` t is the Type, n is the name, ? tells it's optional and d is the default value\n"
+					+ "use `-` to skip a parameter, surround parameters containing spaces with \" like \"param eter\"",
 					(current, value) => current + ("\n" + value));
 			embedBuilder.AddField(new EmbedFieldBuilder().WithName("Types").WithIsInline(false).WithValue(types));
 			return embedBuilder;

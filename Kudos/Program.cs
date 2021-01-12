@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kudos.Bot;
+using Kudos.Bot.Modules;
 using Kudos.DatabaseModels;
 using Kudos.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,7 @@ namespace Kudos {
 			db.Database.Migrate();
 			string botToken;
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
+			Rememberer unused = Rememberer.Instance; //initiate Timers
 			if (settings.ContainsKey("bot_list_token")) {
 				BotListToken = settings["bot_list_token"];
 			}
@@ -51,7 +53,6 @@ namespace Kudos {
 			Client.StateChanged += ClientStateChanged;
 			Client.Start();
 			RefreshBotListDocs();
-			string lastState = "";
 			while (true) {
 				Task.Delay(WaitingTimeInMs).Wait();
 			}

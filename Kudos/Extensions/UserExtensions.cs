@@ -18,6 +18,17 @@ namespace Kudos.Extensions {
 			return guildUsers.FirstOrDefault(guildUser => guildUser.VoiceChannel != null)?.VoiceChannel;
 		}
 
+		public static IMessageChannel ChannelFromMention(this string mention) {
+			Regex regex = new Regex("^<#(\\d+)>$");
+			Match match = regex.Match(mention);
+			if (!match.Success) {
+				return null;
+			}
+
+			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+			return Program.Client.GetMessageChannelById(id);
+		}
+
 		public static async Task<IDMChannel> DmChannel(this SocketUser user) {
 			RestUser restUser = await user.RestUser();
 			IDMChannel channel = await restUser.GetOrCreateDMChannelAsync();
