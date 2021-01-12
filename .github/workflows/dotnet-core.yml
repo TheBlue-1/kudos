@@ -27,7 +27,7 @@ jobs:
         #only if push
       - name: Publish
         if: ${{ github.event_name=='push'}}
-        run: dotnet publish --configuration Release --framework netcoreapp3.1 -p:PublishSingleFile=false -p:PublishTrimmed=false --runtime linux-x64 --self-contained true
+        run: dotnet publish --configuration Release --framework net5.0 -p:PublishSingleFile=false -p:PublishTrimmed=false --runtime linux-x64 --self-contained true
       - name: Set RealeaseType master
         if: ${{ github.ref=='refs/heads/master' && github.event_name=='push'}}
         run: echo "REALEASE_TYPE=public/" >> $GITHUB_ENV
