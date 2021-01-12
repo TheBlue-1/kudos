@@ -93,8 +93,7 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(intParameter.Type, intParameter);
 			ParameterType ulongParameter = new ParameterType<ulong>('p', "a positive number", ParameterAsULong);
 			ParameterTypes.TryAdd(ulongParameter.Type, ulongParameter);
-			ParameterType stringParameter = new ParameterType<string>('t', "a text to the end of the message o surrounded with  like \"this\"",
-				ParametersAsString);
+			ParameterType stringParameter = new ParameterType<string>('t', "a text", ParametersAsString);
 			ParameterTypes.TryAdd(stringParameter.Type, stringParameter);
 			ParameterType userParameter = new ParameterType<SocketUser>('u', "a user mention or @username#number", ParameterAsSocketUser);
 			ParameterTypes.TryAdd(userParameter.Type, userParameter);
@@ -106,7 +105,8 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(wordParameter.Type, wordParameter);
 			ParameterType timespanParameter = new ParameterType<TimeSpan>('s', "a timespan in format 30d24h59m59s (also 40d2s)", ParameterAsTimespan);
 			ParameterTypes.TryAdd(timespanParameter.Type, timespanParameter);
-			ParameterType dateParameter = new ParameterType<DateTime>('d', "a date in format 30d24h59m59s (also 40d2s)", ParameterAsDate);
+			ParameterType dateParameter = new ParameterType<DateTime>('d',
+				"a date in format \"31.12.2020 23:59:59 +365d24h60m60s\" with every part optional (\"31.12 +2h\",23:59,3.4.2023,+4h)", ParameterAsDate);
 			ParameterTypes.TryAdd(dateParameter.Type, dateParameter);
 			ParameterType channelParameter = new ParameterType<IMessageChannel>('c', "a text channel mention", ParameterAsMessageChannel);
 			ParameterTypes.TryAdd(channelParameter.Type, channelParameter);
@@ -195,21 +195,23 @@ namespace Kudos.Bot {
 				int year = match.Groups[3].Success ? int.Parse(match.Groups[3].Value) : now.Year;
 				int month = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : now.Month;
 				int day = match.Groups[1].Success ? int.Parse(match.Groups[1].Value) : now.Day;
+
 				int hour = match.Groups[4].Success ? int.Parse(match.Groups[4].Value) : now.Hour;
 				int minute = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : now.Minute;
 				int second = match.Groups[6].Success ? int.Parse(match.Groups[6].Value) : now.Second;
-				
-				day += match.Groups[7].Success ? int.Parse(match.Groups[7].Value) : 0;
-				hour += match.Groups[8].Success ? int.Parse(match.Groups[8].Value) : 0;
-				minute += match.Groups[9].Success ? int.Parse(match.Groups[9].Value) : 0;
-				second += match.Groups[10].Success ? int.Parse(match.Groups[10].Value) : 0;
-				value = new DateTime();
-				value = value.AddYears(year-1);
-				value = value.AddMonths(month-1);
-				value = value.AddDays(day-1);
-				value = value.AddHours(hour);
-				value = value.AddMinutes(minute);
-				value = value.AddSeconds(second);
+				value = new DateTime(year, month, day, hour, minute, second);
+				if (!match.Groups[1].Success && match.Groups[4].Success && value < now) {
+					value = value.AddDays(1);
+				}
+				int dayAdding = match.Groups[7].Success ? int.Parse(match.Groups[7].Value) : 0;
+				int hourAdding = match.Groups[8].Success ? int.Parse(match.Groups[8].Value) : 0;
+				int minuteAdding = match.Groups[9].Success ? int.Parse(match.Groups[9].Value) : 0;
+				int secondAdding = match.Groups[10].Success ? int.Parse(match.Groups[10].Value) : 0;
+
+				value = value.AddDays(dayAdding);
+				value = value.AddHours(hourAdding);
+				value = value.AddMinutes(minuteAdding);
+				value = value.AddSeconds(secondAdding);
 				return CheckMinMax(value, index, min, max, throwOutOfRange);
 			}
 
@@ -359,11 +361,7 @@ namespace Kudos.Bot {
 		private static string ParametersAsString(string[] parameters, string indexLess, int index, bool optional, DefaultValue<string> defaultValue,
 			Optional<string> min, Optional<string> max, bool throwOutOfRange) {
 			if (ParameterPresent(parameters, index)) {
-				if (parameters[index].StartsWith('"') && parameters[index].EndsWith('"')) {
-					return parameters[index].Substring(1, parameters[index].Length - 2);
-				}
-
-				return string.Join(" ", parameters.Skip(index));
+				return parameters[index];
 			}
 			if (!optional) {
 				throw new KudosArgumentTypeException($"Parameter {index + 1} must be a text");

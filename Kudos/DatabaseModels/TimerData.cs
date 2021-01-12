@@ -15,6 +15,7 @@ namespace Kudos.DatabaseModels {
 		public string Id { get; set; }
 
 		public string Message { get; set; }
-		public TimeSpan? Repeat { get; set; }
+		public ulong OwnerId { get; set; }
+		public TimeSpan Repeat { get; set; }
 	}
 }

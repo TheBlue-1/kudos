@@ -18,6 +18,17 @@ namespace Kudos.Extensions {
 			return guildUsers.FirstOrDefault(guildUser => guildUser.VoiceChannel != null)?.VoiceChannel;
 		}
 
+		public static IMessageChannel ChannelFromMention(this string mention) {
+			Regex regex = new Regex("^<#(\\d+)>$");
+			Match match = regex.Match(mention);
+			if (!match.Success) {
+				return null;
+			}
+
+			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+			return Program.Client.GetMessageChannelById(id);
+		}
+
 		public static async Task<IDMChannel> DmChannel(this SocketUser user) {
 			RestUser restUser = await user.RestUser();
 			IDMChannel channel = await restUser.GetOrCreateDMChannelAsync();
@@ -46,29 +57,15 @@ namespace Kudos.Extensions {
 		public static bool IsGuildAdmin(this SocketGuildUser user) => user.GuildPermissions.Administrator;
 		public static async Task<RestUser> RestUser(this SocketUser user) => await Program.Client.GetRestUserById(user.Id);
 
-		public static SocketRole RoleFromMention(this string mention)
-		{
+		public static SocketRole RoleFromMention(this string mention) {
 			Regex regex = new Regex("^<@&{0,1}(\\d+)>$");
 			Match match = regex.Match(mention);
-			if (!match.Success)
-			{
+			if (!match.Success) {
 				return null;
 			}
 
 			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
 			return Program.Client.GetRoleById(id);
-		}
-		public static IMessageChannel ChannelFromMention(this string mention)
-		{
-			Regex regex = new Regex("^<#(\\d+)>$");
-			Match match = regex.Match(mention);
-			if (!match.Success)
-			{
-				return null;
-			}
-
-			ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
-			return Program.Client.GetMessageChannelById(id);
 		}
 	}
 }

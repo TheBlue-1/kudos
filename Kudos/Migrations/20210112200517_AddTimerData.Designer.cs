@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Kudos.Migrations
 {
     [DbContext(typeof(KudosDataContext))]
-    [Migration("20210109204337_TimerData")]
-    partial class TimerData
+    [Migration("20210112200517_AddTimerData")]
+    partial class AddTimerData
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -95,7 +95,10 @@ namespace Kudos.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("TEXT");
 
-                    b.Property<TimeSpan?>("Repeat")
+                    b.Property<ulong>("OwnerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<TimeSpan>("Repeat")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

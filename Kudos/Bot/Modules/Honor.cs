@@ -67,7 +67,7 @@ namespace Kudos.Bot.Modules {
 
 		public EmbedBuilder GuildStatsEmbed(IEnumerable<SocketUser> users, TimeSpan time) {
 			IEnumerable<HonorData> filteredHonorData = HonorData;
-			if (time > new TimeSpan(0)) {
+			if (time > TimeSpan.Zero) {
 				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.Now - time);
 			}
 			users ??= filteredHonorData.Select(honorData => honorData.Honored)
