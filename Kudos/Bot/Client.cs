@@ -50,6 +50,7 @@ namespace Kudos.Bot {
 			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
 			_client.UserVoiceStateUpdated += UserCallInteraction;
+			_client.Ready += Init;
 			_client.Disconnected += _ => {
 				_connected = false;
 				StateChange();
@@ -106,6 +107,13 @@ namespace Kudos.Bot {
 		public SocketUser GetSocketUserById(ulong id) => _client.GetUser(id);
 
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
+
+		private static Task Init() {
+			new Action(() => {
+				Rememberer unused = Rememberer.Instance; //initiate Timers
+			}).RunAsyncSave();
+			return FakeTask;
+		}
 
 		private Task JoinedGuild(SocketGuild arg) {
 			new Func<Task>(async () => {

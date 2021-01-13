@@ -41,6 +41,7 @@ namespace Kudos.Bot.Modules {
 			timer.TimerDead += RemoveTimer;
 			timer.TimerEvent += SendRememberer;
 			timer.TimerDataChanged += TimerDataChanged;
+			timer.SkippedTimerEvent += SendLateRememberer;
 			RunningTimers.Add(timer);
 			timer.Start();
 		}
@@ -68,6 +69,9 @@ namespace Kudos.Bot.Modules {
 			if (waitingTime < TimeSpan.Zero) {
 				throw new KudosArgumentException("End time must be in the future");
 			}
+			if (repeat > TimeSpan.Zero && repeat < new TimeSpan(0, 0, 30)) {
+				throw new KudosArgumentException("the minimum repeat time are 30 seconds");
+			}
 			TimerData timerData = new TimerData {
 				OwnerId = author.Id, ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat
 			};
@@ -88,6 +92,14 @@ namespace Kudos.Bot.Modules {
 
 		private void RemoveTimer(object sender, TimerData data) {
 			TimerData.Remove(data);
+		}
+
+		private static void SendLateRememberer(object sender, TimerData data) {
+			new Func<Task>(async () => {
+				IMessageChannel channel = Program.Client.GetMessageChannelById(data.ChannelId);
+				await Messaging.Instance.SendMessage(channel,
+					"Found a skipped Reminder (maybe Kudos was down at the remind time) \n **Reminder: **" + data.Message);
+			}).RunAsyncSave();
 		}
 
 		private static void SendRememberer(object sender, TimerData data) {

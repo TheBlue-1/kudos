@@ -18,6 +18,8 @@ namespace Kudos.Utils {
 			TimerEnded += TimerEnd;
 		}
 
+		public event EventHandler<TimerData> SkippedTimerEvent;
+
 		public event EventHandler<TimerData> TimerDataChanged;
 		public event EventHandler<TimerData> TimerDead;
 		private event EventHandler<TimerData> TimerEnded;
@@ -77,6 +79,9 @@ namespace Kudos.Utils {
 		}
 
 		public void Start() {
+			if (Data.End < DateTime.Now) {
+				TriggerSkippedTimerListener();
+			}
 			if (AdjustData()) {
 				Run();
 			}
@@ -87,6 +92,10 @@ namespace Kudos.Utils {
 			if (AdjustData()) {
 				Run();
 			}
+		}
+
+		private void TriggerSkippedTimerListener() {
+			SkippedTimerEvent?.Invoke(this, Data);
 		}
 
 		private void TriggerTimerListener() {

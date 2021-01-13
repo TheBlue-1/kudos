@@ -185,7 +185,7 @@ namespace Kudos.Bot {
 			Optional<DateTime> min, Optional<DateTime> max, bool throwOutOfRange) {
 			Regex dateTimeRegex =
 				new Regex(
-					@"^(?:(?:(\d{1,2}))(?:\.(\d{1,2}))?(?:\.(\d{1,4}))?)?(?:(?:(?<!.)(?=.))|(?:(?!.)(?<=.))|(?<=.) (?=.))(?:(?:(\d{1,2}))(?::(\d{1,2}))?(?::(\d{1,2}))?)?(?:(?:(?<!.)(?=.))|(?:(?!.)(?<=.))|(?<=[^ ]) (?=.)|(?<= ))(?:\+(?:(\d{1,3})d)?(?:(\d{1,2})h)?(?:(\d{1,2})m)?(?:(\d{1,2})s)?)?$");
+					@"^(?:(?:(\d{1,2}))(?:\.(\d{1,2}))?(?:\.(\d{1,4}))?)??(?:(?:(?<!.)(?=.))|(?:(?!.)(?<=.))|(?<=.) (?=.))(?:(?:(\d{1,2}))(?::(\d{1,2}))?(?::(\d{1,2}))?)?(?:(?:(?<!.)(?=.))|(?:(?!.)(?<=.))|(?<=[^ ]) (?=.)|(?<= ))(?:\+(?:(\d{1,3})d)?(?:(\d{1,2})h)?(?:(\d{1,2})m)?(?:(\d{1,2})s)?)?$");
 
 			//$3-$2-$1 $4:$5:$6 + $7d$8h$9m$10s
 			Match match;
@@ -197,11 +197,23 @@ namespace Kudos.Bot {
 				int day = match.Groups[1].Success ? int.Parse(match.Groups[1].Value) : now.Day;
 
 				int hour = match.Groups[4].Success ? int.Parse(match.Groups[4].Value) : now.Hour;
-				int minute = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : now.Minute;
-				int second = match.Groups[6].Success ? int.Parse(match.Groups[6].Value) : now.Second;
+				int minute = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : match.Groups[4].Success ? 0 : now.Minute;
+				int second = match.Groups[6].Success ? int.Parse(match.Groups[6].Value) : match.Groups[4].Success ? 0 : now.Second;
 				value = new DateTime(year, month, day, hour, minute, second);
 				if (!match.Groups[1].Success && match.Groups[4].Success && value < now) {
 					value = value.AddDays(1);
+				} else {
+					if (!match.Groups[3].Success) {
+						if (!match.Groups[2].Success) {
+							if (match.Groups[1].Success && value < now) {
+								value = value.AddMonths(1);
+							}
+						} else {
+							if (value < now) {
+								value = value.AddYears(1);
+							}
+						}
+					}
 				}
 				int dayAdding = match.Groups[7].Success ? int.Parse(match.Groups[7].Value) : 0;
 				int hourAdding = match.Groups[8].Success ? int.Parse(match.Groups[8].Value) : 0;
