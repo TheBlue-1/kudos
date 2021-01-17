@@ -23,15 +23,16 @@ namespace Kudos.Models.bases {
 			Description = description;
 		}
 
-		public abstract bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null);
+		public abstract bool AddValueWithString(string value, Settings settings, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null);
 
 		public abstract SettingBase Merge(SettingBase guildSetting);
 
-		public abstract bool SetValueWithString(string value, int parameterIndex = 1);
+		public abstract bool SetValueWithString(string value, Settings settings, int parameterIndex = 1);
 
-		public bool AddOrSetValue(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) => this is IDictionarySetting
-			? AddValueWithString(value, valueParameterIndex, key, keyParameterIndex)
-			: SetValueWithString(value, valueParameterIndex);
+		public bool AddOrSetValue(string value, Settings settings, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) =>
+			this is IDictionarySetting
+				? AddValueWithString(value, settings, valueParameterIndex, key, keyParameterIndex)
+				: SetValueWithString(value, settings, valueParameterIndex);
 
 		public static Setting<T> Create<T>(SettingNames name, T defaultValue, string description) => new Setting<T>(name, defaultValue, description);
 

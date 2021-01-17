@@ -66,8 +66,8 @@ namespace Kudos.Models {
 
 		public override event PropertyChangedEventHandler PropertyChanged;
 
-		public override bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) =>
-			throw new NotImplementedException();
+		public override bool AddValueWithString(string value, Settings settings, int valueParameterIndex = 1, string key = null,
+			int? keyParameterIndex = null) => throw new NotImplementedException();
 
 		public override SettingBase Merge(SettingBase guildSetting) {
 			SameTypeCheck(guildSetting);
@@ -78,7 +78,7 @@ namespace Kudos.Models {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public override bool SetValueWithString(string value, int parameterIndex = 1) {
+		public override bool SetValueWithString(string value, Settings settings, int parameterIndex = 1) {
 			if (value == null) {
 				SetValue = default;
 				IsSet = false;
@@ -86,7 +86,7 @@ namespace Kudos.Models {
 			}
 
 			//index 1 because settings get values on index 1
-			T newValue = value.ToValue<T>(parameterIndex);
+			T newValue = value.ToValue<T>(parameterIndex, settings);
 			if (newValue == null) {
 				throw new KudosInternalException("value shouldn't be null");
 			}

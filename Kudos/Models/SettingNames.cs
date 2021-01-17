@@ -5,6 +5,7 @@
 		AutoReact,
 		AutoImage,
 		AutoMessage,
-		AutoHonor
+		AutoHonor,
+		Timezone
 	}
 }

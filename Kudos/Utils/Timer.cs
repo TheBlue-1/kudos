@@ -26,7 +26,7 @@ namespace Kudos.Utils {
 		public event EventHandler<TimerData> TimerEvent;
 
 		private bool AdjustData() {
-			if (Data.End >= DateTime.Now) {
+			if (Data.End > DateTime.Now) {
 				return true;
 			}
 			if (Data.Repeat <= TimeSpan.Zero) {

@@ -3,6 +3,7 @@ using System;
 using System.Text.RegularExpressions;
 using Kudos.Bot;
 using Kudos.Exceptions;
+using Kudos.Models;
 #endregion
 
 namespace Kudos.Extensions {
@@ -51,12 +52,12 @@ namespace Kudos.Extensions {
 			return readable;
 		}
 
-		public static TValue ToValue<TValue>(this string value, int parameterIndex) {
+		public static TValue ToValue<TValue>(this string value, int parameterIndex, Settings settings) {
 			string[] arr = new string[parameterIndex + 1];
 			arr[parameterIndex] = value;
 			try {
 				return ParameterType.InterpretParameter(arr, default, parameterIndex, false, new ParameterType.DefaultValue<TValue>(), default, default,
-					false);
+					false, settings);
 			}
 			catch (KudosArgumentTypeException exception) {
 				throw new KudosArgumentTypeException(exception.UserMessage + " as text", exception.Message + " as text");

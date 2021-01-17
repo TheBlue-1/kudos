@@ -37,13 +37,13 @@ namespace Kudos.Models {
 			return setting;
 		}
 
-		public override bool SetValueWithString(string value, int parameterIndex = 1) {
+		public override bool SetValueWithString(string value, Settings settings, int parameterIndex = 1) {
 			if (value == null) {
 				throw new KudosArgumentException("value must be set in a list setting");
 			}
 
 			//index 1 because settings get values on index 1
-			T newValue = value.ToValue<T>(parameterIndex);
+			T newValue = value.ToValue<T>(parameterIndex, settings);
 			if (newValue == null) {
 				throw new KudosInternalException("value shouldn't be null");
 			}

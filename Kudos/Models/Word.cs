@@ -1,4 +1,5 @@
 ﻿#region
+using Kudos.Exceptions;
 using Kudos.Extensions;
 #endregion
 
@@ -6,9 +7,14 @@ namespace Kudos.Models {
 	public class Word {
 		public string Value { get; }
 
-		private Word(string word) => Value = word;
+		private Word(string word) {
+			if (word.JustNormalChars()) {
+				throw new KudosArgumentException("A word can only contain normal characters (a-z)");
+			}
+			Value = word;
+		}
 
-		public static Word Create(string word) => word.JustNormalChars() ? new Word(word) : null;
+		private static Word Create(string word) => new Word(word);
 		public override string ToString() => Value;
 
 		public static implicit operator string(Word word) => word.Value;

@@ -1,5 +1,6 @@
 ﻿#region
 using System.Diagnostics.CodeAnalysis;
+using Discord.WebSocket;
 using Kudos.Models;
 #endregion
 
@@ -13,6 +14,12 @@ namespace Kudos.Utils {
 		static SettingsManager() { }
 
 		private SettingsManager() { }
+
+		public Settings SettingsFor(SocketMessage message, bool create = false) =>
+			SettingsFor(message.Author.Id, (message.Channel as SocketGuildChannel)?.Guild.Id, create);
+
+		public Settings SettingsFor(SocketUser author, ISocketMessageChannel channel, bool create = false) =>
+			SettingsFor(author.Id, (channel as SocketGuildChannel)?.Guild.Id, create);
 
 		[SuppressMessage("ReSharper", "PatternAlwaysOfType")]
 		public Settings SettingsFor(ulong? userId = null, ulong? guildId = null, bool create = false) {

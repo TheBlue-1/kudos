@@ -131,7 +131,7 @@ namespace Kudos.Bot.Modules {
 			}
 			IUser honorer = reaction.User.Value;
 			string description = message.Embeds.First().Description;
-			SocketUser honored = description.Substring(26, description.Length - 102).ToValue<SocketUser>(0);
+			SocketUser honored = description.Substring(26, description.Length - 102).ToValue<SocketUser>(0, new Models.Settings());
 			await HonorUser(honored, honorer, honor, message.Channel);
 		}
 

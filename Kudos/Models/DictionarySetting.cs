@@ -26,11 +26,12 @@ namespace Kudos.Models {
 		protected internal DictionarySetting(SettingNames name, ImmutableDictionary<T1, T2> defaultValue, string description) : base(name, defaultValue,
 			description) { }
 
-		public override bool AddValueWithString(string value, int valueParameterIndex = 1, string key = null, int? keyParameterIndex = null) {
+		public override bool AddValueWithString(string value, Settings settings, int valueParameterIndex = 1, string key = null,
+			int? keyParameterIndex = null) {
 			if (key == null || !(keyParameterIndex is int notNullKeyParameterIndex)) {
 				throw new KudosArgumentException($"{Name} is a dictionary setting so it needs a 'key'");
 			}
-			T1 keyValue = key.ToValue<T1>(notNullKeyParameterIndex);
+			T1 keyValue = key.ToValue<T1>(notNullKeyParameterIndex, settings);
 			if (keyValue == null) {
 				throw new KudosInternalException("value shouldn't be null");
 			}
@@ -38,7 +39,7 @@ namespace Kudos.Models {
 				SetValue = Value.Remove(keyValue);
 				return false;
 			}
-			T2 valueValue = value.ToValue<T2>(valueParameterIndex);
+			T2 valueValue = value.ToValue<T2>(valueParameterIndex, settings);
 
 			if (valueValue == null) {
 				throw new KudosInternalException("value shouldn't be null");
