@@ -8,7 +8,7 @@ namespace Kudos.Models {
 		public string Value { get; }
 
 		private Word(string word) {
-			if (word.JustNormalChars()) {
+			if (!word.JustNormalChars()) {
 				throw new KudosArgumentException("A word can only contain normal characters (a-z)");
 			}
 			Value = word;
