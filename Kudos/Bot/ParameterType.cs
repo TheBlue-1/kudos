@@ -111,7 +111,7 @@ namespace Kudos.Bot {
 			ParameterType channelParameter = new ParameterType<IMessageChannel>('c', "a text channel mention", ParameterAsMessageChannel);
 			ParameterTypes.TryAdd(channelParameter.Type, channelParameter);
 			ParameterType timezoneParameter = new ParameterType<Timezone>('z', "a timezone (-12 - 12)", ParameterAsTimezone);
-			ParameterTypes.TryAdd(timezoneParameter.Type, channelParameter);
+			ParameterTypes.TryAdd(timezoneParameter.Type, timezoneParameter);
 			ParameterType settingsParameter = new ParameterType<Settings>();
 			ParameterTypes.TryAdd(settingsParameter.Type, settingsParameter);
 			ParameterType messageParameter = new ParameterType<SocketMessage>();
