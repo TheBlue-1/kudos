@@ -24,6 +24,7 @@ namespace Kudos.Models {
 
 		[JsonProperty]
 		protected readonly Setting<string> Prefix = SettingBase.Create(SettingNames.Prefix, "k!", "sets a new prefix");
+
 		[JsonProperty]
 		protected readonly Setting<Timezone> Timezone =
 			SettingBase.Create(SettingNames.Timezone, (Timezone)0, "sets your timezone to interpret times correctly");

@@ -13,20 +13,17 @@ namespace Kudos.Utils {
 		private TimerData Data { get; }
 		public string Id => Data.Id;
 
-		public Timer(TimerData data) {
-			Data = data;
-			TimerEnded += TimerEnd;
-		}
+		public Timer(TimerData data) => Data = data;
 
 		public event EventHandler<TimerData> SkippedTimerEvent;
 
 		public event EventHandler<TimerData> TimerDataChanged;
 		public event EventHandler<TimerData> TimerDead;
-		private event EventHandler<TimerData> TimerEnded;
+
 		public event EventHandler<TimerData> TimerEvent;
 
-		private bool AdjustData() {
-			if (Data.End > DateTime.Now) {
+		private bool AdjustData(bool allowUnadjusted = true) {
+			if (allowUnadjusted && Data.End > DateTime.Now) {
 				return true;
 			}
 			if (Data.Repeat <= TimeSpan.Zero) {
@@ -45,7 +42,10 @@ namespace Kudos.Utils {
 		}
 
 		private void EndTimer() {
-			TimerEnded?.Invoke(this, Data);
+			TriggerTimerListener();
+			if (AdjustData(false)) {
+				Run();
+			}
 		}
 
 		public void Kill() {
@@ -70,6 +70,7 @@ namespace Kudos.Utils {
 						time = Data.End - DateTime.Now;
 					}
 					await Task.Delay(time, Canceler.Token);
+
 					EndTimer();
 				}
 				catch (Exception e) {
@@ -82,13 +83,6 @@ namespace Kudos.Utils {
 			if (Data.End < DateTime.Now) {
 				TriggerSkippedTimerListener();
 			}
-			if (AdjustData()) {
-				Run();
-			}
-		}
-
-		private void TimerEnd(object sender, TimerData data) {
-			TriggerTimerListener();
 			if (AdjustData()) {
 				Run();
 			}

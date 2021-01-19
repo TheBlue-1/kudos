@@ -193,15 +193,18 @@ namespace Kudos.Bot {
 			DateTime value;
 			if (ParameterPresent(parameters, index) && (match = dateTimeRegex.Match(parameters[index])).Success) {
 				DateTime now = DateTime.Now;
+
 				settings[SettingNames.Timezone].Value(out Timezone timezone);
-				now = now.AddHours(timezone);
+				if (match.Groups[4].Success || match.Groups[1].Success) {
+					now = now.AddHours(timezone);
+				}
 				int year = match.Groups[3].Success ? int.Parse(match.Groups[3].Value) : now.Year;
 				int month = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : now.Month;
 				int day = match.Groups[1].Success ? int.Parse(match.Groups[1].Value) : now.Day;
 
-				int hour = match.Groups[4].Success ? int.Parse(match.Groups[4].Value) : now.Hour;
-				int minute = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : match.Groups[4].Success ? 0 : now.Minute;
-				int second = match.Groups[6].Success ? int.Parse(match.Groups[6].Value) : match.Groups[4].Success ? 0 : now.Second;
+				int hour = match.Groups[4].Success ? int.Parse(match.Groups[4].Value) : match.Groups[1].Success ? 0 : now.Hour;
+				int minute = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : match.Groups[4].Success || match.Groups[1].Success ? 0 : now.Minute;
+				int second = match.Groups[6].Success ? int.Parse(match.Groups[6].Value) : match.Groups[4].Success || match.Groups[1].Success ? 0 : now.Second;
 				value = new DateTime(year, month, day, hour, minute, second);
 				if (!match.Groups[1].Success && match.Groups[4].Success && value < now) {
 					value = value.AddDays(1);

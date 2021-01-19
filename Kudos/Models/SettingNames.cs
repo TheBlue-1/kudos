@@ -6,6 +6,7 @@
 		AutoImage,
 		AutoMessage,
 		AutoHonor,
+
 		Timezone
 	}
 }
