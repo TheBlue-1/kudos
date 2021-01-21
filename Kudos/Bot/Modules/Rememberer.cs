@@ -47,7 +47,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("delreminder", "delete a reminder by id from reminders")]
-		public async Task DeleteReminder([CommandParameter] SocketUser author, [CommandParameter] SocketTextChannel channel,
+		public async Task DeleteReminder([CommandParameter] SocketUser author, [CommandParameter] ISocketMessageChannel channel,
 			[CommandParameter(0)] string reminderId) {
 			TimerData timerData = TimerData.FirstOrDefault(timer => timer.Id == reminderId);
 			if (timerData == null) {
@@ -63,7 +63,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("remember", "sets a reminder, can be repeated")]
-		public async Task Remember([CommandParameter] SocketTextChannel channel, [CommandParameter] SocketUser author, [CommandParameter(0)] DateTime end,
+		public async Task Remember([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser author, [CommandParameter(0)] DateTime end,
 			[CommandParameter(1)] string message, [CommandParameter(2, null)] IMessageChannel messageChannel, [CommandParameter(3, 0)] TimeSpan repeat) {
 			TimeSpan waitingTime = end - DateTime.Now;
 			if (waitingTime < TimeSpan.Zero) {
@@ -81,7 +81,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("reminders", "list of all your reminders")]
-		public async Task ReminderList([CommandParameter] SocketUser author, [CommandParameter] SocketTextChannel channel) {
+		public async Task ReminderList([CommandParameter] SocketUser author, [CommandParameter] ISocketMessageChannel channel) {
 			IOrderedEnumerable<TimerData> reminders = TimerData.Where(timer => timer.OwnerId == author.Id).OrderBy(timer => timer.End);
 			string reminderList = reminders.Aggregate(string.Empty,
 				(current, timerData) =>

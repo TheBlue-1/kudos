@@ -28,7 +28,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("addgrouprole", "adds a role to the current call group", Accessibility.Admin)]
 		public async Task AddRole([CommandParameter] SocketGuildUser user, [CommandParameter(0)] SocketRole addedRole,
-			[CommandParameter] SocketTextChannel textChannel) {
+			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
@@ -47,7 +47,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("addgroupuser", "adds a user to the current call group", Accessibility.Admin)]
 		public async Task AddUser([CommandParameter] SocketGuildUser user, [CommandParameter(0)] SocketUser addedUser,
-			[CommandParameter] SocketTextChannel textChannel) {
+			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
@@ -66,7 +66,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("autogroup", "the group members will be notified automatically when one group member enters the channel", Accessibility.Admin)]
 		public async Task AutomateGroup([CommandParameter] SocketGuildUser user, [CommandParameter(0, true)] bool auto,
-			[CommandParameter] SocketTextChannel textChannel) {
+			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("you must be in a server audio channel to perform this command");
@@ -110,7 +110,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("creategroup", "creates a call group in your current channel", Accessibility.Admin)]
 		public async Task CreateGroup([CommandParameter] SocketGuildUser user, [CommandParameter(0, false)] bool auto,
-			[CommandParameter] SocketTextChannel textChannel) {
+			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
@@ -124,7 +124,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("deletegroup", "deletes the call group in your current channel", Accessibility.Admin)]
-		public async Task DeleteGroup([CommandParameter] SocketGuildUser user, [CommandParameter] SocketTextChannel textChannel) {
+		public async Task DeleteGroup([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
@@ -138,7 +138,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("invitegroup", "sends a dm to all group members to invite them to join your channel")]
-		public async Task InviteGroup([CommandParameter] SocketGuildUser user, [CommandParameter] SocketTextChannel textChannel) {
+		public async Task InviteGroup([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
@@ -157,7 +157,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("removegrouprole", "removes a role from the current call group", Accessibility.Admin)]
 		public async Task RemoveRole([CommandParameter] SocketGuildUser user, [CommandParameter(0)] SocketRole removedRole,
-			[CommandParameter] SocketTextChannel textChannel) {
+			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
@@ -177,7 +177,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("removegroupuser", "removes a user from the current call group", Accessibility.Admin)]
 		public async Task RemoveUser([CommandParameter] SocketGuildUser user, [CommandParameter(0)] SocketUser removedUser,
-			[CommandParameter] SocketTextChannel textChannel) {
+			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
