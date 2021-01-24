@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using DiscordBotsList.Api.Objects;
 using Kudos.Attributes;
+using Kudos.DatabaseModels;
 using Kudos.Exceptions;
+using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
 #endregion
@@ -14,11 +16,32 @@ using Kudos.Exceptions;
 namespace Kudos.Bot.Modules {
 	[CommandModule("BotAdministration", Accessibility.Hidden)]
 	public sealed class BotAdministration {
+		private DatabaseSyncedList<BanData> Bans { get; } = DatabaseSyncedList.Instance<BanData>();
 		public static BotAdministration Instance { get; } = new BotAdministration();
 
 		static BotAdministration() { }
 
 		private BotAdministration() { }
+
+		[Command("ban", "bans a person")]
+		public async Task Ban([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user, [CommandParameter(1)] bool hardBan) {
+			Bans.Add(new BanData { UserId = user.Id, HardBan = hardBan });
+			if (hardBan) {
+				IEnumerable<HonorData> honors = DatabaseSyncedList.Instance<HonorData>().Where(h => h.Honorer == user.Id || h.Honored == user.Id);
+				IEnumerable<QuestionData> questions = DatabaseSyncedList.Instance<QuestionData>().Where(q => q.Questionnaire == user.Id);
+				IEnumerable<TimerData> timers = DatabaseSyncedList.Instance<TimerData>().Where(t => t.OwnerId == user.Id);
+				foreach (HonorData honorData in honors) {
+					DatabaseSyncedList.Instance<HonorData>().Remove(honorData);
+				}
+				foreach (QuestionData questionData in questions) {
+					DatabaseSyncedList.Instance<QuestionData>().Remove(questionData);
+				}
+				foreach (TimerData timerData in timers) {
+					DatabaseSyncedList.Instance<TimerData>().Remove(timerData);
+				}
+			}
+			await Messaging.Instance.SendExpiringMessage(channel, "banned", new TimeSpan(0, 0, 15));
+		}
 
 		[Command("guilds", "shows all guilds of the bot")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
@@ -50,6 +73,20 @@ namespace Kudos.Bot.Modules {
 				$"Total Votes: {Program.BotList.ThisBot.Points}\nThis Month Votes: coming soon\nVoters Count: {countedVotesList.Count}\nTheir total votes: {voters.Count}";
 			message = countedVotesList.Aggregate(message, (current, voter) => current + $"\n{voter.Username} ({voter.Count})");
 			await Messaging.Instance.SendMessage(channel, message);
+		}
+
+		[Command("unban", "bans a person")]
+		public async Task UnBan([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user) {
+			BanData ban = Bans.FirstOrDefault(b => b.UserId == user.Id);
+			if (ban == null) {
+				throw new KudosArgumentException("not banned");
+			}
+			if (ban.HardBan) {
+				throw new KudosArgumentException("hard banned");
+			}
+
+			Bans.Remove(ban);
+			await Messaging.Instance.SendExpiringMessage(channel, "unbanned", new TimeSpan(0, 0, 15));
 		}
 
 		[Command("wait", "waits the given time and sends a response after that")]

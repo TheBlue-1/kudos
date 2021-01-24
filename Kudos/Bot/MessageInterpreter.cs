@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.DatabaseModels;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
@@ -34,6 +35,9 @@ namespace Kudos.Bot {
 				Executable = false;
 				return;
 			}
+			if (DatabaseSyncedList.Instance<BanData>().FirstOrDefault(b => b.UserId == message.Author.Id) != null) {
+				Executable = false;
+			}
 			Message = message;
 			Command = contentParts[0].ToLower();
 			Parameters = contentParts.Skip(1).ToArray();
@@ -52,7 +56,7 @@ namespace Kudos.Bot {
 					(commandInfo.Command.Accessibility != Accessibility.Hidden || isBotAdmin) && commandInfo.Command.Name == Command))
 				.FirstOrDefault();
 			if (command == null) {
-				return;
+				throw new KudosArgumentException($"Command '{Command}' doesn't exist!");
 			}
 
 			if (command.Module.Module.Accessibility == Accessibility.Admin || command.Command.Accessibility == Accessibility.Admin) {

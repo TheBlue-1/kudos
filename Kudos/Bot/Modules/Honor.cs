@@ -44,7 +44,7 @@ namespace Kudos.Bot.Modules {
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
 
-		private DatabaseSyncedList<HonorData> HonorData { get; } = new DatabaseSyncedList<HonorData>();
+		private DatabaseSyncedList<HonorData> HonorData { get; } = DatabaseSyncedList.Instance<HonorData>();
 		public static Honor Instance { get; } = new Honor();
 
 		static Honor() { }

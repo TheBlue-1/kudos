@@ -17,7 +17,7 @@ namespace Kudos.Bot.Modules {
 	[CommandModule("Server Group Calls")]
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class ServerGroupCalls {
-		private DatabaseSyncedList<GroupData> Groups { get; } = new DatabaseSyncedList<GroupData>();
+		private DatabaseSyncedList<GroupData> Groups { get; } = DatabaseSyncedList.Instance<GroupData>();
 
 		public static ServerGroupCalls Instance { get; } = new ServerGroupCalls();
 		private Dictionary<ulong, DateTime> Timeouts { get; } = new Dictionary<ulong, DateTime>();

@@ -18,7 +18,7 @@ using Kudos.Utils;
 namespace Kudos.Bot.Modules {
 	[CommandModule("AnonymousQuestions")]
 	public class AnonymousQuestion {
-		private DatabaseSyncedList<QuestionData> AnonymousQuestions { get; } = new DatabaseSyncedList<QuestionData>();
+		private DatabaseSyncedList<QuestionData> AnonymousQuestions { get; } = DatabaseSyncedList.Instance<QuestionData>();
 
 		public static AnonymousQuestion Instance { get; } = new AnonymousQuestion();
 

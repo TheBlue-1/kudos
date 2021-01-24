@@ -21,7 +21,7 @@ namespace Kudos.Bot.Modules {
 
 		private List<Timer> RunningTimers { get; } = new List<Timer>();
 
-		private DatabaseSyncedList<TimerData> TimerData { get; } = new DatabaseSyncedList<TimerData>();
+		private DatabaseSyncedList<TimerData> TimerData { get; } = DatabaseSyncedList.Instance<TimerData>();
 
 		static Rememberer() { }
 
@@ -46,7 +46,7 @@ namespace Kudos.Bot.Modules {
 			timer.Start();
 		}
 
-		[Command("delreminder", "delete a reminder by id from reminders")]
+		[Command("delreminder", "delete a reminder by id from reminders", Accessibility.Admin)]
 		public async Task DeleteReminder([CommandParameter] SocketUser author, [CommandParameter] ISocketMessageChannel channel,
 			[CommandParameter(0)] string reminderId) {
 			TimerData timerData = TimerData.FirstOrDefault(timer => timer.Id == reminderId);
@@ -62,15 +62,19 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendExpiringMessage(channel, "reminder deleted");
 		}
 
-		[Command("remember", "sets a reminder, can be repeated")]
+		[Command("remember", "sets a reminder, can be repeated", Accessibility.Admin)]
 		public async Task Remember([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser author, [CommandParameter(0)] DateTime end,
 			[CommandParameter(1)] string message, [CommandParameter(2, null)] IMessageChannel messageChannel, [CommandParameter(3, 0)] TimeSpan repeat) {
 			TimeSpan waitingTime = end - DateTime.Now;
 			if (waitingTime < TimeSpan.Zero) {
 				throw new KudosArgumentException("End time must be in the future");
 			}
-			if (repeat > TimeSpan.Zero && repeat < new TimeSpan(0, 0, 30)) {
-				throw new KudosArgumentException("the minimum repeat time are 30 seconds");
+			if (repeat > TimeSpan.Zero && repeat < new TimeSpan(0, 5, 0)) {
+				throw new KudosArgumentException("the minimum repeat time are 300 seconds/5 minutes");
+			}
+			if (TimerData.Count(t => t.OwnerId == author.Id) >= 10) {
+				throw new KudosInvalidOperationException(
+					"You have reached the current limit of 10 reminders per person. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
 			}
 			TimerData timerData = new TimerData {
 				OwnerId = author.Id, ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat
