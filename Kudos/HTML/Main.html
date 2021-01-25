@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Kudos</title>
+    <meta charset="utf-8"/>
+</head>
+<body>
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css"/>
+
+<style>
+    #background {
+        background-color: transparent;
+        background-image: linear-gradient(135deg, transparent 24.75%, #ffcd79 24.75%, #ffcd79 25.25%, transparent 25.25%), linear-gradient(225deg, transparent 24.75%, #ffcd79 24.75%, #ffcd79 25.25%, transparent 25.25%), linear-gradient(45deg, transparent 24.75%, #ffcd79 24.75%, #ffcd79 25.25%, transparent 25.25%), linear-gradient(315deg, transparent 24.75%, #ffcd79 24.75%, #ffcd79 25.25%, transparent 25.25%);
+        background-position: 160px 0, 160px 0, 0 0, 0 0;
+        background-repeat: repeat;
+        background-size: 320px 320px;
+        height: 100%;
+        left: 0;
+        opacity: 1;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: -1;
+    }
+
+    .content { background-color: #202b38aa; }
+
+    @keyframes typed {
+        0%, 6.6656666667% { content: "K"; }
+
+        6.6666666667%, 13.3323333333% { content: "Ku"; }
+
+        13.3333333333%, 19.999% { content: "Kud"; }
+
+        20%, 26.6656666667% { content: "Kudo"; }
+
+        26.6666666667%, 99.999% { content: "Kudos"; }
+
+        100%, 99.999% { content: ""; }
+    }
+
+    @keyframes beam-blink {
+        75% { border-color: transparent; }
+    }
+
+    #title {
+        color: #ffcd79;
+        display: flex;
+        font-size: 40px;
+        height: 50px;
+        width: 100%;
+    }
+
+    #title::after {
+        animation: typed 5s linear 1s infinite, beam-blink 1s infinite;
+        border-right: 10px solid #ffcd79bb;
+        border-right: calc(1.1vw + 4px) solid #ffcd79bb;
+        content: "​";
+        display: inline-block;
+        padding-right: 3px;
+        padding-right: calc(3px + 0.1vw);
+        position: relative;
+        text-shadow: 0 0 5px #ffcd79bb;
+        top: -13px;
+        white-space: nowrap;
+    }
+</style>
+<div id="background"></div>
+<div class="content">
+    <div id="title"></div>
+    <nav>
+        <ul>
+            <li>Features</li>
+            <li>Commands</li>
+        </ul>
+        ######link&style######
+    </nav>
+    <h3>
+        While the Bots main feature is a honor~ranking system, Kudos also comes
+        with a bunch of features for server calls and the option for automated
+        tasks and features.
+    </h3>
+
+    <h2>Features</h2>
+
+    ########################
+
+    <h2>Commands</h2>
+    <h3>How to</h3>
+    <h4>[x|y?] ... x is the Type, y is the name, ? tells it's optional</h4>
+    ########################
+    <h3>Types</h3>
+    <table>
+        <types></types>
+    </table>
+    <commands></commands>
+    <h2>Settings</h2>
+    <table>
+        <settings></settings>
+    </table>
+    <h3>Examples</h3>
+    ########################
+    <h2>Kudos Beta</h2>
+    <p>
+        <b>
+            For more recent features and updates make sure to invite
+            #########FIX DAMN INVITE##############
+            <a href="https://discord.com/oauth2/authorize?client_id=7206224.75225.2554451763&amp;permissions=8&amp;scope=bot">Kudos - Beta</a>
+            to your Server
+        </b>
+    </p>
+</div>
+</body>
+</html>

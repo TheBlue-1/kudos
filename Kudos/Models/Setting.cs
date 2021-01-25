@@ -26,7 +26,7 @@ namespace Kudos.Models {
 		public override string HtmlHelpText {
 			get {
 				string info = $"[{ParameterType.FromType(typeof (T)).Character}|value]";
-				string text = $"<tr><td><b>{Name.ToString().ToLower()} {info}</b></td><td> default: <b>{Default}</b> {Description}</td></tr>";
+				string text = $"<tr><td><b>{Name.ToString().ToLower()} {info}</b></td><td>{Description} (default: <b>{Default}</b>)</td></tr>";
 				return text;
 			}
 		}
