@@ -24,7 +24,12 @@
         z-index: -1;
     }
 
-    .content { background-color: #202b38aa; }
+
+    .content {
+        background-color: #2b38aa;
+        background-color: rgba(43, 56, 170, 0.13);
+    }
+
 
     @keyframes typed {
         0%, 6.6656666667% { content: "K"; }
@@ -54,14 +59,16 @@
 
     #title::after {
         animation: typed 5s linear 1s infinite, beam-blink 1s infinite;
-        border-right: 10px solid #ffcd79bb;
-        border-right: calc(1.1vw + 4px) solid #ffcd79bb;
+        border-right: 10px solid #cd79bb;
+        border-right: 10px solid rgba(205, 121, 187, 1);
+        border-right: calc(1.1vw + 4px) solid rgba(205, 121, 187, 1);
         content: "​";
         display: inline-block;
         padding-right: 3px;
         padding-right: calc(3px + 0.1vw);
         position: relative;
-        text-shadow: 0 0 5px #ffcd79bb;
+        text-shadow: 0 0 5px #cd79bb;
+        text-shadow: 0 0 5px rgba(205, 121, 187, 1);
         top: -13px;
         white-space: nowrap;
     }
@@ -74,7 +81,7 @@
             <li>Features</li>
             <li>Commands</li>
         </ul>
-        ######link&style######
+        ###### link & style ######
     </nav>
     <h3>
         While the Bots main feature is a honor~ranking system, Kudos also comes
