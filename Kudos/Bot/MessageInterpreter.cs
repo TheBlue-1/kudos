@@ -30,7 +30,7 @@ namespace Kudos.Bot {
 				Executable = false;
 				return;
 			}
-			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+@|\\s+(?<!\\s+@[^#]*?))(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
 				Executable = false;
 				return;
