@@ -61,7 +61,7 @@ namespace Kudos {
 		}
 
 		private static void ClientStateChanged(object sender, Client.StateChangedData e) {
-			Console.WriteLine(DateTime.Now + ": " + e);
+			Console.WriteLine(DateTime.UtcNow + ": " + e);
 		}
 
 		private static void OnClose(object sender, EventArgs e) {

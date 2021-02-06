@@ -11,7 +11,7 @@ namespace Kudos.Utils {
 		private bool _dead;
 		private CancellationTokenSource Canceler { get; } = new CancellationTokenSource();
 		private TimerData Data { get; }
-		public string Id => Data.Id;
+		public ulong Id => Data.Id;
 
 		public Timer(TimerData data) => Data = data;
 
@@ -23,7 +23,7 @@ namespace Kudos.Utils {
 		public event EventHandler<TimerData> TimerEvent;
 
 		private bool AdjustData(bool allowUnadjusted = true) {
-			if (allowUnadjusted && Data.End > DateTime.Now) {
+			if (allowUnadjusted && Data.End > DateTime.UtcNow) {
 				return true;
 			}
 			if (Data.Repeat <= TimeSpan.Zero) {
@@ -32,7 +32,7 @@ namespace Kudos.Utils {
 			}
 			do {
 				Data.End += Data.Repeat;
-			} while (Data.End < DateTime.Now);
+			} while (Data.End < DateTime.UtcNow);
 			DataChanged();
 			return true;
 		}
@@ -64,10 +64,10 @@ namespace Kudos.Utils {
 			}
 			Task.Run(async () => {
 				try {
-					TimeSpan time = Data.End - DateTime.Now;
+					TimeSpan time = Data.End - DateTime.UtcNow;
 					while (time.TotalMilliseconds > int.MaxValue) {
 						await Task.Delay(int.MaxValue);
-						time = Data.End - DateTime.Now;
+						time = Data.End - DateTime.UtcNow;
 					}
 					await Task.Delay(time, Canceler.Token);
 
@@ -80,7 +80,7 @@ namespace Kudos.Utils {
 		}
 
 		public void Start() {
-			if (Data.End < DateTime.Now) {
+			if (Data.End < DateTime.UtcNow) {
 				TriggerSkippedTimerListener();
 			}
 			if (AdjustData()) {

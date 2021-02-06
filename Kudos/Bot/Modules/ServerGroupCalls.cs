@@ -103,7 +103,7 @@ namespace Kudos.Bot.Modules {
 			ulong[] roleUserIds = (await RolesUserIds(channel.Guild, group)).ToArray();
 			if (group.Auto && (group.UserIds.Contains(user.Id) || roleUserIds.Contains(user.Id))) {
 				if (!(await UsersInChannel(channel, group, roleUserIds)).Any()) {
-					Timeouts[group.ChannelId] = DateTime.Now;
+					Timeouts[group.ChannelId] = DateTime.UtcNow;
 				}
 			}
 		}
@@ -201,7 +201,7 @@ namespace Kudos.Bot.Modules {
 
 		private async Task SendInvites(GroupData group, IGuildChannel channel, IUser user, ulong[] roleUserIds) {
 			if (Timeouts.ContainsKey(group.ChannelId)) {
-				TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.Now.AddMinutes(-5);
+				TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.UtcNow.AddMinutes(-5);
 				if (timeout > TimeSpan.Zero) {
 					throw new KudosInvalidOperationException($"There is still a Timeout for {timeout}");
 				}
@@ -227,7 +227,7 @@ namespace Kudos.Bot.Modules {
 				throw new KudosUnauthorizedException($"{errorCount} users could not be notified");
 			}
 
-			Timeouts[group.ChannelId] = DateTime.Now;
+			Timeouts[group.ChannelId] = DateTime.UtcNow;
 		}
 
 		private static async Task<IEnumerable<IGuildUser>> UsersInChannel(IGuildChannel channel, GroupData group, IEnumerable<ulong> roleUserIds) {
