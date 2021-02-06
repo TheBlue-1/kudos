@@ -18,20 +18,10 @@ namespace Kudos.Bot.Modules {
 	[CommandModule("Rememberer")]
 	public sealed class Rememberer {
 		public static Rememberer Instance { get; } = new Rememberer();
-
-		private List<Timer> RunningTimers { get; } = new List<Timer>();
-
-		private DatabaseSyncedList<TimerData> TimerData { get; } = DatabaseSyncedList.Instance<TimerData>();
-
-		static Rememberer() { }
-		private ulong NextId
-		{
-			get
-			{
-				for (ulong i = 0; i < ulong.MaxValue; i++)
-				{
-					if (TimerData.All(timer => timer.Id != i))
-					{
+		private ulong NextId {
+			get {
+				for (ulong i = 0; i < ulong.MaxValue; i++) {
+					if (TimerData.All(timer => timer.Id != i)) {
 						return i;
 					}
 				}
@@ -39,6 +29,13 @@ namespace Kudos.Bot.Modules {
 				throw new Exception("ulong id limit exceeded");
 			}
 		}
+
+		private List<Timer> RunningTimers { get; } = new List<Timer>();
+
+		private DatabaseSyncedList<TimerData> TimerData { get; } = DatabaseSyncedList.Instance<TimerData>();
+
+		static Rememberer() { }
+
 		private Rememberer() {
 			new Action(() => {
 				foreach (TimerData timerData in TimerData) {
@@ -91,7 +88,7 @@ namespace Kudos.Bot.Modules {
 					"You have reached the current limit of 10 reminders per person. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
 			}
 			TimerData timerData = new TimerData {
-				OwnerId = author.Id, ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat,Id = NextId
+				OwnerId = author.Id, ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat, Id = NextId
 			};
 			CreateTimer(timerData);
 
