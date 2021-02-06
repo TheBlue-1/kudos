@@ -24,7 +24,21 @@ namespace Kudos.Bot.Modules {
 		private DatabaseSyncedList<TimerData> TimerData { get; } = DatabaseSyncedList.Instance<TimerData>();
 
 		static Rememberer() { }
+		private ulong NextId
+		{
+			get
+			{
+				for (ulong i = 0; i < ulong.MaxValue; i++)
+				{
+					if (TimerData.All(timer => timer.Id != i))
+					{
+						return i;
+					}
+				}
 
+				throw new Exception("ulong id limit exceeded");
+			}
+		}
 		private Rememberer() {
 			new Action(() => {
 				foreach (TimerData timerData in TimerData) {
@@ -48,7 +62,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("delreminder", "delete a reminder by id from reminders", Accessibility.Admin)]
 		public async Task DeleteReminder([CommandParameter] SocketUser author, [CommandParameter] ISocketMessageChannel channel,
-			[CommandParameter(0)] string reminderId) {
+			[CommandParameter(0)] ulong reminderId) {
 			TimerData timerData = TimerData.FirstOrDefault(timer => timer.Id == reminderId);
 			if (timerData == null) {
 				throw new KudosArgumentException("Id doesn't exist");
@@ -65,7 +79,7 @@ namespace Kudos.Bot.Modules {
 		[Command("remember", "sets a reminder, can be repeated", Accessibility.Admin)]
 		public async Task Remember([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser author, [CommandParameter(0)] DateTime end,
 			[CommandParameter(1)] string message, [CommandParameter(2, null)] IMessageChannel messageChannel, [CommandParameter(3, 0)] TimeSpan repeat) {
-			TimeSpan waitingTime = end - DateTime.Now;
+			TimeSpan waitingTime = end - DateTime.UtcNow;
 			if (waitingTime < TimeSpan.Zero) {
 				throw new KudosArgumentException("End time must be in the future");
 			}
@@ -77,7 +91,7 @@ namespace Kudos.Bot.Modules {
 					"You have reached the current limit of 10 reminders per person. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
 			}
 			TimerData timerData = new TimerData {
-				OwnerId = author.Id, ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat
+				OwnerId = author.Id, ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat,Id = NextId
 			};
 			CreateTimer(timerData);
 
@@ -90,7 +104,7 @@ namespace Kudos.Bot.Modules {
 			string reminderList = reminders.Aggregate(string.Empty,
 				(current, timerData) =>
 					current
-					+ $"**[{timerData.Id}] {timerData.End} {(timerData.Repeat > TimeSpan.Zero ? $"(repeats: {timerData.Repeat.LikeInput()})" : "")}**: {timerData.Message}\n");
+					+ $"**[{timerData.Id}] {timerData.End}(UTC) {(timerData.Repeat > TimeSpan.Zero ? $"(repeats: {timerData.Repeat.LikeInput()})" : "")}**: {timerData.Message}\n");
 			await Messaging.Instance.SendMessage(channel, reminderList);
 		}
 

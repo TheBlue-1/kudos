@@ -33,6 +33,7 @@ namespace Kudos {
 			KudosDataContext db = new KudosDataContext();
 			db.Database.Migrate();
 			string botToken;
+
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
 
 			if (settings.ContainsKey("bot_list_token")) {
@@ -60,7 +61,7 @@ namespace Kudos {
 		}
 
 		private static void ClientStateChanged(object sender, Client.StateChangedData e) {
-			Console.WriteLine(DateTime.Now + ": " + e);
+			Console.WriteLine(DateTime.UtcNow + ": " + e);
 		}
 
 		private static void OnClose(object sender, EventArgs e) {
@@ -78,7 +79,7 @@ namespace Kudos {
 				return;
 			}
 
-			string html = CommandModules.Instance.LongDescription;
+			string html = new HtmlGenerator().LongDescription();
 
 			FileService.Instance.WriteFile("description.html", html);
 

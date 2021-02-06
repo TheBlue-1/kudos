@@ -9,10 +9,8 @@ namespace Kudos.DatabaseModels {
 		public ulong ChannelId { get; set; }
 		public DateTime End { get; set; }
 		[Key]
-		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-
-		// ReSharper disable once UnusedMember.Global
-		public string Id { get; set; }
+		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+		public ulong Id { get; set; }
 
 		public string Message { get; set; }
 		public ulong OwnerId { get; set; }

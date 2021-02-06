@@ -192,20 +192,23 @@ namespace Kudos.Bot {
 			Match match;
 			DateTime value;
 			if (ParameterPresent(parameters, index) && (match = dateTimeRegex.Match(parameters[index])).Success) {
-				DateTime now = DateTime.Now;
+				DateTime localNow = DateTime.UtcNow;
 
 				settings[SettingNames.Timezone].Value(out Timezone timezone);
 				if (match.Groups[4].Success || match.Groups[1].Success) {
-					now = now.AddHours(timezone);
+					localNow = localNow.AddHours(-timezone);
 				}
-				int year = match.Groups[3].Success ? int.Parse(match.Groups[3].Value) : now.Year;
-				int month = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : now.Month;
-				int day = match.Groups[1].Success ? int.Parse(match.Groups[1].Value) : now.Day;
+				int year = match.Groups[3].Success ? int.Parse(match.Groups[3].Value) : localNow.Year;
+				int month = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : localNow.Month;
+				int day = match.Groups[1].Success ? int.Parse(match.Groups[1].Value) : localNow.Day;
 
-				int hour = match.Groups[4].Success ? int.Parse(match.Groups[4].Value) : match.Groups[1].Success ? 0 : now.Hour;
-				int minute = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : match.Groups[4].Success || match.Groups[1].Success ? 0 : now.Minute;
-				int second = match.Groups[6].Success ? int.Parse(match.Groups[6].Value) : match.Groups[4].Success || match.Groups[1].Success ? 0 : now.Second;
-				value = new DateTime(year, month, day, hour, minute, second);
+				double hour = match.Groups[4].Success ? (int.Parse(match.Groups[4].Value)-timezone) : match.Groups[1].Success ? 0 : localNow.Hour;
+				int minute = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : match.Groups[4].Success || match.Groups[1].Success ? 0 : localNow.Minute;
+				int second = match.Groups[6].Success ? int.Parse(match.Groups[6].Value) : match.Groups[4].Success || match.Groups[1].Success ? 0 : localNow.Second;
+			
+				value = new DateTime(year, month, day, 0, minute, second);
+				
+				value = value.AddHours(hour);DateTime now = DateTime.UtcNow;
 				if (!match.Groups[1].Success && match.Groups[4].Success && value < now) {
 					value = value.AddDays(1);
 				} else {

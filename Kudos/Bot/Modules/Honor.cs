@@ -60,7 +60,7 @@ namespace Kudos.Bot.Modules {
 			[CommandParameter(1, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
-			HonorData.Add(new HonorData { Honor = -count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
+			HonorData.Add(new HonorData { Honor = -count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.UtcNow });
 
 			await Messaging.Instance.SendMessage(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
@@ -68,7 +68,7 @@ namespace Kudos.Bot.Modules {
 		public EmbedBuilder GuildStatsEmbed(IEnumerable<SocketUser> users, TimeSpan time) {
 			IEnumerable<HonorData> filteredHonorData = HonorData;
 			if (time > TimeSpan.Zero) {
-				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.Now - time);
+				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.UtcNow - time);
 			}
 			users ??= filteredHonorData.Select(honorData => honorData.Honored)
 				.Distinct()
@@ -116,7 +116,7 @@ namespace Kudos.Bot.Modules {
 			[CommandParameter] IMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
-			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
+			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.UtcNow });
 
 			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
 		}
@@ -176,7 +176,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		private int UsedHonorOf(ulong userId) {
-			return HonorData.Where(honorData => honorData.Honorer == userId && honorData.Timestamp > DateTime.Now.AddHours(-24))
+			return HonorData.Where(honorData => honorData.Honorer == userId && honorData.Timestamp > DateTime.UtcNow.AddHours(-24))
 				.Sum(honorData => Math.Abs(honorData.Honor));
 		}
 	}

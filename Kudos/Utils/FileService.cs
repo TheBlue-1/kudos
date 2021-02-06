@@ -29,7 +29,7 @@ namespace Kudos.Utils {
 
 		public void Log(string message, string filePrefix = "") {
 			string fileName = Path.Combine(ApplicationFolderPath, filePrefix + "log.txt");
-			message = $"{DateTime.Now}: {message}\n";
+			message = $"{DateTime.UtcNow}: {message}\n";
 			lock (_logFile) {
 				File.AppendAllText(fileName, message);
 			}

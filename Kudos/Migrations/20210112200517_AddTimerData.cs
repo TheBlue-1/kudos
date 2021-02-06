@@ -12,15 +12,21 @@ namespace Kudos.Migrations {
 		}
 
 		protected override void Up(MigrationBuilder migrationBuilder) {
-			migrationBuilder.CreateTable("TimerData",
-				table => new {
-					Id = table.Column<string>(nullable: false),
-					OwnerId = table.Column<ulong>(nullable: false),
+			migrationBuilder.CreateTable(
+				name: "TimerData",
+				columns: table => new
+				{
+					Id = table.Column<ulong>(nullable: false),
 					ChannelId = table.Column<ulong>(nullable: false),
 					End = table.Column<DateTime>(nullable: false),
 					Message = table.Column<string>(nullable: true),
+					OwnerId = table.Column<ulong>(nullable: false),
 					Repeat = table.Column<TimeSpan>(nullable: false)
-				}, constraints: table => { table.PrimaryKey("PK_TimerData", x => x.Id); });
-		}
+				},
+				constraints: table =>
+				{
+					table.PrimaryKey("PK_TimerData", x => x.Id);
+				});
+        }
 	}
 }

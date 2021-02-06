@@ -94,9 +94,9 @@ namespace Kudos.Migrations
 
             modelBuilder.Entity("Kudos.DatabaseModels.TimerData", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<ulong>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("INTEGER");
 
                     b.Property<ulong>("ChannelId")
                         .HasColumnType("INTEGER");
