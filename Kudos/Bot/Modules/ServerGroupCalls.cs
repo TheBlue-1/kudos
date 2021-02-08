@@ -80,7 +80,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendExpiringMessage(textChannel, "Group automated successfully");
 		}
 
-		public async Task CheckEntering(SocketUser user, IVoiceChannel channel) {
+		public async Task CheckEntering(SocketUser user, SocketVoiceChannel channel) {
 			GroupData group = Groups.FirstOrDefault(g => g.ChannelId == channel.Id);
 			if (group == null) {
 				return;
@@ -139,7 +139,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("invitegroup", "sends a dm to all group members to invite them to join your channel")]
 		public async Task InviteGroup([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel) {
-			IVoiceChannel channel = user.VoiceChannel;
+			SocketVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
 				throw new KudosInvalidOperationException("You must be in a server audio channel to perform this command");
 			}
@@ -199,7 +199,7 @@ namespace Kudos.Bot.Modules {
 			return (await guild.GetUsersAsync()).Where(guildUser => guildUser.HasRoleId(group.RoleIds.ToArray())).Select(guildUser => guildUser.Id);
 		}
 
-		private async Task SendInvites(GroupData group, IGuildChannel channel, IUser user, ulong[] roleUserIds) {
+		private async Task SendInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds) {
 			if (Timeouts.ContainsKey(group.ChannelId)) {
 				TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.UtcNow.AddMinutes(-5);
 				if (timeout > TimeSpan.Zero) {
@@ -216,8 +216,12 @@ namespace Kudos.Bot.Modules {
 					SocketUser groupUser = Program.Client.GetSocketUserById(groupUserId);
 					IDMChannel groupUserChannel = await groupUser.GetOrCreateDMChannelAsync();
 
+					IReadOnlyCollection<IInviteMetadata> invites = await channel.GetInvitesAsync();
+					IInviteMetadata invite = invites.FirstOrDefault(i =>
+							i.ChannelId == channel.Id && i.IsTemporary == false && i.Inviter.Id == Program.Client.BotUserId)
+						?? await channel.CreateInviteAsync();
 					await Messaging.Instance.SendMessage(groupUserChannel,
-						$"Hey, **{user.Username}** invited you to join the voice call **{channel.Name}** in {channel.Guild.Name}");
+						$"Hey, **{user.Username}** invited you to join the voice call [**{channel.Name}** in {channel.Guild.Name}]({invite.Url})");
 				}
 				catch (Exception) {
 					errorCount++;

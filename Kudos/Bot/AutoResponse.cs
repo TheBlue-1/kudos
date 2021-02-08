@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,22 +63,22 @@ namespace Kudos.Bot {
 		private static bool NeedleContained(string haystack, string needle) {
 			if (needle.StartsWith("*")) {
 				if (needle.EndsWith("*")) {
-					if (haystack.Contains(needle.Substring(1, needle.Length - 2))) {
+					if (haystack.Contains(needle.Substring(1, needle.Length - 2), StringComparison.CurrentCultureIgnoreCase)) {
 						return true;
 					}
 				}
-				if (haystack.EndsWith(needle.Substring(1))) {
+				if (haystack.EndsWith(needle.Substring(1), StringComparison.CurrentCultureIgnoreCase)) {
 					return true;
 				}
 			}
 
 			// ReSharper disable once InvertIf
 			if (needle.EndsWith("*")) {
-				if (haystack.StartsWith(needle.Substring(0, needle.Length - 1))) {
+				if (haystack.StartsWith(needle.Substring(0, needle.Length - 1), StringComparison.CurrentCultureIgnoreCase)) {
 					return true;
 				}
 			}
-			return haystack == needle;
+			return haystack.Equals(needle, StringComparison.CurrentCultureIgnoreCase);
 		}
 
 		public async Task Respond(SocketMessage message) {

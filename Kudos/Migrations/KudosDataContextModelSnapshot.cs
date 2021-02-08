@@ -3,6 +3,7 @@ using System;
 using Kudos.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+
 // ReSharper disable UnusedMember.Global
 #endregion
 
