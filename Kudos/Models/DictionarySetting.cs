@@ -28,6 +28,10 @@ namespace Kudos.Models {
 
 		public override bool AddValueWithString(string value, Settings settings, int valueParameterIndex = 1, string key = null,
 			int? keyParameterIndex = null) {
+			if (Value.Count >= 20) {
+				throw new KudosInvalidOperationException(
+					"You have reached the current limit of 20 values per setting. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
+			}
 			if (key == null || !(keyParameterIndex is int notNullKeyParameterIndex)) {
 				throw new KudosArgumentException($"{Name} is a dictionary setting so it needs a 'key'");
 			}

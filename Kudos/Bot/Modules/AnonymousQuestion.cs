@@ -65,6 +65,10 @@ namespace Kudos.Bot.Modules {
 		[Command("ask", "asks anonymous question")]
 		public async Task AskAnonymous([CommandParameter(1)] string message, [CommandParameter(0)] SocketUser answerer,
 			[CommandParameter] SocketUser questionnaire) {
+			if (AnonymousQuestions.Count(q => q.Questionnaire == questionnaire.Id) >= 20) {
+				throw new KudosInvalidOperationException(
+					"You have reached the current limit of 20 open anonymous questions. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
+			}
 			ulong id = NextId;
 			AnonymousQuestions.Add(new QuestionData { Id = id, Question = message, Questionnaire = questionnaire.Id, Answerer = answerer.Id });
 

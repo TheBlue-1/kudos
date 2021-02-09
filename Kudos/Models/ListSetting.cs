@@ -38,6 +38,10 @@ namespace Kudos.Models {
 		}
 
 		public override bool SetValueWithString(string value, Settings settings, int parameterIndex = 1) {
+			if (Value.Count >= 20) {
+				throw new KudosInvalidOperationException(
+					"You have reached the current limit of 20 values per setting. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
+			}
 			if (value == null) {
 				throw new KudosArgumentException("value must be set in a list setting");
 			}
