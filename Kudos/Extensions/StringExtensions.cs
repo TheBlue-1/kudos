@@ -1,7 +1,9 @@
 ﻿#region
+using System;
 using System.Text.RegularExpressions;
 using Kudos.Bot;
 using Kudos.Exceptions;
+using Kudos.Models;
 #endregion
 
 namespace Kudos.Extensions {
@@ -10,12 +12,52 @@ namespace Kudos.Extensions {
 		private static readonly Regex NotUniqueChars = new Regex("(.).*\\1");
 		public static bool JustNormalChars(this string text) => !NotNormalChars.IsMatch(text);
 
-		public static TValue ToValue<TValue>(this string value, int parameterIndex) {
+		public static string LikeInput(this TimeSpan timeSpan) {
+			string readable = string.Empty;
+			if ((int)timeSpan.TotalDays > 0) {
+				readable += $"{(int)timeSpan.TotalDays}d";
+			}
+			if (timeSpan.Hours > 0) {
+				readable += $"{timeSpan.Hours}h";
+			}
+			if (timeSpan.Minutes > 0) {
+				readable += $"{timeSpan.Minutes}m";
+			}
+			if (timeSpan.Seconds > 0) {
+				readable += $"{timeSpan.Seconds}s";
+			}
+			if (readable == "") {
+				readable += "0";
+			}
+			return readable;
+		}
+
+		public static string Readable(this TimeSpan timeSpan) {
+			string readable = string.Empty;
+			if ((int)timeSpan.TotalDays > 0) {
+				readable += $"{(int)timeSpan.TotalDays} Days ";
+			}
+			if (timeSpan.Hours > 0) {
+				readable += $"{timeSpan.Hours} Hours ";
+			}
+			if (timeSpan.Minutes > 0) {
+				readable += $"{timeSpan.Minutes} Minutes ";
+			}
+			if (timeSpan.Seconds > 0) {
+				readable += $"{timeSpan.Seconds} Seconds ";
+			}
+			if (readable == "") {
+				readable += "now ";
+			}
+			return readable;
+		}
+
+		public static TValue ToValue<TValue>(this string value, int parameterIndex, Settings settings) {
 			string[] arr = new string[parameterIndex + 1];
 			arr[parameterIndex] = value;
 			try {
 				return ParameterType.InterpretParameter(arr, default, parameterIndex, false, new ParameterType.DefaultValue<TValue>(), default, default,
-					false);
+					false, settings);
 			}
 			catch (KudosArgumentTypeException exception) {
 				throw new KudosArgumentTypeException(exception.UserMessage + " as text", exception.Message + " as text");

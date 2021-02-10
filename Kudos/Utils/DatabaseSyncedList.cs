@@ -8,10 +8,25 @@ using Microsoft.EntityFrameworkCore;
 #endregion
 
 namespace Kudos.Utils {
+	public class DatabaseSyncedList {
+		private static Dictionary<Type, IEnumerable> Instances { get; } = new Dictionary<Type, IEnumerable>();
+
+		public static DatabaseSyncedList<T> Instance<T>()
+			where T : class {
+			if (Instances.ContainsKey(typeof (T))) {
+				return (DatabaseSyncedList<T>)Instances[typeof (T)];
+			}
+			DatabaseSyncedList<T> instance = new DatabaseSyncedList<T>();
+			Instances.Add(typeof (T), instance);
+			return instance;
+		}
+	}
+
 	public class DatabaseSyncedList<T> : IList<T>
 		where T : class {
 		public int Count => Set.Count();
 		protected KudosDataContext DbContext => new KudosDataContext();
+
 		public bool IsReadOnly => false;
 
 		protected DbSet<T> Set => DbContext.Set<T>();
@@ -20,6 +35,11 @@ namespace Kudos.Utils {
 			get => throw new NotSupportedException();
 			set => throw new NotSupportedException();
 		}
+
+		/*
+		 * Do not use this constructor, use Instance of not generic class
+		 */
+		internal DatabaseSyncedList() { }
 
 		protected Tuple<KudosDataContext, DbSet<T>> FullContext() {
 			KudosDataContext context = DbContext;

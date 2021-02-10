@@ -39,7 +39,7 @@ namespace Kudos.Bot.Modules {
 			if (!Enum.TryParse(setting, true, out SettingNames settingName)) {
 				throw new KudosArgumentException($"Setting `{setting}` doesn't exist");
 			}
-			if (settings[settingName].AddOrSetValue(value, 1, key, 2)) {
+			if (settings[settingName].AddOrSetValue(value, SettingsManager.Instance.SettingsFor(author, channel), 1, key, 2)) {
 				await Messaging.Instance.SendMessage(channel,
 					$"`{(key != null ? $"{setting} - {key}" : setting.ToString())}` set to `{value}` {(forServer ? "server wide" : "personal")}");
 			} else {

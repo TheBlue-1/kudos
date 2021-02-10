@@ -44,7 +44,7 @@ namespace Kudos.Bot.Modules {
 			"See you in hell buddy!", "|| https://www.youtube.com/watch?v=Poz4SQJTWsE&list=RDAMVMApHC5YWo1Rc ||"
 		};
 
-		private DatabaseSyncedList<HonorData> HonorData { get; } = new DatabaseSyncedList<HonorData>();
+		private DatabaseSyncedList<HonorData> HonorData { get; } = DatabaseSyncedList.Instance<HonorData>();
 		public static Honor Instance { get; } = new Honor();
 
 		static Honor() { }
@@ -60,19 +60,22 @@ namespace Kudos.Bot.Modules {
 			[CommandParameter(1, 1)] int count, [CommandParameter] ISocketMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
-			HonorData.Add(new HonorData { Honor = -count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
+			HonorData.Add(new HonorData { Honor = -count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.UtcNow });
 
 			await Messaging.Instance.SendMessage(channel, $"You successfully removed ***{count}*** honor points for ***{honoredUser.Mention}***!");
 		}
 
 		public EmbedBuilder GuildStatsEmbed(IEnumerable<SocketUser> users, TimeSpan time) {
 			IEnumerable<HonorData> filteredHonorData = HonorData;
-			if (time > new TimeSpan(0)) {
-				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.Now - time);
+			if (time > TimeSpan.Zero) {
+				filteredHonorData = filteredHonorData.Where(x => x.Timestamp > DateTime.UtcNow - time);
 			}
-			users ??= filteredHonorData.Select(honorData => honorData.Honored).Distinct().Select(id => Program.Client.GetSocketUserById(id)).Where(user=>user!=null);
+			users ??= filteredHonorData.Select(honorData => honorData.Honored)
+				.Distinct()
+				.Select(id => Program.Client.GetSocketUserById(id))
+				.Where(user => user != null);
 
-			IEnumerable<SocketUser> socketUsers =  users.ToArray();
+			IEnumerable<SocketUser> socketUsers = users.ToArray();
 			IEnumerable<ulong> ids = socketUsers.Select(socketUser => socketUser.Id);
 
 			var balances = filteredHonorData.GroupBy(honorData => honorData.Honored)
@@ -113,7 +116,7 @@ namespace Kudos.Bot.Modules {
 			[CommandParameter] IMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
-			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.Now });
+			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.UtcNow });
 
 			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
 		}
@@ -128,7 +131,7 @@ namespace Kudos.Bot.Modules {
 			}
 			IUser honorer = reaction.User.Value;
 			string description = message.Embeds.First().Description;
-			SocketUser honored = description.Substring(26, description.Length - 102).ToValue<SocketUser>(0);
+			SocketUser honored = description.Substring(26, description.Length - 102).ToValue<SocketUser>(0, new Models.Settings());
 			await HonorUser(honored, honorer, honor, message.Channel);
 		}
 
@@ -173,7 +176,7 @@ namespace Kudos.Bot.Modules {
 		}
 
 		private int UsedHonorOf(ulong userId) {
-			return HonorData.Where(honorData => honorData.Honorer == userId && honorData.Timestamp > DateTime.Now.AddHours(-24))
+			return HonorData.Where(honorData => honorData.Honorer == userId && honorData.Timestamp > DateTime.UtcNow.AddHours(-24))
 				.Sum(honorData => Math.Abs(honorData.Honor));
 		}
 	}

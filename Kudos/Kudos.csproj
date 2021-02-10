@@ -2,9 +2,9 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<TargetFramework>net5.0</TargetFramework>
     <StartWorkingDirectory>$(MSBuildProjectDirectory)</StartWorkingDirectory>
-		<Version>1.1.3.4</Version>
+		<Version>1.1.5.4</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,23 +15,29 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
+	
+
 	<ItemGroup>
-		<PackageReference Include="Discord.Net" Version="2.2.0" />
-		<PackageReference Include="Discord.Net.Commands" Version="2.2.0" />
-		<PackageReference Include="Discord.Net.Core" Version="2.2.0" />
-		<PackageReference Include="Discord.Net.Rest" Version="2.2.0" />
-		<PackageReference Include="Discord.Net.Webhook" Version="2.2.0" />
-		<PackageReference Include="Discord.Net.WebSocket" Version="2.2.0" />
+		<PackageReference Include="Discord.Net" Version="2.3.0" />
+		<PackageReference Include="Discord.Net.Commands" Version="2.3.0" />
+		<PackageReference Include="Discord.Net.Core" Version="2.3.0" />
+		<PackageReference Include="Discord.Net.Rest" Version="2.3.0" />
+		<PackageReference Include="Discord.Net.Webhook" Version="2.3.0" />
+		<PackageReference Include="Discord.Net.WebSocket" Version="2.3.0" />
 		<PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.9">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.2">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="KudosData.db">
+	  <Resource Include="HTML\Main.html" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="HTML\Main.html">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>

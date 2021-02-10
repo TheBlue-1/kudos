@@ -11,9 +11,11 @@ namespace Kudos.DatabaseModels {
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	[SuppressMessage("ReSharper", "PartialTypeWithSinglePart")]
 	public partial class KudosDataContext : DbContext {
+		public DbSet<BanData> BanData { get; set; }
 		public DbSet<GroupData> GroupData { get; set; }
 		public DbSet<HonorData> HonorData { get; set; }
 		public DbSet<QuestionData> QuestionData { get; set; }
+		public DbSet<TimerData> TimerData { get; set; }
 
 		public KudosDataContext() { }
 

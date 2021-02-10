@@ -12,7 +12,6 @@ namespace Kudos.Models {
 		public string CommandListAsHtml {
 			get {
 				string htmlList = $@"
-<p>
 <h3>{Module.Name}</h3>
 <table>
 ";
@@ -20,7 +19,6 @@ namespace Kudos.Models {
 					.Aggregate(htmlList, (current, commandInfo) => current + commandInfo.ToHtml());
 				htmlList += @"
 </table>
-</p> 
 ";
 				return htmlList;
 			}

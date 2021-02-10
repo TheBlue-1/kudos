@@ -8,6 +8,7 @@ using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Kudos.Bot.Modules;
+using Kudos.Extensions;
 using Kudos.Models;
 using Kudos.Utils;
 using Settings = Kudos.Models.Settings;
@@ -28,6 +29,8 @@ namespace Kudos.Bot {
 		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
 
 		public ulong BotUserId => _client.CurrentUser.Id;
+
+		private static Task FakeTask => Task.Run(() => true);
 		public IReadOnlyCollection<SocketGuild> Guilds => _client.Guilds;
 		public string State => _loggedIn ? _connected ? _client.Status.ToString() : "connecting" : "logging in";
 		private string Token { get; }
@@ -47,6 +50,7 @@ namespace Kudos.Bot {
 			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
 			_client.UserVoiceStateUpdated += UserCallInteraction;
+			_client.Ready += Init;
 			_client.Disconnected += _ => {
 				_connected = false;
 				StateChange();
@@ -64,55 +68,38 @@ namespace Kudos.Bot {
 		public event EventHandler<StateChangedData> StateChanged;
 
 		private static Task AutoResponseMessageReceived(SocketMessage arg) {
-			_ = Task.Run(async () => {
-				try {
-					await AutoResponse.Instance.Respond(arg);
-				}
-				catch (Exception e) {
-					new ExceptionHandler(e, arg.Channel).Handle(false);
-				}
-			});
-			return Task.Run(() => true);
+			new Func<Task>(async () => { await AutoResponse.Instance.Respond(arg); }).RunAsyncSave();
+			return FakeTask;
 		}
 
 		private Task ClientLatencyUpdated(int old, int val) {
-			_ = Task.Run(() => { LastPings.Enqueue(val); });
+			new Action(() => { LastPings.Enqueue(val); }).RunAsyncSave();
 
-			return Task.Run(() => true);
+			return FakeTask;
 		}
 
 		private static Task ClientMessageReceived(SocketMessage arg) {
-			_ = Task.Run(() => {
-				try {
-					MessageInterpreter interpreter = new MessageInterpreter(arg);
-					if (interpreter.Executable) {
-						interpreter.TryExecute();
-					}
+			new Action(() => {
+				MessageInterpreter interpreter = new MessageInterpreter(arg);
+				if (interpreter.Executable) {
+					interpreter.TryExecute();
 				}
-				catch (Exception e) {
-					new ExceptionHandler(e, arg.Channel).Handle(false);
-				}
-			});
-			return Task.Run(() => true);
+			}).RunAsyncSave();
+			return FakeTask;
 		}
 
 		private static Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
-			_ = Task.Run(async () => {
-				try {
-					if (!arg1.HasValue) {
-						return;
-					}
-					IUserMessage message = arg1.Value;
-					if (message?.Author?.Id == Program.Client.BotUserId && arg3.UserId != Program.Client.BotUserId) {
-						await Honor.Instance.HonorUserWithReaction(message, arg3);
-					}
+			new Func<Task>(async () => {
+				IUserMessage message = await arg1.GetOrDownloadAsync();
+				if (message?.Author?.Id == Program.Client.BotUserId && arg3.UserId != Program.Client.BotUserId) {
+					await Honor.Instance.HonorUserWithReaction(message, arg3);
 				}
-				catch (Exception e) {
-					new ExceptionHandler(e, arg3.Channel).Handle(false);
-				}
-			});
-			return Task.Run(() => true);
+			}).RunAsyncSave();
+
+			return FakeTask;
 		}
+
+		public IMessageChannel GetMessageChannelById(ulong id) => _client.GetChannel(id) as IMessageChannel;
 
 		public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
 		public SocketRole GetRoleById(ulong id) => _client.Guilds.SelectMany(guild => guild.Roles).FirstOrDefault(role => role.Id == id);
@@ -121,18 +108,19 @@ namespace Kudos.Bot {
 
 		public SocketUser GetSocketUserByUsername(string username, string discriminator) => _client.GetUser(username, discriminator);
 
-		private Task JoinedGuild(SocketGuild arg) {
-			_ = Task.Run(async () => {
-				try {
-					JoinedNewGuild?.Invoke();
-					await Messaging.Instance.SendWelcomeMessage(arg);
-				}
-				catch (Exception e) {
-					new ExceptionHandler(e, arg.DefaultChannel).Handle(false);
-				}
-			});
+		private static Task Init() {
+			new Action(() => {
+				Rememberer unused = Rememberer.Instance; //initiate Timers
+			}).RunAsyncSave();
+			return FakeTask;
+		}
 
-			return Task.Run(() => true);
+		private Task JoinedGuild(SocketGuild arg) {
+			new Func<Task>(async () => {
+				JoinedNewGuild?.Invoke();
+				await Messaging.Instance.SendWelcomeMessage(arg);
+			}).RunAsyncSave();
+			return FakeTask;
 		}
 
 		[SuppressMessage("ReSharper", "InvertIf")]
@@ -152,8 +140,8 @@ namespace Kudos.Bot {
 							StateChange();
 						}
 					}
-					catch (Exception) {
-						// ignored
+					catch (Exception e) {
+						FileService.Instance.Log(e.Message, "login-");
 					}
 					await Task.Delay(5000);
 				}
@@ -173,23 +161,18 @@ namespace Kudos.Bot {
 		}
 
 		private static Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
-			_ = Task.Run(async () => {
-				try {
-					//entering
-					if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
-						await ServerGroupCalls.Instance.CheckEntering(user, newState.VoiceChannel);
-					}
+			new Func<Task>(async () => {
+				//entering
+				if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
+					await ServerGroupCalls.Instance.CheckEntering(user, newState.VoiceChannel);
+				}
 
-					//leaving
-					if (oldState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
-						await ServerGroupCalls.Instance.CheckLeaving(user, oldState.VoiceChannel);
-					}
+				//leaving
+				if (oldState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {
+					await ServerGroupCalls.Instance.CheckLeaving(user, oldState.VoiceChannel);
 				}
-				catch (Exception e) {
-					new ExceptionHandler(e, null).Handle(false);
-				}
-			});
-			return Task.Run(() => true);
+			}).RunAsyncSave();
+			return FakeTask;
 		}
 
 		public class StateChangedData {

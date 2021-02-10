@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.DatabaseModels;
 using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
@@ -29,14 +30,22 @@ namespace Kudos.Bot {
 				Executable = false;
 				return;
 			}
-			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+@|\\s+(?<!\\s+@[^#]*?))(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
 				Executable = false;
 				return;
 			}
+			if (DatabaseSyncedList.Instance<BanData>().FirstOrDefault(b => b.UserId == message.Author.Id) != null) {
+				Executable = false;
+			}
 			Message = message;
 			Command = contentParts[0].ToLower();
 			Parameters = contentParts.Skip(1).ToArray();
+			for (int i = 0; i < Parameters.Length; i++) {
+				if (Parameters[i].StartsWith('"') && Parameters[i].EndsWith('"')) {
+					Parameters[i] = Parameters[i].Substring(1, Parameters[i].Length - 2);
+				}
+			}
 			FileService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", "access-");
 		}
 
@@ -47,7 +56,7 @@ namespace Kudos.Bot {
 					(commandInfo.Command.Accessibility != Accessibility.Hidden || isBotAdmin) && commandInfo.Command.Name == Command))
 				.FirstOrDefault();
 			if (command == null) {
-				return;
+				throw new KudosArgumentException($"Command '{Command}' doesn't exist!");
 			}
 
 			if (command.Module.Module.Accessibility == Accessibility.Admin || command.Command.Accessibility == Accessibility.Admin) {
@@ -61,6 +70,13 @@ namespace Kudos.Bot {
 			object commandModule = command.Module.Type.GetProperty("Instance")?.GetValue(null);
 			if (commandModule == null) {
 				throw new Exception("command modules must be singletons");
+			}
+
+			if (command.Parameter.Last().ParameterInfo.ParameterType == typeof (string)) {
+				int count = command.Parameter.Length;
+				for (int i = count; i < Parameters.Length; i++) {
+					Parameters[count - 1] += " " + Parameters[i];
+				}
 			}
 
 			CommandParameterInfo[] parameterInfo = command.AllParameter;

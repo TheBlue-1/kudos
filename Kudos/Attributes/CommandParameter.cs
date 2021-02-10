@@ -7,6 +7,7 @@ using Discord;
 using Discord.WebSocket;
 using Kudos.Bot;
 using Kudos.Extensions;
+using Kudos.Utils;
 #endregion
 
 namespace Kudos.Attributes {
@@ -43,7 +44,7 @@ namespace Kudos.Attributes {
 
 			if (Index >= 0) {
 				return ParameterType.InterpretParameter(info.ParameterType, parameters, indexLess, Index, Optional, DefaultValue, Min,
-					Max, ThrowOutOfRange);
+					Max, ThrowOutOfRange, SettingsManager.Instance.SettingsFor(message));
 			}
 			object value = indexLess.FirstOrDefault(obj => obj.GetType() == info.ParameterType)
 				?? indexLess.FirstOrDefault(obj => info.ParameterType.IsInstanceOfType(obj));

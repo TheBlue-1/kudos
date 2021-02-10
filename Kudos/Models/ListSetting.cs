@@ -37,13 +37,17 @@ namespace Kudos.Models {
 			return setting;
 		}
 
-		public override bool SetValueWithString(string value, int parameterIndex = 1) {
+		public override bool SetValueWithString(string value, Settings settings, int parameterIndex = 1) {
+			if (Value.Count >= 20) {
+				throw new KudosInvalidOperationException(
+					"You have reached the current limit of 20 values per setting. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
+			}
 			if (value == null) {
 				throw new KudosArgumentException("value must be set in a list setting");
 			}
 
 			//index 1 because settings get values on index 1
-			T newValue = value.ToValue<T>(parameterIndex);
+			T newValue = value.ToValue<T>(parameterIndex, settings);
 			if (newValue == null) {
 				throw new KudosInternalException("value shouldn't be null");
 			}
