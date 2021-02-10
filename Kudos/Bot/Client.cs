@@ -180,11 +180,5 @@ namespace Kudos.Bot {
 			public static implicit operator string(StateChangedData s) => s._value;
 			public static implicit operator StateChangedData(string s) => new StateChangedData { _value = s };
 		}
-
-		public class StateChangedData {
-			private string _value;
-			public static implicit operator string(StateChangedData s) => s._value;
-			public static implicit operator StateChangedData(string s) => new StateChangedData { _value = s };
-		}
 	}
 }
