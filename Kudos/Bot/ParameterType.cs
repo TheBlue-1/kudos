@@ -319,6 +319,9 @@ namespace Kudos.Bot {
 				}
 
 				string[] userData = parameters[index].Split("#");
+				if (userData[0].StartsWith('@')) {
+					userData[0] = userData[0].Substring(1);
+				}
 				if (userData.Length == 2) {
 					user = Program.Client.GetSocketUserByUsername(userData[0], userData[1]);
 				}

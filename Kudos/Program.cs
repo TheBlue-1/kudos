@@ -34,6 +34,9 @@ namespace Kudos {
 			db.Database.Migrate();
 			string botToken;
 
+			string html = new HtmlGenerator().LongDescription();
+
+			FileService.Instance.WriteFile("description.html", html);
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
 
 			if (settings.ContainsKey("bot_list_token")) {
