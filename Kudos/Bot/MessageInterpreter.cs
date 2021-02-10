@@ -72,7 +72,7 @@ namespace Kudos.Bot {
 				throw new Exception("command modules must be singletons");
 			}
 
-			if (command.Parameter.Last().ParameterInfo.ParameterType == typeof (string)) {
+			if (command.Parameter.LastOrDefault()?.ParameterInfo?.ParameterType == typeof (string)) {
 				int count = command.Parameter.Length;
 				for (int i = count; i < Parameters.Length; i++) {
 					Parameters[count - 1] += " " + Parameters[i];
