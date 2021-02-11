@@ -3,259 +3,279 @@
 
 <head>
     <title>Kudos</title>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta property="og:type" content="website"/>
-    <meta property="og:image" content="/logo.png"/>
-    <meta property="og:image:secure_url" content="/logo.png"/>
-    <meta property="og:image:type" content="image/png"/>
-    <meta property="og:locale" content="en_US"/>
-    <meta property="og:locale:alternate" content="en_GB"/>
-    <meta property="og:site_name" content="Jupiter"/>
-    <meta name="audience" lang="EN-US" content="developer,discord,gamer,programmer,gentleman"/>
-    <meta name="copyright" content="Maximilian Mayrhofer 2021"/>
-    <meta property="og:url" content="/"/>
-    <meta name="keywords" content="Discord, Bot, Kudos, Honor, Economy"/>
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/logo.png" />
+    <meta property="og:image:secure_url" content="/logo.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="en_GB" />
+    <meta property="og:site_name" content="Kudos" />
+    <meta name="audience" lang="EN-US" content="developer,discord,gamer,programmer,gentleman" />
+    <meta name="copyright" content="Maximilian Mayrhofer 2021" />
+    <meta property="og:url" content="/" />
+    <meta name="keywords" content="Discord, Bot, Kudos, Honor, Economy" />
 
-    <meta property="og:title" content="Kudos - Discord Bot with Honor Economy and Automation Features"/>
+    <meta property="og:title" content="Kudos - Discord Bot with Honor Economy and Automation Features" />
     <meta property="og:description"
-          content="Nice discord bot with honor economy, automation features, reminders, server calls, anonymous questions and much more! Invite Kudos now! "/>
+        content="Nice discord bot with honor economy, automation features, reminders, server calls, anonymous questions and much more! Invite Kudos now! " />
     <meta name="description"
-          content="Nice discord bot with honor economy, automation features, reminders, server calls, anonymous questions and much more! Invite Kudos now! "/>
-
+        content="Nice discord bot with honor economy, automation features, reminders, server calls, anonymous questions and much more! Invite Kudos now! " />
 </head>
 
 <body>
-<link rel=" stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css"/>
+    <link rel=" stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css" />
 
-<style>
-    * { box-sizing: border-box; }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    h2:target::after {
-        animation: targetfade 2s ease-out;
-        content: "";
-        display: block;
-        height: 32px;
-        margin: -32px 0 0;
-    }
-
-
-    h2:before {
-        content: "";
-        display: block;
-        height: 22px;
-        margin: -22px 0 0;
-    }
-
-    #background {
-        background-color: transparent;
-        background-image: linear-gradient(135deg,
-                                          transparent 24.75%,
-                                          #ffcd79 24.75%,
-                                          #ffcd79 25.25%,
-                                          transparent 25.25%),
-                          linear-gradient(225deg,
-                                          transparent 24.75%,
-                                          #ffcd79 24.75%,
-                                          #ffcd79 25.25%,
-                                          transparent 25.25%),
-                          linear-gradient(45deg,
-                                          transparent 24.75%,
-                                          #ffcd79 24.75%,
-                                          #ffcd79 25.25%,
-                                          transparent 25.25%),
-                          linear-gradient(315deg,
-                                          transparent 24.75%,
-                                          #ffcd79 24.75%,
-                                          #ffcd79 25.25%,
-                                          transparent 25.25%);
-        background-position: 160px 0, 160px 0, 0 0, 0 0;
-        background-repeat: repeat;
-        background-size: 320px 320px;
-        height: 100%;
-        left: 0;
-        opacity: 1;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: -1;
-    }
-
-    .content {
-        background-color: rgb(32, 43, 56);
-        background-color: rgba(32, 43, 56, 0.75);
-    }
-
-    @keyframes typed {
-        0%,
-        6.6656666667% { content: "K"; }
-
-        6.6666666667%,
-        13.3323333333% { content: "Ku"; }
-
-        13.3333333333%,
-        19.999% { content: "Kud"; }
-
-        20%,
-        26.6656666667% { content: "Kudo"; }
-
-        26.6666666667%,
-        99.999% { content: "Kudos"; }
-
-        100%,
-        99.999% { content: ""; }
-    }
-
-    @keyframes beam-blink {
-        75% { border-color: transparent; }
-    }
-
-    @keyframes targetfade {
-        0% { background-color: #ffcd79; }
-
-        100% { background-color: transparent; }
-    }
-
-    #title {
-        color: #ffcd79;
-        display: flex;
-        font-size: 40px;
-        height: 50px;
-        width: 100%;
-    }
-
-    #title::after {
-        animation: typed 5s linear 1s infinite, beam-blink 1s infinite;
-        border-right: 10px solid #ffcd79;
-        border-right: 10px solid rgba(255, 205, 121, 0.733);
-        border-right: calc(1.1vw + 4px) solid rgba(255, 205, 121, 0.733);
-        content: "​";
-        display: inline-block;
-        padding-right: 3px;
-        padding-right: calc(3px + 0.1vw);
-        position: relative;
-        text-shadow: 0 0 5px #ffcd79;
-        text-shadow: 0 0 5px rgba(255, 205, 121, 0.733);
-        top: -13px;
-        white-space: nowrap;
-    }
-
-    nav {
-        background-color: rgb(32, 43, 56);
-        background-color: rgba(32, 43, 56, 0.75);
-        left: 0;
-        position: sticky;
-        top: 0;
-    }
-
-    nav ul {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        text-align: center;
-    }
-</style>
-<div id="background"></div>
-<div class="content">
-    <div id="title"></div>
-    <nav>
-        <ul>
-            <li>
-                <a href="#features">Features</a>
-            </li>
-            <li>
-                <a href="#commands">Commands</a>
-            </li>
-            <li>
-                <a href="#settings">Settings</a>
-            </li>
-            <li>
-                <a href="#howto">How To</a>
-            </li>
-            <li>
-                <a href="#beta">Beta</a>
-            </li>
-        </ul>
-    </nav>
-    <!-- ReSharper disable Asp.Entity -->
-    <button style="float: right;"
-            onclick="location.href = 'https://discord.com/oauth2/authorize?client_id=719571683517792286&permissions=228417&redirect_uri=https%3A%2F%2Fdiscord.gg%2FdkCPEmr8eb&response_type=code&scope=bot%20guilds.join'">
-        Invite Me
-    </button>
-    <!-- ReSharper restore Asp.Entity -->
-    <h3>
-        While the Bots main feature is a honor/ranking system, Kudos also comes
-        with a bunch of features for reminders, server calls and options for automated
-        tasks and features.
-    </h3>
-
-    <h2 id="features">Features</h2>
-    <h3>Kudos Economy</h3>
-    Honor your friends and/or helpful people! You can give/take 7 honor per day! There are leader boards and
-    balances!<br>
-    It is a global economy, so your balance is the same on all servers.
-    <h3>Server Group Calls </h3>
-    You don't want to have that many private group calls? (because of spam, call sound, mess)<br>
-    Our solution is a server voice channel where you can send an invitation to all members of the call!
-    Automatically by joining or by command!<br>
-    Spam protection included. You can add whole roles and single users.
-    <h3>Automatic Responses</h3>
-    Configure the bot to respond to certain messages! It can send pictures, reactions, messages and an honor
-    panel!<br>
-    It uses "*" at begin or end as wildcard.
-    <h3>Rememberer</h3>
-    You can create reminders for birthdays, sleep times, when your food is ready and so on! Easy to use with
-    timespans or exact time!
-    <h3>Anonymous Questions</h3>
-    Ask a question completely anonymous! The bot will send your question to the receiver and the answer to you!
+        h2:target::after {
+            animation: targetfade 2s ease-out;
+            content: "";
+            display: block;
+            height: 32px;
+            margin: -32px 0 0;
+        }
 
 
-    <h2 id="commands"> Commands</h2>
+        h2:before {
+            content: "";
+            display: block;
+            height: 22px;
+            margin: -22px 0 0;
+        }
 
-    <commands></commands>
-    <h2 id="settings">Settings</h2>
-    <table>
-        <settings></settings>
-    </table>
-    <h3>Examples</h3>
-    <table>
-        <tr>
-            <td>set <b>prefix</b> server wide</td>
-            <td>
-                <b>k!gs prefix "kudos!"</b>
-            </td>
-        </tr>
-        <tr>
-            <td>unset(to default) <b> prefix </b> personal</td>
-            <td>
-                <b> k!s prefix</b>
-            </td>
-        </tr>
-        <tr>
-            <td>set <b> autoreact </b> for messages ending with <b> haha </b> to <b>😂</b> personal</td>
-            <td>
-                <b> k!s autoreact "😂" "*haha"</b>
-            </td>
-        </tr>
-        <tr>
-            <td>unset <b> automessage </b> for messages starting with <b> haha </b> server wide</td>
-            <td>
-                <b> k!gs automessage - "haha*"</b>
-            </td>
-        </tr>
-    </table>
-    <h2 id="howto">How To</h2>
-    <h4>
-        [type|name?(default)] <br/>
-        type is the type of the parameter<br/>
-        name is the name of the parameter <br/>
-        ? means it's an optional parameter <br/>
-        default is the default value (used when no value is given)
-    </h4>
-    <p>
+        #background {
+            background-color: transparent;
+            background-image: linear-gradient(135deg,
+                    transparent 24.75%,
+                    #ffcd79 24.75%,
+                    #ffcd79 25.25%,
+                    transparent 25.25%),
+                linear-gradient(225deg,
+                    transparent 24.75%,
+                    #ffcd79 24.75%,
+                    #ffcd79 25.25%,
+                    transparent 25.25%),
+                linear-gradient(45deg,
+                    transparent 24.75%,
+                    #ffcd79 24.75%,
+                    #ffcd79 25.25%,
+                    transparent 25.25%),
+                linear-gradient(315deg,
+                    transparent 24.75%,
+                    #ffcd79 24.75%,
+                    #ffcd79 25.25%,
+                    transparent 25.25%);
+            background-position: 160px 0, 160px 0, 0 0, 0 0;
+            background-repeat: repeat;
+            background-size: 320px 320px;
+            height: 100%;
+            left: 0;
+            opacity: 1;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: -1;
+        }
+
+        .content {
+            background-color: rgb(32, 43, 56);
+            background-color: rgba(32, 43, 56, 0.75);
+        }
+
+        @keyframes typed {
+
+            0%,
+            6.6656666667% {
+                content: "K";
+            }
+
+            6.6666666667%,
+            13.3323333333% {
+                content: "Ku";
+            }
+
+            13.3333333333%,
+            19.999% {
+                content: "Kud";
+            }
+
+            20%,
+            26.6656666667% {
+                content: "Kudo";
+            }
+
+            26.6666666667%,
+            99.999% {
+                content: "Kudos";
+            }
+
+            100%,
+            99.999% {
+                content: "";
+            }
+        }
+
+        @keyframes beam-blink {
+            75% {
+                border-color: transparent;
+            }
+        }
+
+        @keyframes targetfade {
+            0% {
+                background-color: #ffcd79;
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        #title {
+            color: #ffcd79;
+            display: flex;
+            font-size: 40px;
+            height: 50px;
+            width: 100%;
+        }
+
+        #title::after {
+            animation: typed 5s linear 1s infinite, beam-blink 1s infinite;
+            border-right: 10px solid #ffcd79;
+            border-right: 10px solid rgba(255, 205, 121, 0.733);
+            border-right: calc(1.1vw + 4px) solid rgba(255, 205, 121, 0.733);
+            content: "​";
+            display: inline-block;
+            padding-right: 3px;
+            padding-right: calc(3px + 0.1vw);
+            position: relative;
+            text-shadow: 0 0 5px #ffcd79;
+            text-shadow: 0 0 5px rgba(255, 205, 121, 0.733);
+            top: -13px;
+            white-space: nowrap;
+        }
+
+        nav {
+            background-color: rgb(32, 43, 56);
+            background-color: rgba(32, 43, 56, 0.75);
+            left: 0;
+            position: sticky;
+            top: 0;
+        }
+
+        nav ul {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+    </style>
+    <div id="background"></div>
+    <div class="content">
+        <div id="title"></div>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#features">Features</a>
+                </li>
+                <li>
+                    <a href="#commands">Commands</a>
+                </li>
+                <li>
+                    <a href="#settings">Settings</a>
+                </li>
+                <li>
+                    <a href="#howto">How To</a>
+                </li>
+                <li>
+                    <a href="#beta">Beta</a>
+                </li>
+            </ul>
+        </nav>
+        <!-- ReSharper disable Asp.Entity -->
+        <button style="float: right;"
+            onclick=" var win = window.open('https://discord.com/oauth2/authorize?client_id=719571683517792286&permissions=228417&redirect_uri=https%3A%2F%2Fdiscord.gg%2FdkCPEmr8eb&response_type=code&scope=bot%20guilds.join', '_blank');win.focus();">
+            Invite Me
+        </button>
+        <!-- ReSharper restore Asp.Entity -->
+        <h3>
+            While the Bots main feature is a honor/ranking system, Kudos also comes
+            with a bunch of features for reminders, server calls and options for automated
+            tasks and features.
+        </h3>
+
+        <h2 id="features">Features</h2>
+        <h3>Kudos Economy</h3>
+        Honor your friends and/or helpful people! You can give/take 7 honor per day! There are leader boards and
+        balances!<br>
+        It is a global economy, so your balance is the same on all servers.
+        <h3>Server Group Calls </h3>
+        You don't want to have that many private group calls? (because of spam, call sound, mess)<br>
+        Our solution is a server voice channel where you can send an invitation to all members of the call!
+        Automatically by joining or by command!<br>
+        Spam protection included. You can add whole roles and single users.
+        <h3>Automatic Responses</h3>
+        Configure the bot to respond to certain messages! It can send pictures, reactions, messages and an honor
+        panel!<br>
+        It uses "*" at begin or end as wildcard.
+        <h3>Rememberer</h3>
+        You can create reminders for birthdays, sleep times, when your food is ready and so on! Easy to use with
+        timespans or exact time!
+        <h3>Anonymous Questions</h3>
+        Ask a question completely anonymous! The bot will send your question to the receiver and the answer to you!
+
+
+        <h2 id="commands"> Commands</h2>
+
+        <commands></commands>
+        <h2 id="settings">Settings</h2>
+        <table>
+            <settings></settings>
+        </table>
+        <h3>Examples</h3>
+        <table>
+            <tr>
+                <td>set <b>prefix</b> server wide</td>
+                <td>
+                    <b>k!gs prefix "kudos!"</b>
+                </td>
+            </tr>
+            <tr>
+                <td>unset(to default) <b> prefix </b> personal</td>
+                <td>
+                    <b> k!s prefix</b>
+                </td>
+            </tr>
+            <tr>
+                <td>set <b> autoreact </b> for messages ending with <b> haha </b> to <b>😂</b> personal</td>
+                <td>
+                    <b> k!s autoreact "😂" "*haha"</b>
+                </td>
+            </tr>
+            <tr>
+                <td>unset <b> automessage </b> for messages starting with <b> haha </b> server wide</td>
+                <td>
+                    <b> k!gs automessage - "haha*"</b>
+                </td>
+            </tr>
+        </table>
+        <h2 id="howto">How To</h2>
+        <h4>
+            [type|name?(default)] <br />
+            type is the type of the parameter<br />
+            name is the name of the parameter <br />
+            ? means it's an optional parameter <br />
+            default is the default value (used when no value is given)
+        </h4>
+        <p>
         <h4> For example:</h4>
         <b> honor [u|honoredUser] [n|count?(1)]</b>
         <table>
@@ -287,26 +307,25 @@
                 </td>
             </tr>
         </table>
-    </p>
-    <h3>Types</h3>
-    <table>
-        <types></types>
-    </table>
-    <h2 id="beta">Kudos Beta</h2>
-    <p>
-        <b>
-            For more recent features and updates make sure to invite
-            <a href="https://discord.com/api/oauth2/authorize?client_id=720622422654451763&permissions=8&scope=bot">
-                Kudos
-                - Beta
-            </a>
-            to your Server
-        </b>
-    </p>
-    <footer>
-        Imprint: Maximilian Mayrhofer ~ Software Developer, Breitenfurt bei Wien - Austria
-    </footer>
-</div>
+        </p>
+        <h3>Types</h3>
+        <table>
+            <types></types>
+        </table>
+        <h2 id="beta">Kudos Beta</h2>
+        <p>
+            <b>
+                For more recent features and updates make sure to invite
+                <a href="https://discord.com/api/oauth2/authorize?client_id=720622422654451763&permissions=8&scope=bot"
+                    target="_blank">
+                    Kudos - Beta</a>
+                to your Server
+            </b>
+        </p>
+        <footer>
+            Imprint: Maximilian Mayrhofer ~ Software Developer, Breitenfurt bei Wien - Austria
+        </footer>
+    </div>
 
 </body>
 
