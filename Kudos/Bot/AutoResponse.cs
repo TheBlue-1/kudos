@@ -20,7 +20,12 @@ namespace Kudos.Bot {
 
 		private static async Task AutoHonor(SocketMessage message) {
 			message.Settings()[SettingNames.AutoHonor].Value(out ImmutableHashSet<string> messages);
-			if (messages.Any(needle => NeedleContained(message.Content, needle))) {
+			if (messages.Any(needle => {
+				if (!needle.StartsWith('*') && !needle.EndsWith('*')) {
+					needle = $"*{needle}*";
+				}
+				return NeedleContained(message.Content, needle);
+			})) {
 				if (message.MentionedUsers.Count != 1) {
 					return;
 				}
