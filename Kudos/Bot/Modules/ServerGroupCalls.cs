@@ -214,6 +214,9 @@ namespace Kudos.Bot.Modules {
 			foreach (ulong groupUserId in userIds.Where(groupUserId => alreadyInChannel.All(channelUser => channelUser.Id != groupUserId))) {
 				try {
 					SocketUser groupUser = Program.Client.GetSocketUserById(groupUserId);
+					if (groupUser.IsBot) {
+						continue;
+					}
 					IDMChannel groupUserChannel = await groupUser.GetOrCreateDMChannelAsync();
 
 					IReadOnlyCollection<IInviteMetadata> invites = await channel.GetInvitesAsync();

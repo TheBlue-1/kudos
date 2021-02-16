@@ -9,7 +9,7 @@ namespace Kudos.Models {
 	public abstract class SettingList {
 		[JsonProperty]
 		protected readonly ListSetting<string> AutoHonor = SettingBase.Create(SettingNames.AutoHonor, ImmutableHashSet<string>.Empty,
-			"Reacts with a honor message (honor without command) when someone writes [value]");
+			"Reacts with a honor message (honor without command) when someone writes [value] and mentions a user");
 		[JsonProperty]
 		protected readonly DictionarySetting<string, string> AutoImage = SettingBase.Create(SettingNames.AutoImage, ImmutableDictionary<string, string>.Empty,
 			"Sends image with url [value] when someone writes [key]");

@@ -65,19 +65,43 @@ namespace Kudos.Bot.Modules {
 		}
 
 		[Command("say", "says whatever you write behind say")]
-		public async Task<IUserMessage> SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) =>
-			await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
+		public async Task<IUserMessage> SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
+			if (text.Length <= 2048) {
+				return await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
+			}
+
+			return await SendEmbed(channel, new EmbedBuilder().SetDefaults().AddField(new EmbedFieldBuilder { Value = text }));
+		}
 
 		[Command("ping", "shows the last pings")]
 		public async Task SendPing([CommandParameter] ISocketMessageChannel channel) {
 			await SendMessage(channel, PingMessage);
 		}
 
+		public async Task<int> SendToAdmins(string message) {
+			int notReceived = 0;
+			foreach (SocketGuild guild in Program.Client.Guilds) {
+				foreach (SocketGuildUser guildUser in guild.Users) {
+					if (guildUser.IsBot || !guildUser.IsGuildAdmin()) {
+						continue;
+					}
+					try {
+						await SendMessage(await guildUser.GetOrCreateDMChannelAsync(), message);
+					}
+					catch (Exception e) {
+						notReceived++;
+						if (e.GetType() == typeof (Exception)) { }
+					}
+				}
+			}
+			return notReceived;
+		}
+
 		public async Task SendWelcomeMessage(SocketGuild guild) {
 			string message =
 				$"Hello,\n I'm Kudos and I was added to {guild.Name}.\n As an administrator you can use all of my features!\n You can also DM me. \n For a description and a list just type `k!help` or visit [Top.gg](https://top.gg/bot/719571683517792286) \n If you like the Bot please give us 5 Stars at [Top.gg Reviews](https://top.gg/bot/719571683517792286#reviews)";
 			foreach (SocketGuildUser guildUser in guild.Users) {
-				if (!guildUser.IsGuildAdmin()) {
+				if (guildUser.IsBot || !guildUser.IsGuildAdmin()) {
 					continue;
 				}
 				try {

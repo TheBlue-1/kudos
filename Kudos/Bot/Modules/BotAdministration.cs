@@ -43,6 +43,12 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendExpiringMessage(channel, "banned", new TimeSpan(0, 0, 15));
 		}
 
+		[Command("adminmsg", "sends a message to all guild admins")]
+		public async Task MessageAdmins([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string message) {
+			int notReceived = await Messaging.Instance.SendToAdmins(message);
+			await Messaging.Instance.SendMessage(channel, $"sent successfully. {notReceived} didn't receive the message");
+		}
+
 		[Command("guilds", "shows all guilds of the bot")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
 			SocketGuild[] guilds = Program.Client.Guilds.OrderBy(guild => guild.Name).ToArray();

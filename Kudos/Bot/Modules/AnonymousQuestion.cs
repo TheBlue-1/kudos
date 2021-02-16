@@ -8,7 +8,6 @@ using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.DatabaseModels;
 using Kudos.Exceptions;
-using Kudos.Extensions;
 using Kudos.Models;
 using Kudos.Utils;
 
@@ -40,6 +39,9 @@ namespace Kudos.Bot.Modules {
 
 		[Command("answer", "answers anonymous question")]
 		public async Task Answer([CommandParameter(0)] ulong questionId, [CommandParameter(1)] string message, [CommandParameter] SocketUser answerer) {
+			if (answerer.IsBot) {
+				throw new KudosInvalidOperationException("You can't send questions to a bot");
+			}
 			QuestionData question = AnonymousQuestions.FirstOrDefault(questionData => questionData.Id == questionId)
 				?? throw new KudosKeyNotFoundException($"No question found for id {questionId}");
 
@@ -49,7 +51,7 @@ namespace Kudos.Bot.Modules {
 
 			RestUser restQuestionnaire = await Program.Client.GetRestUserById(question.Questionnaire);
 
-			IDMChannel answererChannel = await answerer.DmChannel();
+			IDMChannel answererChannel = await answerer.GetOrCreateDMChannelAsync();
 			IDMChannel questionnaireChannel = await restQuestionnaire.GetOrCreateDMChannelAsync();
 			try {
 				await Messaging.Instance.SendMessage(questionnaireChannel,

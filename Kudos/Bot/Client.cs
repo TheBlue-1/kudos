@@ -90,7 +90,14 @@ namespace Kudos.Bot {
 
 		private static Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			new Func<Task>(async () => {
-				IUserMessage message = await arg1.GetOrDownloadAsync();
+				IUserMessage message;
+				try {
+					message = await arg1.GetOrDownloadAsync();
+				}
+				catch (Exception) {
+					return;
+				}
+
 				if (message?.Author?.Id == Program.Client.BotUserId && arg3.UserId != Program.Client.BotUserId) {
 					await Honor.Instance.HonorUserWithReaction(message, arg3);
 				}
