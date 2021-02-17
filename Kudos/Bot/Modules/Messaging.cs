@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
+using Kudos.Exceptions;
 using Kudos.Extensions;
 
 // ReSharper disable UnusedMember.Global
@@ -66,11 +67,19 @@ namespace Kudos.Bot.Modules {
 
 		[Command("say", "says whatever you write behind say")]
 		public async Task<IUserMessage> SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
+			if (text.Length > 6000 - 25 - 55) //25 for field names,55 for footer+title
+			{
+				throw new KudosInternalException("Tried to send message with more than 6000 chars");
+			}
 			if (text.Length <= 2048) {
 				return await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
 			}
-
-			return await SendEmbed(channel, new EmbedBuilder().SetDefaults().AddField(new EmbedFieldBuilder { Value = text }));
+			EmbedBuilder builder = new EmbedBuilder().SetDefaults();
+			string[] textParts = text.SplitAtSpace(25, 1024);
+			foreach (string part in textParts) {
+				builder.AddField(new EmbedFieldBuilder { Value = part, Name = "\u200b" });
+			}
+			return await SendEmbed(channel, builder);
 		}
 
 		[Command("ping", "shows the last pings")]

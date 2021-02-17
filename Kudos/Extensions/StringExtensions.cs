@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Kudos.Bot;
 using Kudos.Exceptions;
@@ -50,6 +51,24 @@ namespace Kudos.Extensions {
 				readable += "now ";
 			}
 			return readable;
+		}
+
+		public static string[] SplitAtSpace(this string text, int maxParts, int maxPartLength) {
+			List<string> parts = new List<string>();
+			for (int i = 0; i < maxParts; i++) {
+				if (text.Length < maxPartLength) {
+					parts.Add(text);
+					break;
+				}
+				int spaceIndex = text.LastIndexOf(' ', Math.Min(maxPartLength, text.Length - 1));
+				if (spaceIndex == -1 || spaceIndex < text.Length - (maxParts - (i + 1)) * maxPartLength) {
+					spaceIndex = maxPartLength - 1;
+				}
+
+				parts.Add(text.Remove(spaceIndex));
+				text = text.Substring(spaceIndex + 1);
+			}
+			return parts.ToArray();
 		}
 
 		public static TValue ToValue<TValue>(this string value, int parameterIndex, Settings settings) {
