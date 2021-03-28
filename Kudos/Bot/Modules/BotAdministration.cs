@@ -44,6 +44,19 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendExpiringMessage(channel, "banned", new TimeSpan(0, 0, 15));
 		}
 
+		public async Task CheckUser([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user) {
+			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
+			IEnumerable<SocketGuildUser> users = guilds.SelectMany(g => g.Users);
+			IEnumerable<SocketGuild> servers = users.Where(u => u.Id == user.Id).Select(u => u.Guild).ToArray();
+			if (!servers.Any()) {
+				await Messaging.Instance.SendMessage(channel, "User is not known");
+				return;
+			}
+			string message = servers.Aggregate("User is known from the following servers",
+				(current, socketGuild) => current + $"\n{socketGuild.Name}|{socketGuild.Id}");
+			await Messaging.Instance.SendMessage(channel, message);
+		}
+
 		[Command("adminmsg", "sends a message to all guild admins")]
 		public async Task MessageAdmins([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string message) {
 			int notReceived = await Messaging.Instance.SendToAdmins(message);
@@ -53,8 +66,8 @@ namespace Kudos.Bot.Modules {
 		[Command("guilds", "shows all guilds of the bot")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
 			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
-			int userCount = guilds.SelectMany(g => g.Users).Distinct().Count();
-			string message = $"I am present on {guilds.Length} guilds with a total of {userCount} users";
+			IEnumerable<SocketGuildUser> users = guilds.SelectMany(g => g.Users).GroupBy(user => user.Id).Select(group => group.First()).ToArray();
+			string message = $"I am present on {guilds.Length} guilds with a total of {users.Count()} users ({users.Where(user => user.IsBot)} are bots)";
 			if (!Program.IsBotListBot) {
 				message += "\nI am not the real Kudos (just a test/beta version)";
 			}
