@@ -68,7 +68,7 @@ namespace Kudos.Bot.Modules {
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
 			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
 			IEnumerable<SocketGuildUser> users = guilds.SelectMany(g => g.Users).GroupBy(user => user.Id).Select(group => group.First()).ToArray();
-			string message = $"I am present on {guilds.Length} guilds with a total of {users.Count()} users ({users.Where(user => user.IsBot)} are bots)";
+			string message = $"I am present on {guilds.Length} guilds with a total of {users.Count()} users ({users.Count(user => user.IsBot)} are bots)";
 			if (!Program.IsBotListBot) {
 				message += "\nI am not the real Kudos (just a test/beta version)";
 			}
