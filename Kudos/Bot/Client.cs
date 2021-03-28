@@ -36,7 +36,6 @@ namespace Kudos.Bot {
 			GuildPermission.SendMessages, GuildPermission.ViewChannel, GuildPermission.UseExternalEmojis, GuildPermission.ManageMessages,
 			GuildPermission.AddReactions, GuildPermission.ReadMessageHistory
 		};
-		public SocketSelfUser Self => _client.CurrentUser;
 		public string State => _loggedIn ? _connected ? _client.Status.ToString() : "connecting" : "logging in";
 		private string Token { get; }
 

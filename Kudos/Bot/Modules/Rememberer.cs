@@ -120,7 +120,11 @@ namespace Kudos.Bot.Modules {
 		private static void SendRememberer(object sender, TimerData data) {
 			new Func<Task>(async () => {
 				IMessageChannel channel = Program.Client.GetMessageChannelById(data.ChannelId);
-				await Messaging.Instance.SendMessage(channel, "**Reminder: **" + data.Message);
+				if (data.Message.StartsWith('=')) {
+					await Messaging.Instance.SendMessage(channel, "=**Reminder: **" + data.Message.Substring(1));
+				} else {
+					await Messaging.Instance.SendMessage(channel, "**Reminder: **" + data.Message);
+				}
 			}).RunAsyncSave();
 		}
 

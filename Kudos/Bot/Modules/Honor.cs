@@ -152,24 +152,37 @@ namespace Kudos.Bot.Modules {
 			int honor = BalanceOf(user.Id);
 			string honorMessage;
 
-			if (honor < -100) {
-				int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
-				honorMessage = HonorFeedbackLowest[index];
-			} else if (honor < -50) {
-				int index = Program.Random.Next(0, HonorFeedbackLower.Length);
-				honorMessage = HonorFeedbackLower[index];
-			} else if (honor < 0) {
-				int index = Program.Random.Next(0, HonorFeedbackLow.Length);
-				honorMessage = HonorFeedbackLow[index];
-			} else if (honor < 50) {
-				int index = Program.Random.Next(0, HonorFeedbackHigh.Length);
-				honorMessage = HonorFeedbackHigh[index];
-			} else if (honor <= 100) {
-				int index = Program.Random.Next(0, HonorFeedbackHigher.Length);
-				honorMessage = HonorFeedbackHigher[index];
-			} else {
-				int index = Program.Random.Next(0, HonorFeedbackHighest.Length);
-				honorMessage = HonorFeedbackHighest[index];
+			switch (honor) {
+				case < -100 : {
+					int index = Program.Random.Next(0, HonorFeedbackLowest.Length);
+					honorMessage = HonorFeedbackLowest[index];
+					break;
+				}
+				case < -50 : {
+					int index = Program.Random.Next(0, HonorFeedbackLower.Length);
+					honorMessage = HonorFeedbackLower[index];
+					break;
+				}
+				case < 0 : {
+					int index = Program.Random.Next(0, HonorFeedbackLow.Length);
+					honorMessage = HonorFeedbackLow[index];
+					break;
+				}
+				case < 50 : {
+					int index = Program.Random.Next(0, HonorFeedbackHigh.Length);
+					honorMessage = HonorFeedbackHigh[index];
+					break;
+				}
+				case <= 100 : {
+					int index = Program.Random.Next(0, HonorFeedbackHigher.Length);
+					honorMessage = HonorFeedbackHigher[index];
+					break;
+				}
+				default : {
+					int index = Program.Random.Next(0, HonorFeedbackHighest.Length);
+					honorMessage = HonorFeedbackHighest[index];
+					break;
+				}
 			}
 
 			await Messaging.Instance.SendMessage(channel, $"***{user.Mention}*** has ***{honor}*** honor points. \n***{honorMessage}***");

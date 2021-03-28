@@ -93,7 +93,7 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(intParameter.Type, intParameter);
 			ParameterType ulongParameter = new ParameterType<ulong>('p', "a positive number", ParameterAsULong);
 			ParameterTypes.TryAdd(ulongParameter.Type, ulongParameter);
-			ParameterType stringParameter = new ParameterType<string>('t', "a text", ParametersAsString);
+			ParameterType stringParameter = new ParameterType<string>('t', "a text (use `=` at the beginning to use no embed)", ParametersAsString);
 			ParameterTypes.TryAdd(stringParameter.Type, stringParameter);
 			ParameterType userParameter = new ParameterType<SocketUser>('u', "a user mention or @username#number", ParameterAsSocketUser);
 			ParameterTypes.TryAdd(userParameter.Type, userParameter);

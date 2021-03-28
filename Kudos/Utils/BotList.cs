@@ -7,7 +7,7 @@ using DiscordBotsList.Api.Objects;
 namespace Kudos.Utils {
 	public class BotList {
 		private static BotList _instance;
-		private AuthDiscordBotListApi Api { get; set; }
+		private AuthDiscordBotListApi Api { get; init; }
 		public IDblSelfBot ThisBot { get; private set; }
 
 		private BotList() { }

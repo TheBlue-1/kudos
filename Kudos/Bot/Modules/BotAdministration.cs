@@ -26,7 +26,6 @@ namespace Kudos.Bot.Modules {
 
 		[Command("ban", "bans a person")]
 		public async Task Ban([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user, [CommandParameter(1)] bool hardBan) {
-			BanData b = new();
 			Bans.Add(new BanData { UserId = user.Id, HardBan = hardBan });
 			if (hardBan) {
 				IEnumerable<HonorData> honors = DatabaseSyncedList.Instance<HonorData>().Where(h => h.Honorer == user.Id || h.Honored == user.Id);
@@ -62,7 +61,7 @@ namespace Kudos.Bot.Modules {
 			message = guilds.Aggregate(message,
 				(current, guild) =>
 					current
-					+ $"\n({guild.Users?.Count}|{guild.Users?.Where(u => u.IsBot)?.Count()}|{guild.Users?.Where(u => u.IsGuildAdmin())?.Count()}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
+					+ $"\n({guild.Users?.Count}|{guild.Users?.Where(u => u.IsBot).Count()}|{guild.Users?.Where(u => u.IsGuildAdmin()).Count()}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
 
 			await Messaging.Instance.SendMessage(channel, message);
 		}
