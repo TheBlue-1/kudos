@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Kudos.Extensions {
 	public static class CollectionExtensions {
 		public static async Task<IEnumerable<T>> AwaitAll<T>(this IAsyncEnumerable<IReadOnlyCollection<T>> asyncCollection) {
-			List<T> list = new List<T>();
+			List<T> list = new();
 			await asyncCollection.ForEachAsync(collection => { list.AddRange(collection); });
 			return list;
 		}

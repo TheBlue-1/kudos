@@ -12,7 +12,7 @@ using Kudos.Models;
 
 namespace Kudos.Bot {
 	public sealed class AutoResponse {
-		public static AutoResponse Instance { get; } = new AutoResponse();
+		public static AutoResponse Instance { get; } = new();
 
 		static AutoResponse() { }
 

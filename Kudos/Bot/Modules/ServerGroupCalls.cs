@@ -14,13 +14,13 @@ using Kudos.Utils;
 #endregion
 
 namespace Kudos.Bot.Modules {
-	[CommandModule("Server Group Calls")]
+	[CommandModule("Server Group Calls", permissions: new[] { GuildPermission.CreateInstantInvite })]
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class ServerGroupCalls {
 		private DatabaseSyncedList<GroupData> Groups { get; } = DatabaseSyncedList.Instance<GroupData>();
 
-		public static ServerGroupCalls Instance { get; } = new ServerGroupCalls();
-		private Dictionary<ulong, DateTime> Timeouts { get; } = new Dictionary<ulong, DateTime>();
+		public static ServerGroupCalls Instance { get; } = new();
+		private Dictionary<ulong, DateTime> Timeouts { get; } = new();
 
 		static ServerGroupCalls() { }
 
@@ -207,7 +207,7 @@ namespace Kudos.Bot.Modules {
 				}
 			}
 			int errorCount = 0;
-			HashSet<ulong> userIds = new HashSet<ulong>();
+			HashSet<ulong> userIds = new();
 			userIds.UnionWith(group.UserIds);
 			userIds.UnionWith(roleUserIds);
 			IEnumerable<IGuildUser> alreadyInChannel = await UsersInChannel(channel, group, roleUserIds);

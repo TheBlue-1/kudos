@@ -84,7 +84,7 @@ namespace Kudos.Bot {
 		public abstract Type Type { get; }
 
 		public static IEnumerable<ParameterType> KnownParameterTypes => ParameterTypes.Values;
-		private static ConcurrentDictionary<Type, ParameterType> ParameterTypes { get; } = new ConcurrentDictionary<Type, ParameterType>();
+		private static ConcurrentDictionary<Type, ParameterType> ParameterTypes { get; } = new();
 
 		static ParameterType() {
 			ParameterType boolParameter = new ParameterType<bool>('b', "true or false", ParameterAsBool);
@@ -93,7 +93,7 @@ namespace Kudos.Bot {
 			ParameterTypes.TryAdd(intParameter.Type, intParameter);
 			ParameterType ulongParameter = new ParameterType<ulong>('p', "a positive number", ParameterAsULong);
 			ParameterTypes.TryAdd(ulongParameter.Type, ulongParameter);
-			ParameterType stringParameter = new ParameterType<string>('t', "a text", ParametersAsString);
+			ParameterType stringParameter = new ParameterType<string>('t', "a text (use `=` at the beginning to use no embed)", ParametersAsString);
 			ParameterTypes.TryAdd(stringParameter.Type, stringParameter);
 			ParameterType userParameter = new ParameterType<SocketUser>('u', "a user mention or @username#number", ParameterAsSocketUser);
 			ParameterTypes.TryAdd(userParameter.Type, userParameter);
@@ -185,7 +185,7 @@ namespace Kudos.Bot {
 		private static DateTime ParameterAsDate(string[] parameters, DateTime indexLess, int index, bool optional, DefaultValue<DateTime> defaultValue,
 			Optional<DateTime> min, Optional<DateTime> max, bool throwOutOfRange, Settings settings) {
 			Regex dateTimeRegex =
-				new Regex(
+				new(
 					@"^(?:(?:(\d{1,2}))(?:\.(\d{1,2}))?(?:\.(\d{1,4}))?)??(?:(?:(?<!.)(?=.))|(?:(?!.)(?<=.))|(?<=.) (?=.))(?:(?:(\d{1,2}))(?::(\d{1,2}))?(?::(\d{1,2}))?)?(?:(?:(?<!.)(?=.))|(?:(?!.)(?<=.))|(?<=[^ ]) (?=.)|(?<= ))(?:\+(?:(\d{1,3})d)?(?:(\d{1,2})h)?(?:(\d{1,2})m)?(?:(\d{1,2})s)?)?$");
 
 			//$3-$2-$1 $4:$5:$6 + $7d$8h$9m$10s

@@ -26,12 +26,16 @@ namespace Kudos.Bot {
 		private string _lastState;
 
 		private volatile bool _loggedIn;
-		public FixedSizedQueue<int> LastPings = new FixedSizedQueue<int>(5);
+		public FixedSizedQueue<int> LastPings = new(5);
 
 		public ulong BotUserId => _client.CurrentUser.Id;
-
 		private static Task FakeTask => Task.Run(() => true);
 		public IReadOnlyCollection<SocketGuild> Guilds => _client.Guilds;
+
+		public IEnumerable<GuildPermission> Permissions { get; } = new[] {
+			GuildPermission.SendMessages, GuildPermission.ViewChannel, GuildPermission.UseExternalEmojis, GuildPermission.ManageMessages,
+			GuildPermission.AddReactions, GuildPermission.ReadMessageHistory
+		};
 		public string State => _loggedIn ? _connected ? _client.Status.ToString() : "connecting" : "logging in";
 		private string Token { get; }
 
@@ -80,7 +84,7 @@ namespace Kudos.Bot {
 
 		private static Task ClientMessageReceived(SocketMessage arg) {
 			new Action(() => {
-				MessageInterpreter interpreter = new MessageInterpreter(arg);
+				MessageInterpreter interpreter = new(arg);
 				if (interpreter.Executable) {
 					interpreter.TryExecute();
 				}
@@ -133,7 +137,7 @@ namespace Kudos.Bot {
 		[SuppressMessage("ReSharper", "InvertIf")]
 		public void Start() {
 			StateChange();
-			Task connector = new Task(async () => {
+			Task connector = new(async () => {
 				while (true) {
 					try {
 						if (!_loggedIn) {
@@ -185,7 +189,7 @@ namespace Kudos.Bot {
 		public class StateChangedData {
 			private string _value;
 			public static implicit operator string(StateChangedData s) => s._value;
-			public static implicit operator StateChangedData(string s) => new StateChangedData { _value = s };
+			public static implicit operator StateChangedData(string s) => new() { _value = s };
 		}
 	}
 }

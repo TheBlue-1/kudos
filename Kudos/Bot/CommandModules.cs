@@ -11,7 +11,7 @@ using Kudos.Models;
 
 namespace Kudos.Bot {
 	public sealed class CommandModules {
-		public static CommandModules Instance { get; } = new CommandModules();
+		public static CommandModules Instance { get; } = new();
 
 		public IEnumerable<CommandModuleInfo> Modules { get; }
 

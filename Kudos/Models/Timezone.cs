@@ -16,7 +16,7 @@ namespace Kudos.Models {
 			Value = value;
 		}
 
-		public static implicit operator Timezone(double value) => new Timezone(value);
+		public static implicit operator Timezone(double value) => new(value);
 		public static implicit operator double(Timezone timezone) => timezone.Value;
 	}
 }

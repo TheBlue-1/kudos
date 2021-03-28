@@ -19,7 +19,7 @@ namespace Kudos.Models {
 		public static string SettingsListAsHtml {
 			get {
 				string settings = string.Empty;
-				Settings defaultSettings = new Settings();
+				Settings defaultSettings = new();
 				settings = defaultSettings._settings.Values.Aggregate(settings, (current, defaultSetting) => current + defaultSetting.HtmlHelpText);
 				return settings;
 			}
@@ -49,7 +49,7 @@ namespace Kudos.Models {
 		}
 
 		public Settings Merge(Settings userSettings) {
-			return new Settings(ImmutableDictionary.CreateRange(userSettings._settings.Select(settingNamePair => {
+			return new(ImmutableDictionary.CreateRange(userSettings._settings.Select(settingNamePair => {
 				(SettingNames name, SettingBase setting) = settingNamePair;
 				KeyValuePair<SettingNames, SettingBase> serverSetting = _settings.First(serverSettingItem => name == serverSettingItem.Key);
 				return new KeyValuePair<SettingNames, SettingBase>(name, setting.Merge(serverSetting.Value));
@@ -68,13 +68,13 @@ namespace Kudos.Models {
 			EmbedBuilder builder = new EmbedBuilder().SetDefaults();
 
 			EmbedFieldBuilder commandsField = new EmbedFieldBuilder().WithIsInline(false).WithName("Commands");
-			CommandModuleInfo settingsInfo = new CommandModuleInfo(typeof (Bot.Modules.Settings));
+			CommandModuleInfo settingsInfo = new(typeof (Bot.Modules.Settings));
 			string commandDescription = settingsInfo.Commands.First(command => command.Command.Name == "s").ToString();
 			commandsField.WithValue(commandDescription);
 			builder.AddField(commandsField);
 			EmbedFieldBuilder settingsField = new EmbedFieldBuilder().WithIsInline(false).WithName("Settings");
 			string settings = string.Empty;
-			Settings defaultSettings = new Settings();
+			Settings defaultSettings = new();
 			settings = defaultSettings._settings.Values.Aggregate(settings, (current, defaultSetting) => current + defaultSetting.HelpText + "\n");
 			builder.AddField(settingsField.WithValue(settings));
 			EmbedFieldBuilder examplesField = new EmbedFieldBuilder().WithIsInline(false).WithName("Examples");

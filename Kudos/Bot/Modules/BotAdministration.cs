@@ -8,6 +8,7 @@ using DiscordBotsList.Api.Objects;
 using Kudos.Attributes;
 using Kudos.DatabaseModels;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -17,7 +18,7 @@ namespace Kudos.Bot.Modules {
 	[CommandModule("BotAdministration", Accessibility.Hidden)]
 	public sealed class BotAdministration {
 		private DatabaseSyncedList<BanData> Bans { get; } = DatabaseSyncedList.Instance<BanData>();
-		public static BotAdministration Instance { get; } = new BotAdministration();
+		public static BotAdministration Instance { get; } = new();
 
 		static BotAdministration() { }
 
@@ -43,6 +44,20 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendExpiringMessage(channel, "banned", new TimeSpan(0, 0, 15));
 		}
 
+		[Command("checkuser", "checks if a user is known by the bot")]
+		public async Task CheckUser([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user) {
+			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
+			IEnumerable<SocketGuildUser> users = guilds.SelectMany(g => g.Users);
+			IEnumerable<SocketGuild> servers = users.Where(u => u.Id == user.Id).Select(u => u.Guild).ToArray();
+			if (!servers.Any()) {
+				await Messaging.Instance.SendMessage(channel, "User is not known");
+				return;
+			}
+			string message = servers.Aggregate("User is known from the following servers",
+				(current, socketGuild) => current + $"\n{socketGuild.Name}|{socketGuild.Id}");
+			await Messaging.Instance.SendMessage(channel, message);
+		}
+
 		[Command("adminmsg", "sends a message to all guild admins")]
 		public async Task MessageAdmins([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string message) {
 			int notReceived = await Messaging.Instance.SendToAdmins(message);
@@ -52,11 +67,15 @@ namespace Kudos.Bot.Modules {
 		[Command("guilds", "shows all guilds of the bot")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
 			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
-			string message = $"I am present on {guilds.Length} guilds";
+			IEnumerable<SocketGuildUser> users = guilds.SelectMany(g => g.Users).GroupBy(user => user.Id).Select(group => group.First()).ToArray();
+			string message = $"I am present on {guilds.Length} guilds with a total of {users.Count()} users ({users.Count(user => user.IsBot)} are bots)";
 			if (!Program.IsBotListBot) {
 				message += "\nI am not the real Kudos (just a test/beta version)";
 			}
-			message = guilds.Aggregate(message, (current, guild) => current + $"\n({guild.Users?.Count}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
+			message = guilds.Aggregate(message,
+				(current, guild) =>
+					current
+					+ $"\n({guild.Users?.Count}|{guild.Users?.Where(u => u.IsBot).Count()}|{guild.Users?.Where(u => u.IsGuildAdmin()).Count()}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
 
 			await Messaging.Instance.SendMessage(channel, message);
 		}
@@ -81,7 +100,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 
-		[Command("unban", "bans a person")]
+		[Command("unban", "unbans a person")]
 		public async Task UnBan([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user) {
 			BanData ban = Bans.FirstOrDefault(b => b.UserId == user.Id);
 			if (ban == null) {

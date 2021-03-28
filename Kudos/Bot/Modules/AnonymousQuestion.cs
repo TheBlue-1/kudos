@@ -19,7 +19,7 @@ namespace Kudos.Bot.Modules {
 	public class AnonymousQuestion {
 		private DatabaseSyncedList<QuestionData> AnonymousQuestions { get; } = DatabaseSyncedList.Instance<QuestionData>();
 
-		public static AnonymousQuestion Instance { get; } = new AnonymousQuestion();
+		public static AnonymousQuestion Instance { get; } = new();
 
 		private ulong NextId {
 			get {

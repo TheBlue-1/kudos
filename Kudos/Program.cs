@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Kudos {
 	internal class Program {
 		private const int WaitingTimeInMs = 10000;
-		public static Random Random { get; } = new Random();
+		public static Random Random { get; } = new();
 
 		public static Version Version { get; } = Assembly.GetExecutingAssembly().GetName().Version;
 
@@ -30,7 +30,7 @@ namespace Kudos {
 
 		private static void Main() {
 			AppDomain.CurrentDomain.ProcessExit += OnClose;
-			KudosDataContext db = new KudosDataContext();
+			KudosDataContext db = new();
 			db.Database.Migrate();
 			string botToken;
 

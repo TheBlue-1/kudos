@@ -17,7 +17,7 @@ using Kudos.Utils;
 namespace Kudos.Bot.Modules {
 	[CommandModule("Rememberer")]
 	public sealed class Rememberer {
-		public static Rememberer Instance { get; } = new Rememberer();
+		public static Rememberer Instance { get; } = new();
 		private ulong NextId {
 			get {
 				for (ulong i = 0; i < ulong.MaxValue; i++) {
@@ -30,7 +30,7 @@ namespace Kudos.Bot.Modules {
 			}
 		}
 
-		private List<Timer> RunningTimers { get; } = new List<Timer>();
+		private List<Timer> RunningTimers { get; } = new();
 
 		private DatabaseSyncedList<TimerData> TimerData { get; } = DatabaseSyncedList.Instance<TimerData>();
 
@@ -48,7 +48,7 @@ namespace Kudos.Bot.Modules {
 			if (add) {
 				TimerData.Add(timerData);
 			}
-			Timer timer = new Timer(timerData);
+			Timer timer = new(timerData);
 			timer.TimerDead += RemoveTimer;
 			timer.TimerEvent += SendRememberer;
 			timer.TimerDataChanged += TimerDataChanged;
@@ -87,7 +87,7 @@ namespace Kudos.Bot.Modules {
 				throw new KudosInvalidOperationException(
 					"You have reached the current limit of 10 reminders per person. If you have a valid reason to use more than that please get in touch with our support team on our Support server.");
 			}
-			TimerData timerData = new TimerData {
+			TimerData timerData = new() {
 				OwnerId = author.Id, ChannelId = messageChannel?.Id ?? channel.Id, End = end, Message = message, Repeat = repeat, Id = NextId
 			};
 			CreateTimer(timerData);
@@ -120,7 +120,11 @@ namespace Kudos.Bot.Modules {
 		private static void SendRememberer(object sender, TimerData data) {
 			new Func<Task>(async () => {
 				IMessageChannel channel = Program.Client.GetMessageChannelById(data.ChannelId);
-				await Messaging.Instance.SendMessage(channel, "**Reminder: **" + data.Message);
+				if (data.Message.StartsWith('=')) {
+					await Messaging.Instance.SendMessage(channel, "=**Reminder: **" + data.Message.Substring(1));
+				} else {
+					await Messaging.Instance.SendMessage(channel, "**Reminder: **" + data.Message);
+				}
 			}).RunAsyncSave();
 		}
 

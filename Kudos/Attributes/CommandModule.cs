@@ -1,5 +1,7 @@
 ﻿#region
 using System;
+using System.Collections.Generic;
+using Discord;
 #endregion
 
 namespace Kudos.Attributes {
@@ -7,10 +9,12 @@ namespace Kudos.Attributes {
 	public class CommandModule : Attribute {
 		public Accessibility Accessibility { get; }
 		public string Name { get; }
+		public IEnumerable<GuildPermission> Permissions { get; }
 
-		public CommandModule(string name, Accessibility accessibility = Accessibility.Open) {
+		public CommandModule(string name, Accessibility accessibility = Accessibility.Open, GuildPermission[] permissions = null) {
 			Name = name;
 			Accessibility = accessibility;
+			Permissions = permissions ?? Array.Empty<GuildPermission>();
 		}
 	}
 }

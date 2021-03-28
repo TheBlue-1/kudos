@@ -14,7 +14,7 @@ namespace Kudos.Models {
 			Value = word;
 		}
 
-		private static Word Create(string word) => new Word(word);
+		private static Word Create(string word) => new(word);
 		public override string ToString() => Value;
 
 		public static implicit operator string(Word word) => word.Value;
