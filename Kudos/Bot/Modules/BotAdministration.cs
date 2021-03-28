@@ -8,6 +8,7 @@ using DiscordBotsList.Api.Objects;
 using Kudos.Attributes;
 using Kudos.DatabaseModels;
 using Kudos.Exceptions;
+using Kudos.Extensions;
 using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -17,7 +18,7 @@ namespace Kudos.Bot.Modules {
 	[CommandModule("BotAdministration", Accessibility.Hidden)]
 	public sealed class BotAdministration {
 		private DatabaseSyncedList<BanData> Bans { get; } = DatabaseSyncedList.Instance<BanData>();
-		public static BotAdministration Instance { get; } = new BotAdministration();
+		public static BotAdministration Instance { get; } = new();
 
 		static BotAdministration() { }
 
@@ -25,6 +26,7 @@ namespace Kudos.Bot.Modules {
 
 		[Command("ban", "bans a person")]
 		public async Task Ban([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user, [CommandParameter(1)] bool hardBan) {
+			BanData b = new();
 			Bans.Add(new BanData { UserId = user.Id, HardBan = hardBan });
 			if (hardBan) {
 				IEnumerable<HonorData> honors = DatabaseSyncedList.Instance<HonorData>().Where(h => h.Honorer == user.Id || h.Honored == user.Id);
@@ -52,11 +54,15 @@ namespace Kudos.Bot.Modules {
 		[Command("guilds", "shows all guilds of the bot")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
 			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
-			string message = $"I am present on {guilds.Length} guilds";
+			int userCount = guilds.SelectMany(g => g.Users).Distinct().Count();
+			string message = $"I am present on {guilds.Length} guilds with a total of {userCount} users";
 			if (!Program.IsBotListBot) {
 				message += "\nI am not the real Kudos (just a test/beta version)";
 			}
-			message = guilds.Aggregate(message, (current, guild) => current + $"\n({guild.Users?.Count}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
+			message = guilds.Aggregate(message,
+				(current, guild) =>
+					current
+					+ $"\n({guild.Users?.Count}|{guild.Users?.Where(u => u.IsBot)?.Count()}|{guild.Users?.Where(u => u.IsGuildAdmin())?.Count()}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
 
 			await Messaging.Instance.SendMessage(channel, message);
 		}

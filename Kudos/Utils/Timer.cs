@@ -9,7 +9,7 @@ using Kudos.DatabaseModels;
 namespace Kudos.Utils {
 	public class Timer {
 		private bool _dead;
-		private CancellationTokenSource Canceler { get; } = new CancellationTokenSource();
+		private CancellationTokenSource Canceler { get; } = new();
 		private TimerData Data { get; }
 		public ulong Id => Data.Id;
 

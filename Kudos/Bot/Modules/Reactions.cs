@@ -16,7 +16,7 @@ using Kudos.Extensions;
 namespace Kudos.Bot.Modules {
 	[CommandModule("Reactions")]
 	public sealed class Reactions {
-		private static readonly Dictionary<char, IEmote> EmoteMap = new Dictionary<char, IEmote> {
+		private static readonly Dictionary<char, IEmote> EmoteMap = new() {
 			{ 'a', new Emoji("\U0001F1E6") },
 			{ 'b', new Emoji("\U0001F1E7") },
 			{ 'c', new Emoji("\U0001F1E8") },
@@ -44,7 +44,7 @@ namespace Kudos.Bot.Modules {
 			{ 'y', new Emoji("\U0001F1FE") },
 			{ 'z', new Emoji("\U0001F1FF") }
 		};
-		public static Reactions Instance { get; } = new Reactions();
+		public static Reactions Instance { get; } = new();
 
 		static Reactions() { }
 

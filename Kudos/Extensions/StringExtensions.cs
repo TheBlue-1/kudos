@@ -9,8 +9,8 @@ using Kudos.Models;
 
 namespace Kudos.Extensions {
 	public static class StringExtensions {
-		private static readonly Regex NotNormalChars = new Regex("[^a-zA-Z]");
-		private static readonly Regex NotUniqueChars = new Regex("(.).*\\1");
+		private static readonly Regex NotNormalChars = new("[^a-zA-Z]");
+		private static readonly Regex NotUniqueChars = new("(.).*\\1");
 		public static bool JustNormalChars(this string text) => !NotNormalChars.IsMatch(text);
 
 		public static string LikeInput(this TimeSpan timeSpan) {
@@ -54,7 +54,7 @@ namespace Kudos.Extensions {
 		}
 
 		public static string[] SplitAtSpace(this string text, int maxParts, int maxPartLength) {
-			List<string> parts = new List<string>();
+			List<string> parts = new();
 			for (int i = 0; i < maxParts; i++) {
 				if (text.Length < maxPartLength) {
 					parts.Add(text);

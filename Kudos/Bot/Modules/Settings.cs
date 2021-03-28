@@ -16,7 +16,7 @@ using Kudos.Utils;
 namespace Kudos.Bot.Modules {
 	[CommandModule("Settings")]
 	public sealed class Settings {
-		public static Settings Instance { get; } = new Settings();
+		public static Settings Instance { get; } = new();
 
 		static Settings() { }
 

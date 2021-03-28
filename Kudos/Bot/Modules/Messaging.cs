@@ -16,7 +16,7 @@ namespace Kudos.Bot.Modules {
 	public sealed class Messaging {
 		private const string HelloText = "hello ";
 
-		public static Messaging Instance { get; } = new Messaging();
+		public static Messaging Instance { get; } = new();
 		private static string PingMessage => Program.Client.LastPings.Aggregate("*Pong*\nMy last pings:\n", (current, ping) => current + (ping + "ms\n"));
 
 		static Messaging() { }

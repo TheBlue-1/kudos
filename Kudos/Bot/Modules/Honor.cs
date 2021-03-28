@@ -45,7 +45,7 @@ namespace Kudos.Bot.Modules {
 		};
 
 		private DatabaseSyncedList<HonorData> HonorData { get; } = DatabaseSyncedList.Instance<HonorData>();
-		public static Honor Instance { get; } = new Honor();
+		public static Honor Instance { get; } = new();
 
 		static Honor() { }
 

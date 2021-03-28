@@ -10,15 +10,16 @@ namespace Kudos.Utils {
 		private const string ApplicationFolderName = "KudosData";
 		private const string JsonFileEnding = ".json";
 
-		private static readonly JsonSerializerSettings JsonSettings =
-			new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, Converters = { new JsonIEmoteConverter() } };
+		private static readonly JsonSerializerSettings JsonSettings = new() {
+			TypeNameHandling = TypeNameHandling.Auto, Converters = { new JsonIEmoteConverter() }
+		};
 
-		private readonly object _logFile = new object();
+		private readonly object _logFile = new();
 
 		public string ApplicationFolderPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
-		public static FileService Instance { get; } = new FileService();
+		public static FileService Instance { get; } = new();
 
-		public AsyncThreadsafeFileSyncedDictionary<string, string> Settings { get; } = new AsyncThreadsafeFileSyncedDictionary<string, string>("settings");
+		public AsyncThreadsafeFileSyncedDictionary<string, string> Settings { get; } = new("settings");
 		static FileService() { }
 
 		private FileService() {

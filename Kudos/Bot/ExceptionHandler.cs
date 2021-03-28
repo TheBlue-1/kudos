@@ -9,7 +9,7 @@ using Kudos.Utils;
 
 namespace Kudos.Bot {
 	public class ExceptionHandler {
-		private static readonly TimeSpan ExceptionMessageLifeTime = new TimeSpan(0, 0, 15);
+		private static readonly TimeSpan ExceptionMessageLifeTime = new(0, 0, 15);
 		private IMessageChannel Channel { get; }
 		private Exception Exception { get; }
 

@@ -34,13 +34,12 @@ namespace Kudos.Models.bases {
 				? AddValueWithString(value, settings, valueParameterIndex, key, keyParameterIndex)
 				: SetValueWithString(value, settings, valueParameterIndex);
 
-		public static Setting<T> Create<T>(SettingNames name, T defaultValue, string description) => new Setting<T>(name, defaultValue, description);
+		public static Setting<T> Create<T>(SettingNames name, T defaultValue, string description) => new(name, defaultValue, description);
 
-		public static ListSetting<T> Create<T>(SettingNames name, ImmutableHashSet<T> defaultValue, string description) =>
-			new ListSetting<T>(name, defaultValue, description);
+		public static ListSetting<T> Create<T>(SettingNames name, ImmutableHashSet<T> defaultValue, string description) => new(name, defaultValue, description);
 
 		public static DictionarySetting<T1, T2> Create<T1, T2>(SettingNames name, ImmutableDictionary<T1, T2> defaultValue, string description) =>
-			new DictionarySetting<T1, T2>(name, defaultValue, description);
+			new(name, defaultValue, description);
 
 		protected void SameTypeCheck(SettingBase setting) {
 			if (setting.GetType() == GetType()) {

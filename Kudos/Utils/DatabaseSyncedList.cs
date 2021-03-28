@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Kudos.Utils {
 	public class DatabaseSyncedList {
-		private static Dictionary<Type, IEnumerable> Instances { get; } = new Dictionary<Type, IEnumerable>();
+		private static Dictionary<Type, IEnumerable> Instances { get; } = new();
 
 		public static DatabaseSyncedList<T> Instance<T>()
 			where T : class {
 			if (Instances.ContainsKey(typeof (T))) {
 				return (DatabaseSyncedList<T>)Instances[typeof (T)];
 			}
-			DatabaseSyncedList<T> instance = new DatabaseSyncedList<T>();
+			DatabaseSyncedList<T> instance = new();
 			Instances.Add(typeof (T), instance);
 			return instance;
 		}
@@ -25,7 +25,7 @@ namespace Kudos.Utils {
 	public class DatabaseSyncedList<T> : IList<T>
 		where T : class {
 		public int Count => Set.Count();
-		protected KudosDataContext DbContext => new KudosDataContext();
+		protected KudosDataContext DbContext => new();
 
 		public bool IsReadOnly => false;
 

@@ -12,7 +12,7 @@ using Kudos.Extensions;
 
 namespace Kudos.Utils {
 	public class AsyncThreadsafeFileSyncedDictionary<TKey, TValue> : IDictionary<TKey, TValue> {
-		private readonly object _fileLockObject = new object();
+		private readonly object _fileLockObject = new();
 		private Dictionary<TKey, TValue> _dictionaryImplementation;
 		public int Count => RunLocked(() => DictionaryImplementation.Count);
 		protected Dictionary<TKey, TValue> DictionaryImplementation {
@@ -23,7 +23,6 @@ namespace Kudos.Utils {
 				return _dictionaryImplementation;
 			}
 		}
-
 		private string FileName { get; }
 
 		// ReSharper disable once UnusedMember.Global

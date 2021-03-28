@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace Kudos.Utils {
 	public class FixedSizedQueue<T> : ConcurrentQueue<T> {
-		private readonly object _syncObject = new object();
+		private readonly object _syncObject = new();
 
 		public int Size { get; }
 

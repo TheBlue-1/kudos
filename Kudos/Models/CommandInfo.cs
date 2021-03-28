@@ -1,6 +1,8 @@
 ﻿#region
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Discord;
 using Kudos.Attributes;
 #endregion
 
@@ -12,6 +14,7 @@ namespace Kudos.Models {
 		public MethodInfo MethodInfo { get; }
 		public CommandModuleInfo Module { get; }
 		public CommandParameterInfo[] Parameter { get; }
+		public IEnumerable<GuildPermission> Permissions => Command.Permissions.Union(Module.Module.Permissions).Union(Program.Client.Permissions).Distinct();
 
 		public CommandInfo(MethodInfo info, CommandModuleInfo module) {
 			Module = module;

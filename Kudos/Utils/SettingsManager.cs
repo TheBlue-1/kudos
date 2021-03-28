@@ -6,10 +6,10 @@ using Kudos.Models;
 
 namespace Kudos.Utils {
 	public sealed class SettingsManager {
-		private SettingsDictionary GuildSettings { get; } = new SettingsDictionary("guildSettings");
+		private SettingsDictionary GuildSettings { get; } = new("guildSettings");
 
-		public static SettingsManager Instance { get; } = new SettingsManager();
-		private SettingsDictionary UserSettings { get; } = new SettingsDictionary("userSettings");
+		public static SettingsManager Instance { get; } = new();
+		private SettingsDictionary UserSettings { get; } = new("userSettings");
 
 		static SettingsManager() { }
 
@@ -45,7 +45,7 @@ namespace Kudos.Utils {
 			if (hasGuild && GuildSettings.ContainsKey(guildIdLong)) {
 				return GuildSettings[guildIdLong];
 			}
-			Settings settings = new Settings();
+			Settings settings = new();
 			if (!create || hasUser == hasGuild) {
 				return settings;
 			}

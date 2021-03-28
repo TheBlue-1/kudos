@@ -17,7 +17,7 @@ namespace Kudos.Extensions {
 		}
 
 		public static IMessageChannel ChannelFromMention(this string mention) {
-			Regex regex = new Regex("^<#(\\d+)>$");
+			Regex regex = new("^<#(\\d+)>$");
 			Match match = regex.Match(mention);
 			if (!match.Success) {
 				return null;
@@ -28,7 +28,7 @@ namespace Kudos.Extensions {
 		}
 
 		public static SocketUser FromMention(this string mention) {
-			Regex regex = new Regex("^<@!{0,1}(\\d+)>$");
+			Regex regex = new("^<@!{0,1}(\\d+)>$");
 			Match match = regex.Match(mention);
 			if (!match.Success) {
 				return null;
@@ -49,7 +49,7 @@ namespace Kudos.Extensions {
 		public static bool IsGuildAdmin(this SocketGuildUser user) => user.GuildPermissions.Administrator;
 
 		public static SocketRole RoleFromMention(this string mention) {
-			Regex regex = new Regex("^<@&{0,1}(\\d+)>$");
+			Regex regex = new("^<@&{0,1}(\\d+)>$");
 			Match match = regex.Match(mention);
 			if (!match.Success) {
 				return null;

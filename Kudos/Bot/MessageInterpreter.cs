@@ -1,10 +1,12 @@
 ﻿#region
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
 using Kudos.DatabaseModels;
@@ -16,6 +18,7 @@ using Kudos.Utils;
 
 namespace Kudos.Bot {
 	public class MessageInterpreter {
+		private SocketSelfUser BotUser => Program.Client.Self;
 		private string Command { get; }
 
 		public bool Executable { get; } = true;
@@ -57,6 +60,15 @@ namespace Kudos.Bot {
 				.FirstOrDefault();
 			if (command == null) {
 				throw new KudosArgumentException($"Command '{Command}' doesn't exist!");
+			}
+			IEnumerable<GuildPermission> permissions = command.Permissions;
+			if (Message.Channel is SocketGuildChannel guildChannel) {
+				foreach (GuildPermission permission in permissions) {
+					if (!guildChannel.Guild.CurrentUser.Roles.Any(role => role.Permissions.Has(permission))) {
+						throw new KudosInvalidOperationException(
+							$"I need the permission {permission} to execute this command!\nPlease ask an server administrator to add the permission to the bot role or kick and reinvite the bot");
+					}
+				}
 			}
 
 			if (command.Module.Module.Accessibility == Accessibility.Admin || command.Command.Accessibility == Accessibility.Admin) {

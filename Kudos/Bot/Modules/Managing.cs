@@ -15,7 +15,7 @@ using Kudos.Exceptions;
 namespace Kudos.Bot.Modules {
 	[CommandModule("Managing")]
 	public sealed class Managing {
-		public static Managing Instance { get; } = new Managing();
+		public static Managing Instance { get; } = new();
 
 		static Managing() { }
 
