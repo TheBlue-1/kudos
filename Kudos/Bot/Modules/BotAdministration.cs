@@ -44,6 +44,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendExpiringMessage(channel, "banned", new TimeSpan(0, 0, 15));
 		}
 
+		[Command("checkuser", "checks if a user is known by the bot")]
 		public async Task CheckUser([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user) {
 			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
 			IEnumerable<SocketGuildUser> users = guilds.SelectMany(g => g.Users);
@@ -99,7 +100,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 
-		[Command("unban", "bans a person")]
+		[Command("unban", "unbans a person")]
 		public async Task UnBan([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] SocketUser user) {
 			BanData ban = Bans.FirstOrDefault(b => b.UserId == user.Id);
 			if (ban == null) {
