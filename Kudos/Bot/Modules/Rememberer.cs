@@ -107,6 +107,7 @@ namespace Kudos.Bot.Modules {
 
 		private void RemoveTimer(object sender, TimerData data) {
 			TimerData.Remove(data);
+			RunningTimers.Remove(RunningTimers.First(timer => timer.Id == data.Id));
 		}
 
 		private static void SendLateRememberer(object sender, TimerData data) {
