@@ -16,10 +16,8 @@ namespace Kudos.Utils {
 		public Timer(TimerData data) => Data = data;
 
 		public event EventHandler<TimerData> SkippedTimerEvent;
-
 		public event EventHandler<TimerData> TimerDataChanged;
 		public event EventHandler<TimerData> TimerDead;
-
 		public event EventHandler<TimerData> TimerEvent;
 
 		private bool AdjustData(bool allowUnadjusted = true) {
@@ -66,7 +64,7 @@ namespace Kudos.Utils {
 				try {
 					TimeSpan time = Data.End - DateTime.UtcNow;
 					while (time.TotalMilliseconds > int.MaxValue) {
-						await Task.Delay(int.MaxValue);
+						await Task.Delay(int.MaxValue, Canceler.Token);
 						time = Data.End - DateTime.UtcNow;
 					}
 					await Task.Delay(time, Canceler.Token);

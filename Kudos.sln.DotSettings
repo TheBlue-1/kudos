@@ -739,4 +739,5 @@ Kudos.Attributes.Command.Command</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=svalue/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Threadsafe/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=unban/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=unbans/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Wien/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
