@@ -53,6 +53,8 @@ namespace Kudos.Bot {
 			_client.LatencyUpdated += ClientLatencyUpdated;
 			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
+			_client.LeftGuild += LeftGuild;
+
 			_client.UserVoiceStateUpdated += UserCallInteraction;
 			_client.Ready += Init;
 			_client.Disconnected += _ => {
@@ -67,7 +69,7 @@ namespace Kudos.Bot {
 			};
 		}
 
-		public event Action JoinedNewGuild;
+		public event Action GuildCountChanged;
 
 		public event EventHandler<StateChangedData> StateChanged;
 
@@ -128,9 +130,14 @@ namespace Kudos.Bot {
 
 		private Task JoinedGuild(SocketGuild arg) {
 			new Func<Task>(async () => {
-				JoinedNewGuild?.Invoke();
+				GuildCountChanged?.Invoke();
 				await Messaging.Instance.SendWelcomeMessage(arg);
 			}).RunAsyncSave();
+			return FakeTask;
+		}
+
+		private Task LeftGuild(SocketGuild arg) {
+			new Action(() => { GuildCountChanged?.Invoke(); }).RunAsyncSave();
 			return FakeTask;
 		}
 

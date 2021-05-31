@@ -59,6 +59,22 @@ namespace Kudos.Bot.Modules {
 			throw new KudosArgumentException("Can not set server settings in pms");
 		}
 
+		[Command("gsreset", "resets personal settings", Accessibility.Admin)]
+		public async Task ResetGuildSettings([CommandParameter] ISocketMessageChannel channel) {
+			if (!(channel is SocketGuildChannel guildChannel)) {
+				throw new KudosArgumentException("Can not set server settings in pms");
+			}
+
+			SettingsManager.Instance.DeleteGuildSettings(guildChannel.Guild.Id);
+			await Messaging.Instance.SendMessage(channel, "Settings reset");
+		}
+
+		[Command("sreset", "resets personal settings")]
+		public async Task ResetPersonalSettings([CommandParameter] ISocketMessageChannel channel, [CommandParameter] SocketUser author) {
+			SettingsManager.Instance.DeleteUserSettings(author.Id);
+			await Messaging.Instance.SendMessage(channel, "Settings reset");
+		}
+
 		[Command("settings", "shows all settings")]
 		public async Task SendSettingList([CommandParameter] ISocketMessageChannel channel) {
 			await Messaging.Instance.SendEmbed(channel, Models.Settings.SettingsAsEmbed());

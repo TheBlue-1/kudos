@@ -15,6 +15,14 @@ namespace Kudos.Utils {
 
 		private SettingsManager() { }
 
+		public void DeleteGuildSettings(ulong guildId) {
+			GuildSettings.Remove(guildId);
+		}
+
+		public void DeleteUserSettings(ulong userId) {
+			UserSettings.Remove(userId);
+		}
+
 		public Settings SettingsFor(SocketMessage message, bool create = false) =>
 			SettingsFor(message.Author.Id, (message.Channel as SocketGuildChannel)?.Guild.Id, create);
 

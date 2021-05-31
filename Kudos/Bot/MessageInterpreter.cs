@@ -28,9 +28,16 @@ namespace Kudos.Bot {
 
 		public MessageInterpreter(SocketMessage message) {
 			message.Settings()[SettingNames.Prefix].Value(out string prefix);
-			if (message.Author.IsBot || !message.Content.StartsWith(prefix)) {
+			if (message.Author.IsBot) {
 				Executable = false;
 				return;
+			}
+			if (!message.Content.StartsWith(prefix)) {
+				if (!(message.Channel is IDMChannel)) {
+					Executable = false;
+					return;
+				}
+				prefix = string.Empty;
 			}
 			string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 			if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {

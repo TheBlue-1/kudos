@@ -86,7 +86,7 @@ namespace Kudos {
 
 			FileService.Instance.WriteFile("description.html", html);
 
-			Client.JoinedNewGuild += () => { BotList.ThisBot.UpdateStatsAsync(Client.Guilds.Count); };
+			Client.GuildCountChanged += () => { BotList.ThisBot.UpdateStatsAsync(Client.Guilds.Count); };
 		}
 	}
 }
