@@ -17,6 +17,7 @@ namespace Kudos.Bot.Modules {
 	[CommandModule("Server Group Calls", permissions: new[] { GuildPermission.CreateInstantInvite })]
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class ServerGroupCalls {
+		private Dictionary<ulong, IList<IUserMessage>> CurrentInvites { get; } = new();
 		private DatabaseSyncedList<GroupData> Groups { get; } = DatabaseSyncedList.Instance<GroupData>();
 
 		public static ServerGroupCalls Instance { get; } = new();
@@ -27,7 +28,7 @@ namespace Kudos.Bot.Modules {
 		private ServerGroupCalls() { }
 
 		[Command("addgrouprole", "adds a role to the current call group", Accessibility.Admin)]
-		public async Task AddRole([CommandParameter] SocketGuildUser user, [CommandParameter(0)] SocketRole addedRole,
+		public async Task AddRole([CommandParameter] SocketGuildUser user, [CommandParameter] SocketRole addedRole,
 			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
@@ -88,13 +89,11 @@ namespace Kudos.Bot.Modules {
 
 			ulong[] roleUserIds = (await RolesUserIds(channel.Guild, group)).ToArray();
 			if (group.Auto && (group.UserIds.Contains(user.Id) || roleUserIds.Contains(user.Id))) {
-				if ((await UsersInChannel(channel, group, roleUserIds)).Count() == 1) {
-					await SendInvites(group, channel, user, roleUserIds);
-				}
+				await UpdateInvites(group, channel, user, roleUserIds);
 			}
 		}
 
-		public async Task CheckLeaving(SocketUser user, IVoiceChannel channel) {
+		public async Task CheckLeaving(SocketUser user, SocketVoiceChannel channel) {
 			GroupData group = Groups.FirstOrDefault(g => g.ChannelId == channel.Id);
 			if (group == null) {
 				return;
@@ -102,9 +101,11 @@ namespace Kudos.Bot.Modules {
 
 			ulong[] roleUserIds = (await RolesUserIds(channel.Guild, group)).ToArray();
 			if (group.Auto && (group.UserIds.Contains(user.Id) || roleUserIds.Contains(user.Id))) {
-				if (!(await UsersInChannel(channel, group, roleUserIds)).Any()) {
+				IEnumerable<IGuildUser> users = (await UsersInChannel(channel, group, roleUserIds)).ToArray();
+				if (!users.Any()) {
 					Timeouts[group.ChannelId] = DateTime.UtcNow;
 				}
+				await UpdateInvites(group, channel, user, roleUserIds, users);
 			}
 		}
 
@@ -137,6 +138,18 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendExpiringMessage(textChannel, "Group deleted successfully");
 		}
 
+		private static async Task DeleteInvites(IEnumerable<IUserMessage> currentInvites) {
+			foreach (IUserMessage invite in currentInvites) {
+				try {
+					await invite.DeleteAsync();
+				}
+				catch {
+					//invite not deleted
+					//ignored
+				}
+			}
+		}
+
 		[Command("invitegroup", "sends a dm to all group members to invite them to join your channel")]
 		public async Task InviteGroup([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel) {
 			SocketVoiceChannel channel = user.VoiceChannel;
@@ -153,6 +166,19 @@ namespace Kudos.Bot.Modules {
 			}
 			await SendInvites(group, channel, user, roleUserIds);
 			await Messaging.Instance.SendExpiringMessage(textChannel, "Group invited successfully");
+		}
+
+		private static async Task RefreshInvites(IEnumerable<IUserMessage> currentInvites, IEnumerable<IGuildUser> users) {
+			string inChannelString = users.Aggregate("", (current, guildUser) => current + $"{guildUser}\n");
+
+			foreach (IUserMessage invite in currentInvites) {
+				await invite.ModifyAsync(message => {
+					message.Embed = new EmbedBuilder().SetDefaults()
+						.WithDescription(message.Embed.Value.Description)
+						.AddField("Current Users", inChannelString)
+						.Build();
+				});
+			}
 		}
 
 		[Command("removegrouprole", "removes a role from the current call group", Accessibility.Admin)]
@@ -199,7 +225,7 @@ namespace Kudos.Bot.Modules {
 			return (await guild.GetUsersAsync()).Where(guildUser => guildUser.HasRoleId(group.RoleIds.ToArray())).Select(guildUser => guildUser.Id);
 		}
 
-		private async Task SendInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds) {
+		private async Task SendInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds, IEnumerable<IGuildUser> users = null) {
 			if (Timeouts.ContainsKey(group.ChannelId)) {
 				TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.UtcNow.AddMinutes(-5);
 				if (timeout > TimeSpan.Zero) {
@@ -210,7 +236,15 @@ namespace Kudos.Bot.Modules {
 			HashSet<ulong> userIds = new();
 			userIds.UnionWith(group.UserIds);
 			userIds.UnionWith(roleUserIds);
-			IEnumerable<IGuildUser> alreadyInChannel = await UsersInChannel(channel, group, roleUserIds);
+			IEnumerable<IGuildUser> alreadyInChannel = (users ?? await UsersInChannel(channel, group, roleUserIds)).ToArray();
+			IReadOnlyCollection<IInviteMetadata> invites = await channel.GetInvitesAsync();
+
+			IInviteMetadata invite =
+				invites.FirstOrDefault(i => i.ChannelId == channel.Id && i.IsTemporary == false && i.Inviter.Id == Program.Client.BotUserId)
+				?? await channel.CreateInviteAsync();
+
+			string inChannelString = alreadyInChannel.Aggregate("", (current, guildUser) => current + $"{guildUser}\n");
+			CurrentInvites[group.ChannelId] = new List<IUserMessage>();
 			foreach (ulong groupUserId in userIds.Where(groupUserId => alreadyInChannel.All(channelUser => channelUser.Id != groupUserId))) {
 				try {
 					SocketUser groupUser = Program.Client.GetSocketUserById(groupUserId);
@@ -219,12 +253,14 @@ namespace Kudos.Bot.Modules {
 					}
 					IDMChannel groupUserChannel = await groupUser.GetOrCreateDMChannelAsync();
 
-					IReadOnlyCollection<IInviteMetadata> invites = await channel.GetInvitesAsync();
-					IInviteMetadata invite = invites.FirstOrDefault(i =>
-							i.ChannelId == channel.Id && i.IsTemporary == false && i.Inviter.Id == Program.Client.BotUserId)
-						?? await channel.CreateInviteAsync();
-					await Messaging.Instance.SendMessage(groupUserChannel,
-						$"Hey, **{user.Username}** invited you to join the voice call [**{channel.Name}** in {channel.Guild.Name}]({invite.Url})");
+					IUserMessage message = await Messaging.Instance.SendEmbed(groupUserChannel,
+						new EmbedBuilder().SetDefaults()
+							.WithDescription(
+								$"Hey, **{user.Username}** invited you to join the voice call [**{channel.Name}** in {channel.Guild.Name}]({invite.Url})")
+							.AddField("Current Users", inChannelString));
+					if (group.Auto) {
+						CurrentInvites[group.ChannelId].Add(message);
+					}
 				}
 				catch (Exception) {
 					errorCount++;
@@ -235,6 +271,23 @@ namespace Kudos.Bot.Modules {
 			}
 
 			Timeouts[group.ChannelId] = DateTime.UtcNow;
+		}
+
+		private async Task UpdateInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds, IEnumerable<IGuildUser> users = null) {
+			users = (users ?? await UsersInChannel(channel, group, roleUserIds)).ToArray();
+
+			if (CurrentInvites.ContainsKey(group.ChannelId)) {
+				if (users.Any()) {
+					await RefreshInvites(CurrentInvites[group.ChannelId], users);
+					return;
+				}
+				await DeleteInvites(CurrentInvites[group.ChannelId]);
+				CurrentInvites.Remove(group.ChannelId);
+				return;
+			}
+			if (users.Any()) {
+				await SendInvites(group, channel, user, roleUserIds, users);
+			}
 		}
 
 		private static async Task<IEnumerable<IGuildUser>> UsersInChannel(IGuildChannel channel, GroupData group, IEnumerable<ulong> roleUserIds) {
