@@ -174,7 +174,7 @@ namespace Kudos.Bot.Modules {
 			foreach (IUserMessage invite in currentInvites) {
 				await invite.ModifyAsync(message => {
 					message.Embed = new EmbedBuilder().SetDefaults()
-						.WithDescription(message.Embed.Value.Description)
+						.WithDescription(invite.Embeds.First().Description)
 						.AddField("Current Users", inChannelString)
 						.Build();
 				});
