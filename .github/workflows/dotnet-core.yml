@@ -42,7 +42,7 @@ jobs:
           SOURCE: "/Kudos/bin/Release/net5.0/linux-arm64/publish"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: "Kudos/${{ env.REALEASE_TYPE }}"
+          TARGET: "~/Kudos/${{ env.REALEASE_TYPE }}"
       - name: Start new Version
         if: ${{ github.event_name=='push' && env.REALEASE_TYPE=='beta/'}}
         uses: garygrossgarten/github-action-ssh@release
