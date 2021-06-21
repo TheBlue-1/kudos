@@ -16,11 +16,6 @@ using Settings = Kudos.Models.Settings;
 
 namespace Kudos.Bot {
 	public class Client {
-		/// <summary>
-		///     TODO ideas/planned
-		///     sleep rememberer (maybe general rememberer)
-		///     achievements (to make people use features and do crazy stuff)
-		/// </summary>
 		private readonly DiscordSocketClient _client;
 		private volatile bool _connected;
 		private string _lastState;
@@ -53,6 +48,8 @@ namespace Kudos.Bot {
 			_client.LatencyUpdated += ClientLatencyUpdated;
 			_client.MessageReceived += AutoResponseMessageReceived;
 			_client.JoinedGuild += JoinedGuild;
+			_client.LeftGuild += LeftGuild;
+
 			_client.UserVoiceStateUpdated += UserCallInteraction;
 			_client.Ready += Init;
 			_client.Disconnected += _ => {
@@ -67,7 +64,7 @@ namespace Kudos.Bot {
 			};
 		}
 
-		public event Action JoinedNewGuild;
+		public event Action GuildCountChanged;
 
 		public event EventHandler<StateChangedData> StateChanged;
 
@@ -94,6 +91,12 @@ namespace Kudos.Bot {
 
 		private static Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			new Func<Task>(async () => {
+				if (arg3.UserId == Program.Client.BotUserId
+					|| arg3.User.Value?.IsBot == true
+					|| arg3.Message.IsSpecified && arg3.Message.Value.Author.Id != Program.Client.BotUserId
+					|| arg1.HasValue && arg1.Value.Author.Id != Program.Client.BotUserId) {
+					return;
+				}
 				IUserMessage message;
 				try {
 					message = await arg1.GetOrDownloadAsync();
@@ -102,7 +105,7 @@ namespace Kudos.Bot {
 					return;
 				}
 
-				if (message?.Author?.Id == Program.Client.BotUserId && arg3.UserId != Program.Client.BotUserId) {
+				if (message?.Author?.Id == Program.Client.BotUserId) {
 					await Honor.Instance.HonorUserWithReaction(message, arg3);
 				}
 			}).RunAsyncSave();
@@ -128,9 +131,14 @@ namespace Kudos.Bot {
 
 		private Task JoinedGuild(SocketGuild arg) {
 			new Func<Task>(async () => {
-				JoinedNewGuild?.Invoke();
+				GuildCountChanged?.Invoke();
 				await Messaging.Instance.SendWelcomeMessage(arg);
 			}).RunAsyncSave();
+			return FakeTask;
+		}
+
+		private Task LeftGuild(SocketGuild arg) {
+			new Action(() => { GuildCountChanged?.Invoke(); }).RunAsyncSave();
 			return FakeTask;
 		}
 
