@@ -16,7 +16,7 @@ namespace Kudos.Utils {
 			IEmote emote;
 			JObject json = JObject.Load(reader);
 			if (json.ContainsKey("Id")) {
-				emote = Emote.Parse($"<:{json.Value<string>("Name")}:{json.Value<ulong>("id")}>");
+				emote = Emote.Parse($"<:{json.Value<string>("Name")}:{json.Value<ulong>("Id")}>");
 			} else {
 				emote = new Emoji(json.Value<string>("Name"));
 			}

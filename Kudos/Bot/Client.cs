@@ -16,11 +16,6 @@ using Settings = Kudos.Models.Settings;
 
 namespace Kudos.Bot {
 	public class Client {
-		/// <summary>
-		///     TODO ideas/planned
-		///     sleep rememberer (maybe general rememberer)
-		///     achievements (to make people use features and do crazy stuff)
-		/// </summary>
 		private readonly DiscordSocketClient _client;
 		private volatile bool _connected;
 		private string _lastState;
