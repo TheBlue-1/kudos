@@ -91,6 +91,12 @@ namespace Kudos.Bot {
 
 		private static Task ClientReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3) {
 			new Func<Task>(async () => {
+				if (arg3.UserId == Program.Client.BotUserId
+					|| arg3.User.Value?.IsBot == true
+					|| arg3.Message.IsSpecified && arg3.Message.Value.Author.Id != Program.Client.BotUserId
+					|| arg1.HasValue && arg1.Value.Author.Id != Program.Client.BotUserId) {
+					return;
+				}
 				IUserMessage message;
 				try {
 					message = await arg1.GetOrDownloadAsync();
@@ -99,7 +105,7 @@ namespace Kudos.Bot {
 					return;
 				}
 
-				if (message?.Author?.Id == Program.Client.BotUserId && arg3.UserId != Program.Client.BotUserId) {
+				if (message?.Author?.Id == Program.Client.BotUserId) {
 					await Honor.Instance.HonorUserWithReaction(message, arg3);
 				}
 			}).RunAsyncSave();
