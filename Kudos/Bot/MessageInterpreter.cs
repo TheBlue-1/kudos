@@ -55,7 +55,7 @@ namespace Kudos.Bot {
 					Parameters[i] = Parameters[i].Substring(1, Parameters[i].Length - 2);
 				}
 			}
-			FileService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", "access-");
+			FileService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", FileService.LogType.Access);
 		}
 
 		public void Execute() {
