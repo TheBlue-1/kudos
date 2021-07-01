@@ -164,14 +164,14 @@ namespace Kudos.Bot.Modules {
 			const string updateFileKey = "updateFile";
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
 			if (!settings.ContainsKey(updateFileKey) || string.IsNullOrEmpty(settings[updateFileKey])) {
-				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'${updateFileKey}')");
+				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'{updateFileKey}')");
 			}
-			Process process = new() { StartInfo = new ProcessStartInfo(settings[updateFileKey]) };
+			Process process = new() { StartInfo = new ProcessStartInfo(settings[updateFileKey]){RedirectStandardError = true,RedirectStandardOutput = true,CreateNoWindow = true}, };
 			process.Start();
 			await process.WaitForExitAsync();
 			string error = await process.StandardError.ReadToEndAsync();
 			string output = await process.StandardOutput.ReadToEndAsync();
-			await Messaging.Instance.SendMessage(channel, $"Bot updated\nLog:\n${output}\nError:\n${error}");
+			await Messaging.Instance.SendMessage(channel, $"Bot updated\nLog:\n{output}\nError:\n{error}");
 		}
 
 		[Command("wait", "waits the given time and sends a response after that")]
