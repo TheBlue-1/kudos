@@ -1,7 +1,3 @@
-#pull 
-git restore ./update.bash
-sudo git pull
-sudo chmod 777 ./update.bash
 #stop old version
 cd Kudos/bin/Release/net5.0/linux-x64/publish
 pid=$(cat 'last.pid')
