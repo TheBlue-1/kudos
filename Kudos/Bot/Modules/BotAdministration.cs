@@ -176,6 +176,7 @@ namespace Kudos.Bot.Modules {
 			{
 				StartInfo = new ProcessStartInfo("/bin/bash") { Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}",RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
 			};
+			permProcess.Start();
 		await	permProcess.WaitForExitAsync();
 			string permError = await permProcess.StandardError.ReadToEndAsync();
 			string permOutput = await permProcess.StandardOutput.ReadToEndAsync();
