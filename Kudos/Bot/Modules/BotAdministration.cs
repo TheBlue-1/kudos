@@ -170,6 +170,8 @@ namespace Kudos.Bot.Modules {
 			if (!settings.ContainsKey(updateFileKey) || string.IsNullOrEmpty(settings[updateFileKey])) {
 				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'{updateFileKey}')");
 			}
+			Process.Start(new ProcessStartInfo("/bin/bash"){Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}"});
+
 			Process pullProcess = new() {
 				StartInfo = new ProcessStartInfo(settings[pullFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
 			};
