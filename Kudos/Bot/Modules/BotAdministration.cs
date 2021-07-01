@@ -164,20 +164,23 @@ namespace Kudos.Bot.Modules {
 			const string updateFileKey = "updateFile";
 			const string pullFileKey = "pullFile";
 			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
-			if (!settings.ContainsKey(pullFileKey) || string.IsNullOrEmpty(settings[pullFileKey]))
-			{
+			if (!settings.ContainsKey(pullFileKey) || string.IsNullOrEmpty(settings[pullFileKey])) {
 				throw new KudosInvalidOperationException($"no pull file path specified in settings file (key:'{pullFileKey}')");
 			}
 			if (!settings.ContainsKey(updateFileKey) || string.IsNullOrEmpty(settings[updateFileKey])) {
 				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'{updateFileKey}')");
 			}
-			Process pullProcess = new() { StartInfo = new ProcessStartInfo(settings[pullFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }, };
+			Process pullProcess = new() {
+				StartInfo = new ProcessStartInfo(settings[pullFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
 			pullProcess.Start();
 			await pullProcess.WaitForExitAsync();
 			string pullError = await pullProcess.StandardError.ReadToEndAsync();
 			string pullOutput = await pullProcess.StandardOutput.ReadToEndAsync();
 			await Messaging.Instance.SendMessage(channel, $"Bot pulled\nLog:\n{pullOutput}\nError:\n{pullError}");
-			Process updateProcess = new() { StartInfo = new ProcessStartInfo(settings[updateFileKey]){RedirectStandardError = true,RedirectStandardOutput = true,CreateNoWindow = true}, };
+			Process updateProcess = new() {
+				StartInfo = new ProcessStartInfo(settings[updateFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
 			updateProcess.Start();
 			await updateProcess.WaitForExitAsync();
 			string updateError = await updateProcess.StandardError.ReadToEndAsync();
