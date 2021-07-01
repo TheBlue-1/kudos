@@ -170,8 +170,16 @@ namespace Kudos.Bot.Modules {
 			if (!settings.ContainsKey(updateFileKey) || string.IsNullOrEmpty(settings[updateFileKey])) {
 				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'{updateFileKey}')");
 			}
-			Process.Start(new ProcessStartInfo("/bin/bash"){Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}"});
+			await Messaging.Instance.SendMessage(channel, "Paths found");
 
+			Process permProcess = new()
+			{
+				StartInfo = new ProcessStartInfo("/bin/bash") { Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}",RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
+		await	permProcess.WaitForExitAsync();
+			string permError = await permProcess.StandardError.ReadToEndAsync();
+			string permOutput = await permProcess.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Gave permission to pull file\nLog:\n{permOutput}\nError:\n{permError}");
 			Process pullProcess = new() {
 				StartInfo = new ProcessStartInfo(settings[pullFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
 			};
@@ -184,6 +192,7 @@ namespace Kudos.Bot.Modules {
 				StartInfo = new ProcessStartInfo(settings[updateFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
 			};
 			updateProcess.Start();
+			await Messaging.Instance.SendMessage(channel, "started update (if the update is a success there will be no further messages)");
 			//Kudos should normally be killed here
 			await updateProcess.WaitForExitAsync();
 			string updateError = await updateProcess.StandardError.ReadToEndAsync();
