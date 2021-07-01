@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
@@ -156,6 +157,48 @@ namespace Kudos.Bot.Modules {
 
 			Bans.Remove(ban);
 			await Messaging.Instance.SendExpiringMessage(channel, "unbanned", new TimeSpan(0, 0, 15));
+		}
+
+		[Command("update", "updates the bot (currently only master-version)")]
+		public async Task UpdateBot([CommandParameter] ISocketMessageChannel channel) {
+			const string updateFileKey = "updateFile";
+			const string pullFileKey = "pullFile";
+			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
+			if (!settings.ContainsKey(pullFileKey) || string.IsNullOrEmpty(settings[pullFileKey])) {
+				throw new KudosInvalidOperationException($"no pull file path specified in settings file (key:'{pullFileKey}')");
+			}
+			if (!settings.ContainsKey(updateFileKey) || string.IsNullOrEmpty(settings[updateFileKey])) {
+				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'{updateFileKey}')");
+			}
+			await Messaging.Instance.SendMessage(channel, "Paths found");
+
+			Process permProcess = new()
+			{
+				StartInfo = new ProcessStartInfo("/bin/bash") { Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}",RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
+			permProcess.Start();
+		await	permProcess.WaitForExitAsync();
+			string permError = await permProcess.StandardError.ReadToEndAsync();
+			string permOutput = await permProcess.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Gave permission to pull file\nLog:\n{permOutput}\nError:\n{permError}");
+			Process pullProcess = new() {
+				StartInfo = new ProcessStartInfo(settings[pullFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
+			pullProcess.Start();
+			await pullProcess.WaitForExitAsync();
+			string pullError = await pullProcess.StandardError.ReadToEndAsync();
+			string pullOutput = await pullProcess.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Bot pulled\nLog:\n{pullOutput}\nError:\n{pullError}");
+			Process updateProcess = new() {
+				StartInfo = new ProcessStartInfo(settings[updateFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
+			updateProcess.Start();
+			await Messaging.Instance.SendMessage(channel, "started update (if the update is a success there will be no further messages)");
+			//Kudos should normally be killed here
+			await updateProcess.WaitForExitAsync();
+			string updateError = await updateProcess.StandardError.ReadToEndAsync();
+			string updateOutput = await updateProcess.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Bot updated\nLog:\n{updateOutput}\nError:\n{updateError}");
 		}
 
 		[Command("wait", "waits the given time and sends a response after that")]
