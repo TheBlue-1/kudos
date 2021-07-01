@@ -1,5 +1,6 @@
 #!/bin/bash
 #pull
+cd Kudos/bin/Release/net5.0/linux-x64/publish #only for manual execution, bot is already there
 cd ../../../../../..
 echo "im at $PWD"
 git restore ./update.bash

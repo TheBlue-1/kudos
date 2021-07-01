@@ -1,5 +1,6 @@
 #!/bin/bash
 #stop old version
+cd Kudos/bin/Release/net5.0/linux-x64/publish #only for manual execution, bot is already there
 pid=$(cat 'last.pid')
 kill $pid
 #build
