@@ -182,6 +182,7 @@ namespace Kudos.Bot.Modules {
 				StartInfo = new ProcessStartInfo(settings[updateFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
 			};
 			updateProcess.Start();
+			//Kudos should normally be killed here
 			await updateProcess.WaitForExitAsync();
 			string updateError = await updateProcess.StandardError.ReadToEndAsync();
 			string updateOutput = await updateProcess.StandardOutput.ReadToEndAsync();
