@@ -1,5 +1,6 @@
 #!/bin/bash
 #pull
+cd ../../../../../..
 echo "im at $PWD"
 git restore ./update.bash
 git restore ./pull.bash
