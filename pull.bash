@@ -1,3 +1,4 @@
+#!/bin/bash
 #pull
 git restore ./update.bash
 git restore ./pull.bash
