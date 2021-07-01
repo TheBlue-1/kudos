@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
@@ -58,10 +59,54 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 
+		[Command("deleteaccesslog", "deletes the log")]
+		public async Task DeleteAccessLog([CommandParameter] ISocketMessageChannel channel) {
+			FileService.Instance.DeleteLog(FileService.LogType.Access);
+			await Messaging.Instance.SendMessage(channel, "Deleted");
+		}
+
+		[Command("deletelog", "deletes the log")]
+		public async Task DeleteLog([CommandParameter] ISocketMessageChannel channel) {
+			FileService.Instance.DeleteLog();
+			await Messaging.Instance.SendMessage(channel, "Deleted");
+		}
+
+		[Command("deleteloginlog", "deletes the log")]
+		public async Task DeleteLoginLog([CommandParameter] ISocketMessageChannel channel) {
+			FileService.Instance.DeleteLog(FileService.LogType.Login);
+			await Messaging.Instance.SendMessage(channel, "Deleted");
+		}
+
+		[Command("deleterunlog", "deletes the log")]
+		public async Task DeleteRunLog([CommandParameter] ISocketMessageChannel channel) {
+			FileService.Instance.DeleteRunningLog();
+			await Messaging.Instance.SendMessage(channel, "Deleted");
+		}
+
 		[Command("adminmsg", "sends a message to all guild admins")]
 		public async Task MessageAdmins([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string message) {
 			int notReceived = await Messaging.Instance.SendToAdmins(message);
 			await Messaging.Instance.SendMessage(channel, $"sent successfully. {notReceived} didn't receive the message");
+		}
+
+		[Command("readaccesslog", "returns the log")]
+		public async Task ReadAccessLog([CommandParameter] ISocketMessageChannel channel) {
+			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog(FileService.LogType.Access));
+		}
+
+		[Command("readlog", "returns the log")]
+		public async Task ReadLog([CommandParameter] ISocketMessageChannel channel) {
+			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog());
+		}
+
+		[Command("readloginlog", "returns the log")]
+		public async Task ReadLoginLog([CommandParameter] ISocketMessageChannel channel) {
+			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog(FileService.LogType.Login));
+		}
+
+		[Command("readrunlog", "returns the log")]
+		public async Task ReadRunLog([CommandParameter] ISocketMessageChannel channel) {
+			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadRunningLog());
 		}
 
 		[Command("guilds", "shows all guilds of the bot")]
@@ -112,6 +157,48 @@ namespace Kudos.Bot.Modules {
 
 			Bans.Remove(ban);
 			await Messaging.Instance.SendExpiringMessage(channel, "unbanned", new TimeSpan(0, 0, 15));
+		}
+
+		[Command("update", "updates the bot (currently only master-version)")]
+		public async Task UpdateBot([CommandParameter] ISocketMessageChannel channel) {
+			const string updateFileKey = "updateFile";
+			const string pullFileKey = "pullFile";
+			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
+			if (!settings.ContainsKey(pullFileKey) || string.IsNullOrEmpty(settings[pullFileKey])) {
+				throw new KudosInvalidOperationException($"no pull file path specified in settings file (key:'{pullFileKey}')");
+			}
+			if (!settings.ContainsKey(updateFileKey) || string.IsNullOrEmpty(settings[updateFileKey])) {
+				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'{updateFileKey}')");
+			}
+			await Messaging.Instance.SendMessage(channel, "Paths found");
+
+			Process permProcess = new()
+			{
+				StartInfo = new ProcessStartInfo("/bin/bash") { Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}",RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
+			permProcess.Start();
+		await	permProcess.WaitForExitAsync();
+			string permError = await permProcess.StandardError.ReadToEndAsync();
+			string permOutput = await permProcess.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Gave permission to pull file\nLog:\n{permOutput}\nError:\n{permError}");
+			Process pullProcess = new() {
+				StartInfo = new ProcessStartInfo(settings[pullFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
+			pullProcess.Start();
+			await pullProcess.WaitForExitAsync();
+			string pullError = await pullProcess.StandardError.ReadToEndAsync();
+			string pullOutput = await pullProcess.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Bot pulled\nLog:\n{pullOutput}\nError:\n{pullError}");
+			Process updateProcess = new() {
+				StartInfo = new ProcessStartInfo(settings[updateFileKey]) { RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			};
+			updateProcess.Start();
+			await Messaging.Instance.SendMessage(channel, "started update (if the update is a success there will be no further messages)");
+			//Kudos should normally be killed here
+			await updateProcess.WaitForExitAsync();
+			string updateError = await updateProcess.StandardError.ReadToEndAsync();
+			string updateOutput = await updateProcess.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Bot updated\nLog:\n{updateOutput}\nError:\n{updateError}");
 		}
 
 		[Command("wait", "waits the given time and sends a response after that")]

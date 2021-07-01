@@ -45,7 +45,7 @@ namespace Kudos {
 			if (settings.ContainsKey("is_bot_list_bot")) {
 				IsBotListBot = bool.Parse(settings["is_bot_list_bot"]);
 			}
-			if (settings.ContainsKey("bot_token")) {
+			if (settings.ContainsKey("bot_token") && !string.IsNullOrEmpty(settings["bot_token"])) {
 				botToken = settings["bot_token"];
 			} else {
 				Console.WriteLine("please enter the bot-token:");

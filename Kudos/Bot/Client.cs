@@ -160,7 +160,7 @@ namespace Kudos.Bot {
 						}
 					}
 					catch (Exception e) {
-						FileService.Instance.Log(e.Message, "login-");
+						FileService.Instance.Log(e.Message, FileService.LogType.Login);
 					}
 					await Task.Delay(5000);
 				}
