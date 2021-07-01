@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
@@ -156,6 +157,21 @@ namespace Kudos.Bot.Modules {
 
 			Bans.Remove(ban);
 			await Messaging.Instance.SendExpiringMessage(channel, "unbanned", new TimeSpan(0, 0, 15));
+		}
+
+		[Command("update", "updates the bot (currently only master-version)")]
+		public async Task UpdateBot([CommandParameter] ISocketMessageChannel channel) {
+			const string updateFileKey = "updateFile";
+			AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
+			if (!settings.ContainsKey(updateFileKey) || string.IsNullOrEmpty(settings[updateFileKey])) {
+				throw new KudosInvalidOperationException($"no update file path specified in settings file (key:'${updateFileKey}')");
+			}
+			Process process = new() { StartInfo = new ProcessStartInfo(settings[updateFileKey]) };
+			process.Start();
+			await process.WaitForExitAsync();
+			string error = await process.StandardError.ReadToEndAsync();
+			string output = await process.StandardOutput.ReadToEndAsync();
+			await Messaging.Instance.SendMessage(channel, $"Bot updated\nLog:\n${output}\nError:\n${error}");
 		}
 
 		[Command("wait", "waits the given time and sends a response after that")]
