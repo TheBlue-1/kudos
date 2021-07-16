@@ -1,8 +1,8 @@
 ﻿#region
 using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Text.Json.Serialization;
 using Kudos.Exceptions;
+using Newtonsoft.Json;
 #endregion
 
 namespace Kudos.Models.bases {
@@ -12,6 +12,7 @@ namespace Kudos.Models.bases {
 		public abstract string StringValue { get; }
 		[JsonIgnore]
 		public string Description { get; }
+		[JsonIgnore]
 		public SettingNames Name { get; }
 
 		public abstract bool IsSet { get; protected set; }

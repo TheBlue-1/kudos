@@ -69,6 +69,9 @@ namespace Kudos.Bot {
 		public event EventHandler<StateChangedData> StateChanged;
 
 		private static Task AutoResponseMessageReceived(SocketMessage arg) {
+			if (arg.Author.IsBot) {
+				return FakeTask;
+			}
 			new Func<Task>(async () => { await AutoResponse.Instance.Respond(arg); }).RunAsyncSave();
 			return FakeTask;
 		}
@@ -180,6 +183,9 @@ namespace Kudos.Bot {
 		}
 
 		private static Task UserCallInteraction(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState) {
+			if (user.IsBot) {
+				return FakeTask;
+			}
 			new Func<Task>(async () => {
 				//entering
 				if (newState.VoiceChannel != null && oldState.VoiceChannel != newState.VoiceChannel) {

@@ -10,7 +10,9 @@ namespace Kudos.Utils {
 	public class JsonIEmoteConverter : JsonConverter {
 		private static readonly Type[] Types = { typeof (IEmote) };
 
-		public override bool CanConvert(Type objectType) => Types.Contains(objectType);
+		public override bool CanConvert(Type objectType) {
+			return Types.Any(type => type.IsAssignableFrom(objectType));
+		}
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
 			IEmote emote;

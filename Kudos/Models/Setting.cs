@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 
 namespace Kudos.Models {
 	public class Setting<T> : SettingBase, ISetting {
+		private bool _isSet;
 		private T _setValue;
 		[JsonIgnore]
 		public T Default { get; }
@@ -36,7 +37,13 @@ namespace Kudos.Models {
 		public T Value => IsSet ? SetValue : Default;
 
 		[JsonProperty(Order = 2)]
-		public override bool IsSet { get; protected set; }
+		public override bool IsSet {
+			get => _isSet;
+			protected set {
+				_isSet = value;
+				OnPropertyChanged();
+			}
+		}
 
 		[JsonIgnore]
 		public override object ObjectValue {
