@@ -21,6 +21,9 @@ namespace Kudos.Models {
 			"Reacts with Emote [value] when someone writes [key]");
 		[JsonProperty]
 		protected readonly Setting<bool> AutoResponses = SettingBase.Create(SettingNames.AutoResponses, true, "activates/deactivates automatic responses");
+		[JsonProperty]
+		protected readonly Setting<IMessageChannel> HonorChannel = SettingBase.Create(SettingNames.HonorChannel, (IMessageChannel)null,
+			"a channel where all honor transactions of your guild will be displayed with the according message (only for guilds)");
 
 		[JsonProperty]
 		protected readonly Setting<string> Prefix = SettingBase.Create(SettingNames.Prefix, "k!", "sets a new prefix");

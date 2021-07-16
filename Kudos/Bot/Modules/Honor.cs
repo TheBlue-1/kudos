@@ -9,6 +9,7 @@ using Kudos.Attributes;
 using Kudos.DatabaseModels;
 using Kudos.Exceptions;
 using Kudos.Extensions;
+using Kudos.Models;
 using Kudos.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -113,12 +114,15 @@ namespace Kudos.Bot.Modules {
 
 		[Command("honor", "adds honor points for user")]
 		public async Task HonorUser([CommandParameter(0)] IUser honoredUser, [CommandParameter] IUser honoringUser, [CommandParameter(1, 1)] int count,
-			[CommandParameter] IMessageChannel channel) {
+			[CommandParameter(2, "")] string message, [CommandParameter] IMessageChannel channel) {
 			count = HonorCount(honoredUser, honoringUser, count);
 
 			HonorData.Add(new HonorData { Honor = count, Honored = honoredUser.Id, Honorer = honoringUser.Id, Timestamp = DateTime.UtcNow });
 
 			await Messaging.Instance.SendMessage(channel, $"You honored ***{honoredUser.Mention}*** with ***{count}*** Points!");
+			if (channel is IGuildChannel guildChannel) {
+				await SendToHonorChannel(guildChannel.Guild, honoredUser, honoringUser, count, message);
+			}
 		}
 
 		public async Task HonorUserWithReaction(IUserMessage message, SocketReaction reaction) {
@@ -132,7 +136,7 @@ namespace Kudos.Bot.Modules {
 			IUser honorer = reaction.User.Value;
 			string description = message.Embeds.First().Description;
 			SocketUser honored = description.Substring(26, description.Length - 102).ToValue<SocketUser>(0, new Models.Settings());
-			await HonorUser(honored, honorer, honor, message.Channel);
+			await HonorUser(honored, honorer, honor, "", message.Channel);
 		}
 
 		[Command("leaders", "shows the most highly honored people of the server")]
@@ -186,6 +190,15 @@ namespace Kudos.Bot.Modules {
 			}
 
 			await Messaging.Instance.SendMessage(channel, $"***{user.Mention}*** has ***{honor}*** honor points. \n***{honorMessage}***");
+		}
+
+		private static async Task SendToHonorChannel(IGuild guild, IUser honoredUser, IUser honoringUser, int count, string message) {
+			Models.Settings settings = SettingsManager.Instance.SettingsFor(null, guild.Id);
+			if (settings[SettingNames.HonorChannel].IsSet) {
+				settings[SettingNames.HonorChannel].Value(out IMessageChannel channel);
+				await Messaging.Instance.SendMessage(channel,
+					$"{honoringUser} honored {honoredUser} with {count} honor points {(string.IsNullOrEmpty(message) ? "" : $"'{message}'")}");
+			}
 		}
 
 		private int UsedHonorOf(ulong userId) {

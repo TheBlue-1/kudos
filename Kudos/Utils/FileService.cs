@@ -12,7 +12,7 @@ namespace Kudos.Utils {
 		private const string JsonFileEnding = ".json";
 
 		private static readonly JsonSerializerSettings JsonSettings = new() {
-			TypeNameHandling = TypeNameHandling.Auto, Converters = { new JsonIEmoteConverter() }
+			TypeNameHandling = TypeNameHandling.Auto, Converters = { new JsonIEmoteConverter(), new JsonIMessageChannelConverter() }
 		};
 
 		private readonly object _logFile = new();

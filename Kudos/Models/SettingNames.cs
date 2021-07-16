@@ -6,7 +6,7 @@
 		AutoImage,
 		AutoMessage,
 		AutoHonor,
-
+		HonorChannel,
 		Timezone
 	}
 }
