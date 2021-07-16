@@ -78,7 +78,7 @@ namespace Kudos.Bot.Modules {
 			switch (text.Length) {
 				//25 for field names,55 for footer+title
 				case > 6000 - 25 - 55 : throw new KudosInternalException("Tried to send message with more than 6000 chars");
-				case <= 2048 : return await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
+				case <= 4096 : return await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
 			}
 			EmbedBuilder builder = new EmbedBuilder().SetDefaults();
 			string[] textParts = text.SplitAtSpace(25, 1024);

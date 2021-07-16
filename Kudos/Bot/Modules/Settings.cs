@@ -59,7 +59,7 @@ namespace Kudos.Bot.Modules {
 			throw new KudosArgumentException("Can not set server settings in pms");
 		}
 
-		[Command("gsreset", "resets personal settings", Accessibility.Admin)]
+		[Command("gsreset", "resets guild settings", Accessibility.Admin)]
 		public async Task ResetGuildSettings([CommandParameter] ISocketMessageChannel channel) {
 			if (!(channel is SocketGuildChannel guildChannel)) {
 				throw new KudosArgumentException("Can not set server settings in pms");

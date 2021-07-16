@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using DiscordBotsList.Api.Objects;
@@ -59,7 +60,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 
-		[Command("deleteaccesslog", "deletes the log")]
+		[Command("deleteaccesslog", "deletes the access-log")]
 		public async Task DeleteAccessLog([CommandParameter] ISocketMessageChannel channel) {
 			FileService.Instance.DeleteLog(FileService.LogType.Access);
 			await Messaging.Instance.SendMessage(channel, "Deleted");
@@ -71,7 +72,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, "Deleted");
 		}
 
-		[Command("deleteloginlog", "deletes the log")]
+		[Command("deleteloginlog", "deletes the login-log")]
 		public async Task DeleteLoginLog([CommandParameter] ISocketMessageChannel channel) {
 			FileService.Instance.DeleteLog(FileService.LogType.Login);
 			await Messaging.Instance.SendMessage(channel, "Deleted");
@@ -89,7 +90,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, $"sent successfully. {notReceived} didn't receive the message");
 		}
 
-		[Command("readaccesslog", "returns the log")]
+		[Command("readaccesslog", "returns the access-log")]
 		public async Task ReadAccessLog([CommandParameter] ISocketMessageChannel channel) {
 			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog(FileService.LogType.Access));
 		}
@@ -99,7 +100,7 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog());
 		}
 
-		[Command("readloginlog", "returns the log")]
+		[Command("readloginlog", "returns the login-log")]
 		public async Task ReadLoginLog([CommandParameter] ISocketMessageChannel channel) {
 			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog(FileService.LogType.Login));
 		}
@@ -107,6 +108,13 @@ namespace Kudos.Bot.Modules {
 		[Command("readrunlog", "returns the log")]
 		public async Task ReadRunLog([CommandParameter] ISocketMessageChannel channel) {
 			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadRunningLog());
+		}
+
+		[Command("restart", "restarts the bot")]
+		public async Task Restart([CommandParameter] ISocketMessageChannel channel) {
+			Process.Start(Assembly.GetExecutingAssembly().Location);
+			await Messaging.Instance.SendMessage(channel, "Started new Instance. Exiting now.");
+			Environment.Exit(0);
 		}
 
 		[Command("guilds", "shows all guilds of the bot")]
@@ -172,12 +180,16 @@ namespace Kudos.Bot.Modules {
 			}
 			await Messaging.Instance.SendMessage(channel, "Paths found");
 
-			Process permProcess = new()
-			{
-				StartInfo = new ProcessStartInfo("/bin/bash") { Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}",RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true }
+			Process permProcess = new() {
+				StartInfo = new ProcessStartInfo("/bin/bash") {
+					Arguments = $"-c \"sudo chmod 777 {settings[pullFileKey]}",
+					RedirectStandardError = true,
+					RedirectStandardOutput = true,
+					CreateNoWindow = true
+				}
 			};
 			permProcess.Start();
-		await	permProcess.WaitForExitAsync();
+			await permProcess.WaitForExitAsync();
 			string permError = await permProcess.StandardError.ReadToEndAsync();
 			string permOutput = await permProcess.StandardOutput.ReadToEndAsync();
 			await Messaging.Instance.SendMessage(channel, $"Gave permission to pull file\nLog:\n{permOutput}\nError:\n{permError}");
@@ -194,6 +206,7 @@ namespace Kudos.Bot.Modules {
 			};
 			updateProcess.Start();
 			await Messaging.Instance.SendMessage(channel, "started update (if the update is a success there will be no further messages)");
+
 			//Kudos should normally be killed here
 			await updateProcess.WaitForExitAsync();
 			string updateError = await updateProcess.StandardError.ReadToEndAsync();

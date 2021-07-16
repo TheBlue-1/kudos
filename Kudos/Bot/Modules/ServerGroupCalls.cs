@@ -28,7 +28,7 @@ namespace Kudos.Bot.Modules {
 		private ServerGroupCalls() { }
 
 		[Command("addgrouprole", "adds a role to the current call group", Accessibility.Admin)]
-		public async Task AddRole([CommandParameter] SocketGuildUser user, [CommandParameter] SocketRole addedRole,
+		public async Task AddRole([CommandParameter] SocketGuildUser user, [CommandParameter(0)] SocketRole addedRole,
 			[CommandParameter] ISocketMessageChannel textChannel) {
 			IVoiceChannel channel = user.VoiceChannel;
 			if (channel == null) {
