@@ -2,6 +2,7 @@
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Google.Cloud.Logging.Type;
 using Kudos.Bot;
 using Kudos.DatabaseModels;
 using Kudos.Utils;
@@ -32,6 +33,7 @@ namespace Kudos {
 			AppDomain.CurrentDomain.ProcessExit += OnClose;
 			KudosDataContext db = new();
 			db.Database.Migrate();
+
 			string botToken;
 
 			string html = new HtmlGenerator().LongDescription();
@@ -64,10 +66,12 @@ namespace Kudos {
 		}
 
 		private static void ClientStateChanged(object sender, Client.StateChangedData e) {
+			LogService.Instance.Log(DateTime.UtcNow + ": " + e, LogService.LogType.Running, LogSeverity.Info);
 			Console.WriteLine(DateTime.UtcNow + ": " + e);
 		}
 
 		private static void OnClose(object sender, EventArgs e) {
+			LogService.Instance.Log("#################APP SHUTS DOWN#################", LogService.LogType.Running, LogSeverity.Notice);
 			Console.WriteLine("#################APP SHUTS DOWN#################");
 		}
 
