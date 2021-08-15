@@ -22,37 +22,36 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: dotnet test --no-restore --verbosity normal
-
         #deploy
         #only if push
-      - name: Publish
-        if: ${{ github.event_name=='push'}}
-        run: dotnet publish --configuration Release --framework net5.0 -p:PublishSingleFile=false -p:PublishTrimmed=false --runtime linux-arm64 --self-contained true
-      - name: Set RealeaseType master
-        if: ${{ github.ref=='refs/heads/master' && github.event_name=='push'}}
-        run: echo "REALEASE_TYPE=public/" >> $GITHUB_ENV
-      - name: Set RealeaseType dev
-        if: ${{ github.ref=='refs/heads/dev' && github.event_name=='push'}}
-        run: echo "REALEASE_TYPE=beta/" >> $GITHUB_ENV
-      - name: Deploy to Server
-        if: ${{ github.event_name=='push' && env.REALEASE_TYPE=='beta/'}}
-        uses: easingthemes/ssh-deploy@v2.1.1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_SERVER_KEY }}
-          SOURCE: "/Kudos/bin/Release/net5.0/linux-arm64/publish"
-          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: "~/Kudos/${{ env.REALEASE_TYPE }}"
-      - name: Start new Version
-        if: ${{ github.event_name=='push' && env.REALEASE_TYPE=='beta/'}}
-        uses: garygrossgarten/github-action-ssh@release
-        with:
-          host: ${{ secrets.SSH_REMOTE_HOST }}
-          username: ${{ secrets.SSH_REMOTE_USER }}
-          privateKey: ${{ secrets.SSH_SERVER_KEY}}
-          command: |
-            cd Kudos/${{ env.REALEASE_TYPE }}publish
-            pid=$(cat 'last.pid')
-            kill $pid
-            nohup ./Kudos &>> runningLog.txt &
-            echo "$!" > last.pid
+      # - name: Publish
+      #   if: ${{ github.event_name=='push'}}
+      #   run: dotnet publish --configuration Release --framework net5.0 -p:PublishSingleFile=false -p:PublishTrimmed=false --runtime linux-arm64 --self-contained true
+      # - name: Set RealeaseType master
+      #   if: ${{ github.ref=='refs/heads/master' && github.event_name=='push'}}
+      #   run: echo "REALEASE_TYPE=public/" >> $GITHUB_ENV
+      # - name: Set RealeaseType dev
+      #   if: ${{ github.ref=='refs/heads/dev' && github.event_name=='push'}}
+      #   run: echo "REALEASE_TYPE=beta/" >> $GITHUB_ENV
+      # - name: Deploy to Server
+      #   if: ${{ github.event_name=='push' && env.REALEASE_TYPE=='beta/'}}
+      #   uses: easingthemes/ssh-deploy@v2.1.1
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ secrets.SSH_SERVER_KEY }}
+      #     SOURCE: "/Kudos/bin/Release/net5.0/linux-arm64/publish"
+      #     REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+      #     REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
+      #     TARGET: "~/Kudos/${{ env.REALEASE_TYPE }}"
+      # - name: Start new Version
+      #   if: ${{ github.event_name=='push' && env.REALEASE_TYPE=='beta/'}}
+      #   uses: garygrossgarten/github-action-ssh@release
+      #   with:
+      #     host: ${{ secrets.SSH_REMOTE_HOST }}
+      #     username: ${{ secrets.SSH_REMOTE_USER }}
+      #     privateKey: ${{ secrets.SSH_SERVER_KEY}}
+      #     command: |
+      #       cd Kudos/${{ env.REALEASE_TYPE }}publish
+      #       pid=$(cat 'last.pid')
+      #       kill $pid
+      #       nohup ./Kudos &>> runningLog.txt &
+      #       echo "$!" > last.pid
