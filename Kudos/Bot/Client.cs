@@ -11,6 +11,7 @@ using Kudos.Bot.Modules;
 using Kudos.Extensions;
 using Kudos.Models;
 using Kudos.Utils;
+using LogSeverity = Google.Cloud.Logging.Type.LogSeverity;
 using Settings = Kudos.Models.Settings;
 #endregion
 
@@ -55,12 +56,12 @@ namespace Kudos.Bot {
 			_client.Disconnected += _ => {
 				_connected = false;
 				StateChange();
-				return Task.Run(() => { });
+				return FakeTask;
 			};
 			_client.LoggedOut += () => {
 				_loggedIn = false;
 				StateChange();
-				return Task.Run(() => { });
+				return FakeTask;
 			};
 		}
 
@@ -163,7 +164,7 @@ namespace Kudos.Bot {
 						}
 					}
 					catch (Exception e) {
-						FileService.Instance.Log(e.Message, FileService.LogType.Login);
+						LogService.Instance.Log(e.Message, LogService.LogType.Login, LogSeverity.Error);
 					}
 					await Task.Delay(5000);
 				}

@@ -14,6 +14,7 @@ using Kudos.Exceptions;
 using Kudos.Extensions;
 using Kudos.Models;
 using Kudos.Utils;
+using LogSeverity = Google.Cloud.Logging.Type.LogSeverity;
 #endregion
 
 namespace Kudos.Bot {
@@ -55,7 +56,8 @@ namespace Kudos.Bot {
 					Parameters[i] = Parameters[i].Substring(1, Parameters[i].Length - 2);
 				}
 			}
-			FileService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", FileService.LogType.Access);
+			LogService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", LogService.LogType.Access,
+				LogSeverity.Info);
 		}
 
 		public void Execute() {

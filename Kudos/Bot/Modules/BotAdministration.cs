@@ -60,54 +60,10 @@ namespace Kudos.Bot.Modules {
 			await Messaging.Instance.SendMessage(channel, message);
 		}
 
-		[Command("deleteaccesslog", "deletes the access-log")]
-		public async Task DeleteAccessLog([CommandParameter] ISocketMessageChannel channel) {
-			FileService.Instance.DeleteLog(FileService.LogType.Access);
-			await Messaging.Instance.SendMessage(channel, "Deleted");
-		}
-
-		[Command("deletelog", "deletes the log")]
-		public async Task DeleteLog([CommandParameter] ISocketMessageChannel channel) {
-			FileService.Instance.DeleteLog();
-			await Messaging.Instance.SendMessage(channel, "Deleted");
-		}
-
-		[Command("deleteloginlog", "deletes the login-log")]
-		public async Task DeleteLoginLog([CommandParameter] ISocketMessageChannel channel) {
-			FileService.Instance.DeleteLog(FileService.LogType.Login);
-			await Messaging.Instance.SendMessage(channel, "Deleted");
-		}
-
-		[Command("deleterunlog", "deletes the log")]
-		public async Task DeleteRunLog([CommandParameter] ISocketMessageChannel channel) {
-			FileService.Instance.DeleteRunningLog();
-			await Messaging.Instance.SendMessage(channel, "Deleted");
-		}
-
 		[Command("adminmsg", "sends a message to all guild admins")]
 		public async Task MessageAdmins([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0)] string message) {
 			int notReceived = await Messaging.Instance.SendToAdmins(message);
 			await Messaging.Instance.SendMessage(channel, $"sent successfully. {notReceived} didn't receive the message");
-		}
-
-		[Command("readaccesslog", "returns the access-log")]
-		public async Task ReadAccessLog([CommandParameter] ISocketMessageChannel channel) {
-			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog(FileService.LogType.Access));
-		}
-
-		[Command("readlog", "returns the log")]
-		public async Task ReadLog([CommandParameter] ISocketMessageChannel channel) {
-			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog());
-		}
-
-		[Command("readloginlog", "returns the login-log")]
-		public async Task ReadLoginLog([CommandParameter] ISocketMessageChannel channel) {
-			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadLog(FileService.LogType.Login));
-		}
-
-		[Command("readrunlog", "returns the log")]
-		public async Task ReadRunLog([CommandParameter] ISocketMessageChannel channel) {
-			await Messaging.Instance.SendMessage(channel, FileService.Instance.ReadRunningLog());
 		}
 
 		[Command("restart", "restarts the bot")]

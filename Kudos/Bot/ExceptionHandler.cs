@@ -5,6 +5,7 @@ using Discord;
 using Kudos.Bot.Modules;
 using Kudos.Exceptions;
 using Kudos.Utils;
+using LogSeverity = Google.Cloud.Logging.Type.LogSeverity;
 #endregion
 
 namespace Kudos.Bot {
@@ -64,14 +65,14 @@ namespace Kudos.Bot {
 			if (sendMessages) {
 				await Messaging.Instance.SendExpiringMessage(Channel, "unknown error occurred", ExceptionMessageLifeTime);
 			}
-			FileService.Instance.Log(Exception.ToString());
+			LogService.Instance.Log(Exception.ToString(), LogService.LogType.Main, LogSeverity.Critical);
 		}
 
 		private async Task SendInternalError(bool sendMessages) {
 			if (sendMessages) {
 				await Messaging.Instance.SendExpiringMessage(Channel, "An internal error occurred", ExceptionMessageLifeTime);
 			}
-			FileService.Instance.Log($"error while error handling: \n{Exception}");
+			LogService.Instance.Log($"error while error handling: \n{Exception}", LogService.LogType.Main, LogSeverity.Critical);
 		}
 	}
 }

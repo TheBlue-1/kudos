@@ -78,10 +78,10 @@ namespace Kudos.Models {
 			settings = defaultSettings._settings.Values.Aggregate(settings, (current, defaultSetting) => current + defaultSetting.HelpText + "\n");
 			builder.AddField(settingsField.WithValue(settings));
 			EmbedFieldBuilder examplesField = new EmbedFieldBuilder().WithIsInline(false).WithName("Examples");
-			string examples = "set `prefix` server wide:\n" + "`k!s prefix \"kudos!\" - true`\n";
+			string examples = "set `prefix` server wide:\n" + "`k!gs prefix \"kudos!\"`\n";
 			examples += "unset (to default) `prefix` personal:\n" + "`k!s prefix`\n";
 			examples += "set `autoreact` for messages ending with `haha` to `😂` personal:\n" + "`k!s autoreact \"😂\" \"*haha\"`\n";
-			examples += "unset `autoreact` for messages starting with `haha` server wide:\n" + "`k!s autoreact - \"haha*\" true`\n";
+			examples += "unset `autoreact` for messages starting with `haha` server wide:\n" + "`k!gs autoreact - \"haha*\"`\n";
 			examplesField.WithValue(examples);
 			return builder.AddField(examplesField);
 		}
