@@ -73,6 +73,13 @@ namespace Kudos.Bot.Modules {
 			Environment.Exit(0);
 		}
 
+		[Command("restart", "restarts the bot")]
+		public async Task Restart([CommandParameter] ISocketMessageChannel channel) {
+			Process.Start(Assembly.GetExecutingAssembly().Location);
+			await Messaging.Instance.SendMessage(channel, "Started new Instance. Exiting now.");
+			Environment.Exit(0);
+		}
+
 		[Command("guilds", "shows all guilds of the bot")]
 		public async Task SendGuilds([CommandParameter] ISocketMessageChannel channel) {
 			SocketGuild[] guilds = Program.Client.Guilds.Where(g => g != null).OrderBy(guild => guild.Name).ToArray();
