@@ -1,5 +1,7 @@
 ﻿#region
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Google.Cloud.Logging.Type;
@@ -57,7 +59,7 @@ namespace Kudos {
 			Client = new Client(botToken);
 			Client.StateChanged += ClientStateChanged;
 			Client.Start();
-			RefreshBotListDocs();
+			RefreshBotListDocs(botToken);
 			while (true) {
 				Task.Delay(WaitingTimeInMs).Wait();
 			}
@@ -75,7 +77,7 @@ namespace Kudos {
 			Console.WriteLine("#################APP SHUTS DOWN#################");
 		}
 
-		private static async void RefreshBotListDocs() {
+		private static async void RefreshBotListDocs(string botToken) {
 			if (BotListToken == null) {
 				return;
 			}
@@ -86,11 +88,13 @@ namespace Kudos {
 				return;
 			}
 
+			Client.GuildCountChanged += () => { BotList.ThisBot.UpdateStatsAsync(Client.Guilds.Count); };
+
 			string html = new HtmlGenerator().LongDescription();
 
-			FileService.Instance.WriteFile("description.html", html);
-
-			Client.GuildCountChanged += () => { BotList.ThisBot.UpdateStatsAsync(Client.Guilds.Count); };
+			HttpClient client = new(new HttpClientHandler { AllowAutoRedirect = true });
+			Dictionary<string, string> data = new() { { "password", botToken }, { "username", "Kudos" }, { "html", html } };
+			await client.PostAsync("https://kudos.ml/update/", new FormUrlEncodedContent(data));
 		}
 	}
 }
