@@ -28,10 +28,10 @@ namespace Kudos.Utils {
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
 			switch (value) {
 				case Emote emote :
-					serializer.Serialize(writer, emote);
+					serializer.Serialize(writer, new {emote.Name,emote.Id});
 					break;
 				case Emoji emoji :
-					serializer.Serialize(writer, emoji);
+					serializer.Serialize(writer, new{emoji.Name});
 					break;
 				default : throw new NotImplementedException();
 			}

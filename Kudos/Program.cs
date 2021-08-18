@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Google.Cloud.Logging.Type;
 using Kudos.Bot;
 using Kudos.DatabaseModels;
+using Kudos.Extensions;
 using Kudos.Utils;
 using Microsoft.EntityFrameworkCore;
 #endregion
@@ -32,6 +33,7 @@ namespace Kudos {
 	#endif
 
 		private static void Main() {
+			AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 			AppDomain.CurrentDomain.ProcessExit += OnClose;
 			KudosDataContext db = new();
 			db.Database.Migrate();
@@ -58,13 +60,20 @@ namespace Kudos {
 			}
 			Client = new Client(botToken);
 			Client.StateChanged += ClientStateChanged;
+
+			LogService.Instance.Log(DateTime.UtcNow + ": start initiated", LogService.LogType.Running, LogSeverity.Info);
 			Client.Start();
-			RefreshBotListDocs(botToken);
+			RefreshBotListDocs(botToken).RunAsyncSave();
 			while (true) {
 				Task.Delay(WaitingTimeInMs).Wait();
 			}
 
 			// ReSharper disable once FunctionNeverReturns
+		}
+
+		private static void UnhandledException(object sender, UnhandledExceptionEventArgs e) {
+			LogService.Instance.Log($"Unhandled Exception: '{(e.ExceptionObject is Exception ex ? ex.Message : "no message found")}' ({e.ExceptionObject})",
+				LogService.LogType.Main, LogSeverity.Critical, false);
 		}
 
 		private static void ClientStateChanged(object sender, Client.StateChangedData e) {
@@ -73,11 +82,11 @@ namespace Kudos {
 		}
 
 		private static void OnClose(object sender, EventArgs e) {
-			LogService.Instance.Log("#################APP SHUTS DOWN#################", LogService.LogType.Running, LogSeverity.Notice);
+			LogService.Instance.Log("#################APP SHUTS DOWN#################", LogService.LogType.Running, LogSeverity.Notice, false);
 			Console.WriteLine("#################APP SHUTS DOWN#################");
 		}
 
-		private static async void RefreshBotListDocs(string botToken) {
+		private static async Task RefreshBotListDocs(string botToken) {
 			if (BotListToken == null) {
 				return;
 			}

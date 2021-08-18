@@ -37,7 +37,7 @@ namespace Kudos.Utils {
 				RunLocked(() => {
 					DictionaryImplementation[key] = value;
 
-					_ = SaveDictionary();
+					SaveDictionary().RunAsyncSave();
 				});
 			}
 		}
@@ -76,14 +76,14 @@ namespace Kudos.Utils {
 			RunLocked(() => {
 				(DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).Add(item);
 
-				_ = SaveDictionary();
+				SaveDictionary().RunAsyncSave();
 			});
 		}
 
 		public virtual void Clear() {
 			RunLocked(() => {
 				DictionaryImplementation.Clear();
-				_ = SaveDictionary();
+				SaveDictionary().RunAsyncSave();
 			});
 		}
 
@@ -96,7 +96,7 @@ namespace Kudos.Utils {
 		public virtual bool Remove(KeyValuePair<TKey, TValue> item) {
 			return RunLocked(() => {
 				bool success = (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).Remove(item);
-				_ = SaveDictionary();
+				SaveDictionary().RunAsyncSave();
 				return success;
 			});
 		}
@@ -105,7 +105,7 @@ namespace Kudos.Utils {
 			RunLocked(() => {
 				DictionaryImplementation.Add(key, value);
 
-				_ = SaveDictionary();
+				SaveDictionary().RunAsyncSave();
 			});
 		}
 
@@ -114,7 +114,7 @@ namespace Kudos.Utils {
 		public virtual bool Remove(TKey key) {
 			return RunLocked(() => {
 				bool success = DictionaryImplementation.Remove(key);
-				_ = SaveDictionary();
+				SaveDictionary().RunAsyncSave();
 				return success;
 			});
 		}

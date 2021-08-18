@@ -1,6 +1,7 @@
 ﻿#region
 using System.Collections.Generic;
 using System.ComponentModel;
+using Kudos.Extensions;
 using Kudos.Models;
 #endregion
 
@@ -61,8 +62,8 @@ namespace Kudos.Utils {
 			return base.Remove(key);
 		}
 
-		private async void SettingsChanged(object sender, PropertyChangedEventArgs args) {
-			await SaveDictionary();
+		private void SettingsChanged(object sender, PropertyChangedEventArgs args) {
+			SaveDictionary().RunAsyncSave();
 		}
 	}
 }
