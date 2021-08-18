@@ -30,17 +30,22 @@ namespace Kudos.Utils {
 			}
 		}
 
-		public void Log(string text, LogType logType, LogSeverity severity) {
+		public void Log(string text, LogType logType, LogSeverity severity, bool async = true) {
 			if (Client == null) {
 				Console.WriteLine($"{DateTime.Now} {logType} {severity} {text}");
 				return;
 			}
-			new Action(() => {
+			Action sendLog = () => {
 				LogEntry logEntry = new() { LogNameAsLogName = LogName, Severity = severity, TextPayload = text };
 				MonitoredResource resource = new() { Type = "global" };
 				Dictionary<string, string> labels = new() { { "logType", Logs[logType] } };
 				Client.WriteLogEntries(LogName, resource, labels, new[] { logEntry });
-			}).RunAsyncSave();
+			};
+			if (async) {
+				sendLog.RunAsyncSave();
+			} else {
+				sendLog.Invoke();
+			}
 		}
 
 		public enum LogType {

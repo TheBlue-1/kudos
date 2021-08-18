@@ -18,6 +18,17 @@ namespace Kudos.Extensions {
 			});
 		}
 
+		public static void RunAsyncSave(this Task task, IMessageChannel channel = null, bool sendMessages = false) {
+			Task.Run(async () => {
+				try {
+					await task;
+				}
+				catch (Exception e) {
+					new ExceptionHandler(e, channel).Handle(sendMessages);
+				}
+			});
+		}
+
 		public static void RunAsyncSave(this Action task, IMessageChannel channel = null, bool sendMessages = false) {
 			Task.Run(() => {
 				try {
