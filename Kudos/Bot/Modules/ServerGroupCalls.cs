@@ -277,12 +277,19 @@ namespace Kudos.Bot.Modules {
 			users = (users ?? await UsersInChannel(channel, group, roleUserIds)).ToArray();
 
 			if (CurrentInvites.ContainsKey(group.ChannelId)) {
+				await RefreshInvites(CurrentInvites[group.ChannelId], users);
 				if (users.Any()) {
-					await RefreshInvites(CurrentInvites[group.ChannelId], users);
 					return;
 				}
-				await DeleteInvites(CurrentInvites[group.ChannelId]);
-				CurrentInvites.Remove(group.ChannelId);
+
+				new Func<Task>(async () => {
+					await Task.Delay(new TimeSpan(0, 5, 0));
+					if (Timeouts[group.ChannelId] + new TimeSpan(0, 5, 0) > DateTime.UtcNow || (await UsersInChannel(channel, group, roleUserIds)).Any()) {
+						return;
+					}
+					await DeleteInvites(CurrentInvites[group.ChannelId]);
+					CurrentInvites.Remove(group.ChannelId);
+				}).RunAsyncSave();
 				return;
 			}
 			if (users.Any()) {
