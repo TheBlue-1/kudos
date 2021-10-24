@@ -4,7 +4,7 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net5.0</TargetFramework>
     <StartWorkingDirectory>$(MSBuildProjectDirectory)</StartWorkingDirectory>
-		<Version>1.1.8.3</Version>
+		<Version>1.1.8.4</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,6 +15,10 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <None Include="..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+
 	
 
 	<ItemGroup>
@@ -24,8 +28,8 @@
 		<PackageReference Include="Discord.Net.Rest" Version="2.4.0" />
 		<PackageReference Include="Discord.Net.Webhook" Version="2.4.0" />
 		<PackageReference Include="Discord.Net.WebSocket" Version="2.4.0" />
-		<PackageReference Include="DiscordBotsList.Api" Version="1.4.7" />
-		<PackageReference Include="Google.Cloud.Logging.V2" Version="3.3.0" />
+		<PackageReference Include="DiscordBotsList.Api" Version="1.5.0" />
+		<PackageReference Include="Google.Cloud.Logging.V2" Version="3.4.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.8">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
