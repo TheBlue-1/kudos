@@ -148,8 +148,7 @@ namespace Kudos.Bot.Modules {
                 try {
                     await invite.DeleteAsync();
                 } catch {
-                    //invite not deleted
-                    //ignored
+                    LogService.Instance.Log($"A server group call invite could not be deleted\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
                 }
             }
         }
