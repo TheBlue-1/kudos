@@ -1,131 +1,137 @@
 ﻿#region
+
+using Kudos.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using Kudos.Extensions;
 
 // ReSharper disable AssignmentIsFullyDiscarded
 #endregion
 
 namespace Kudos.Utils {
-	public class AsyncThreadsafeFileSyncedDictionary<TKey, TValue> : IDictionary<TKey, TValue> {
-		private readonly object _fileLockObject = new();
-		private Dictionary<TKey, TValue> _dictionaryImplementation;
-		public int Count => RunLocked(() => DictionaryImplementation.Count);
-		protected Dictionary<TKey, TValue> DictionaryImplementation {
-			get {
-				if (_dictionaryImplementation == null) {
-					ReadDictionary().Wait();
-				}
-				return _dictionaryImplementation;
-			}
-		}
-		private string FileName { get; }
 
-		// ReSharper disable once UnusedMember.Global
-		public ImmutableDictionary<TKey, TValue> Immutable => RunLocked(() => DictionaryImplementation.ToImmutableDictionary());
-		public bool IsReadOnly => RunLocked(() => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).IsReadOnly);
-		public ICollection<TKey> Keys => throw new NotSupportedException();
-		public ICollection<TValue> Values => throw new NotSupportedException();
+    public class AsyncThreadsafeFileSyncedDictionary<TKey, TValue> : IDictionary<TKey, TValue> {
+        private readonly object _fileLockObject = new();
+        private Dictionary<TKey, TValue> _dictionaryImplementation;
+        public int Count => RunLocked(() => DictionaryImplementation.Count);
 
-		public virtual TValue this[TKey key] {
-			get => RunLocked(() => DictionaryImplementation[key]);
-			set {
-				RunLocked(() => {
-					DictionaryImplementation[key] = value;
+        protected Dictionary<TKey, TValue> DictionaryImplementation {
+            get {
+                if (_dictionaryImplementation == null) {
+                    ReadDictionary().Wait();
+                }
+                return _dictionaryImplementation;
+            }
+        }
 
-					SaveDictionary().RunAsyncSave();
-				});
-			}
-		}
+        private string FileName { get; }
 
-		public AsyncThreadsafeFileSyncedDictionary(string fileName) => FileName = fileName;
+        // ReSharper disable once UnusedMember.Global
+        public ImmutableDictionary<TKey, TValue> Immutable => RunLocked(() => DictionaryImplementation.ToImmutableDictionary());
 
-		protected async Task ReadDictionary() {
-			await Task.Run(() => {
-				lock (_fileLockObject) {
-					_dictionaryImplementation = FileService.Instance.ReadJsonFromFile<Dictionary<TKey, TValue>>(FileName).WaitForResult();
-				}
-			});
-		}
+        public bool IsReadOnly => RunLocked(() => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).IsReadOnly);
+        public ICollection<TKey> Keys => throw new NotSupportedException();
+        public ICollection<TValue> Values => throw new NotSupportedException();
 
-		protected T RunLocked<T>(Func<T> func) {
-			lock (DictionaryImplementation) {
-				return func.Invoke();
-			}
-		}
+        public virtual TValue this[TKey key] {
+            get => RunLocked(() => DictionaryImplementation[key]);
+            set {
+                RunLocked(() => {
+                    DictionaryImplementation[key] = value;
 
-		protected void RunLocked(Action func) {
-			lock (DictionaryImplementation) {
-				func.Invoke();
-			}
-		}
+                    SaveDictionary().RunAsyncSave();
+                });
+            }
+        }
 
-		protected async Task SaveDictionary() {
-			await Task.Run(() => {
-				lock (_fileLockObject) {
-					FileService.Instance.SaveJsonToFile(FileName, DictionaryImplementation).Wait();
-				}
-			});
-		}
+        public AsyncThreadsafeFileSyncedDictionary(string fileName) => FileName = fileName;
 
-		public virtual void Add(KeyValuePair<TKey, TValue> item) {
-			RunLocked(() => {
-				(DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).Add(item);
+        protected async Task ReadDictionary() {
+            await Task.Run(() => {
+                lock (_fileLockObject) {
+                    _dictionaryImplementation = FileService.Instance.ReadJsonFromFile<Dictionary<TKey, TValue>>(FileName).WaitForResult();
+                }
+            });
+        }
 
-				SaveDictionary().RunAsyncSave();
-			});
-		}
+        protected T RunLocked<T>(Func<T> func) {
+            lock (DictionaryImplementation) {
+                return func.Invoke();
+            }
+        }
 
-		public virtual void Clear() {
-			RunLocked(() => {
-				DictionaryImplementation.Clear();
-				SaveDictionary().RunAsyncSave();
-			});
-		}
+        protected void RunLocked(Action func) {
+            lock (DictionaryImplementation) {
+                func.Invoke();
+            }
+        }
 
-		public virtual bool Contains(KeyValuePair<TKey, TValue> item) => RunLocked(() => DictionaryImplementation.Contains(item));
+        protected async Task SaveDictionary() {
+            await Task.Run(() => {
+                lock (_fileLockObject) {
+                    FileService.Instance.SaveJsonToFile(FileName, DictionaryImplementation).Wait();
+                }
+            });
+        }
 
-		public virtual void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
-			RunLocked(() => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).CopyTo(array, arrayIndex));
-		}
+        public virtual void Add(KeyValuePair<TKey, TValue> item) {
+            RunLocked(() => {
+                (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).Add(item);
 
-		public virtual bool Remove(KeyValuePair<TKey, TValue> item) {
-			return RunLocked(() => {
-				bool success = (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).Remove(item);
-				SaveDictionary().RunAsyncSave();
-				return success;
-			});
-		}
+                SaveDictionary().RunAsyncSave();
+            });
+        }
 
-		public virtual void Add(TKey key, TValue value) {
-			RunLocked(() => {
-				DictionaryImplementation.Add(key, value);
+        public virtual void Clear() {
+            RunLocked(() => {
+                DictionaryImplementation.Clear();
+                SaveDictionary().RunAsyncSave();
+            });
+        }
 
-				SaveDictionary().RunAsyncSave();
-			});
-		}
+        public virtual bool Contains(KeyValuePair<TKey, TValue> item) => RunLocked(() => DictionaryImplementation.Contains(item));
 
-		public virtual bool ContainsKey(TKey key) => RunLocked(() => DictionaryImplementation.ContainsKey(key));
+        public virtual void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
+            RunLocked(() => (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).CopyTo(array, arrayIndex));
+        }
 
-		public virtual bool Remove(TKey key) {
-			return RunLocked(() => {
-				bool success = DictionaryImplementation.Remove(key);
-				SaveDictionary().RunAsyncSave();
-				return success;
-			});
-		}
+        public virtual bool Remove(KeyValuePair<TKey, TValue> item) {
+            return RunLocked(() => {
+                bool success = (DictionaryImplementation as ICollection<KeyValuePair<TKey, TValue>>).Remove(item);
+                SaveDictionary().RunAsyncSave();
+                return success;
+            });
+        }
 
-		public virtual bool TryGetValue(TKey key, out TValue value) {
-			lock (DictionaryImplementation) {
-				return DictionaryImplementation.TryGetValue(key, out value);
-			}
-		}
+        public virtual void Add(TKey key, TValue value) {
+            RunLocked(() => {
+                DictionaryImplementation.Add(key, value);
 
-		IEnumerator IEnumerable.GetEnumerator() => throw new NotSupportedException();
-		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => throw new NotSupportedException();
-	}
+                SaveDictionary().RunAsyncSave();
+            });
+        }
+
+        public virtual bool ContainsKey(TKey key) => RunLocked(() => DictionaryImplementation.ContainsKey(key));
+
+        public virtual bool Remove(TKey key) {
+            return RunLocked(() => {
+                bool success = DictionaryImplementation.Remove(key);
+                SaveDictionary().RunAsyncSave();
+                return success;
+            });
+        }
+
+        public virtual bool TryGetValue(TKey key, out TValue value) {
+            lock (DictionaryImplementation) {
+                return DictionaryImplementation.TryGetValue(key, out value);
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => throw new NotSupportedException();
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => throw new NotSupportedException();
+    }
 }

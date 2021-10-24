@@ -1,61 +1,67 @@
 ﻿#region
+
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+
 #endregion
 
 namespace Kudos.Utils {
-	public class FileService {
-		private const string ApplicationFolderName = "KudosData";
-		private const string JsonFileEnding = ".json";
 
-		private static readonly JsonSerializerSettings JsonSettings = new() {
-			TypeNameHandling = TypeNameHandling.Auto, Converters = { new JsonIEmoteConverter(), new JsonIMessageChannelConverter() }
-		};
+    public class FileService {
+        private const string ApplicationFolderName = "KudosData";
+        private const string JsonFileEnding = ".json";
 
-		public string ApplicationFolderPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
+        private static readonly JsonSerializerSettings JsonSettings = new() {
+            TypeNameHandling = TypeNameHandling.Auto,
+            Converters = { new JsonIEmoteConverter(), new JsonIMessageChannelConverter() }
+        };
 
-		public static FileService Instance { get; } = new();
+        public string ApplicationFolderPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
 
-		public AsyncThreadsafeFileSyncedDictionary<string, string> Settings { get; } = new("settings");
-		static FileService() { }
+        public static FileService Instance { get; } = new();
 
-		private FileService() {
-			if (!Directory.Exists(ApplicationFolderPath)) {
-				Directory.CreateDirectory(ApplicationFolderPath);
-			}
-		}
+        public AsyncThreadsafeFileSyncedDictionary<string, string> Settings { get; } = new("settings");
 
-		internal string ReadGoogleApiAuth() {
-			string fileName = Path.Combine(ApplicationFolderPath, "google-api-auth" + JsonFileEnding);
-			return !File.Exists(fileName) ? null : File.ReadAllText(fileName);
-		}
+        static FileService() {
+        }
 
-		public async Task<T> ReadJsonFromFile<T>(string fileName)
-			where T : new() {
-			return await Task.Run(() => {
-				fileName = Path.Combine(ApplicationFolderPath, fileName + JsonFileEnding);
-				if (!File.Exists(fileName)) {
-					return new T();
-				}
-				string json = File.ReadAllText(fileName);
-				T val = JsonConvert.DeserializeObject<T>(json, JsonSettings);
-				return val ?? new T();
-			});
-		}
+        private FileService() {
+            if (!Directory.Exists(ApplicationFolderPath)) {
+                Directory.CreateDirectory(ApplicationFolderPath);
+            }
+        }
 
-		public async Task SaveJsonToFile<T>(string fileName, T content) {
-			await Task.Run(() => {
-				fileName = Path.Combine(ApplicationFolderPath, fileName + JsonFileEnding);
-				string json = JsonConvert.SerializeObject(content, JsonSettings);
+        internal string ReadGoogleApiAuth() {
+            string fileName = Path.Combine(ApplicationFolderPath, "google-api-auth" + JsonFileEnding);
+            return !File.Exists(fileName) ? null : File.ReadAllText(fileName);
+        }
 
-				File.WriteAllText(fileName, json);
-			});
-		}
+        public async Task<T> ReadJsonFromFile<T>(string fileName)
+            where T : new() {
+            return await Task.Run(() => {
+                fileName = Path.Combine(ApplicationFolderPath, fileName + JsonFileEnding);
+                if (!File.Exists(fileName)) {
+                    return new T();
+                }
+                string json = File.ReadAllText(fileName);
+                T val = JsonConvert.DeserializeObject<T>(json, JsonSettings);
+                return val ?? new T();
+            });
+        }
 
-		public void WriteFile(string name, string content) {
-			File.WriteAllText(Path.Combine(ApplicationFolderPath, name), content);
-		}
-	}
+        public async Task SaveJsonToFile<T>(string fileName, T content) {
+            await Task.Run(() => {
+                fileName = Path.Combine(ApplicationFolderPath, fileName + JsonFileEnding);
+                string json = JsonConvert.SerializeObject(content, JsonSettings);
+
+                File.WriteAllText(fileName, json);
+            });
+        }
+
+        public void WriteFile(string name, string content) {
+            File.WriteAllText(Path.Combine(ApplicationFolderPath, name), content);
+        }
+    }
 }

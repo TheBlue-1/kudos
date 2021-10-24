@@ -1,32 +1,35 @@
 ﻿#region
-using System;
-using System.Linq;
+
 using Discord;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+
 #endregion
 
 namespace Kudos.Utils {
-	public class JsonIMessageChannelConverter : JsonConverter {
-		private static readonly Type[] Types = { typeof (IMessageChannel) };
 
-		public override bool CanConvert(Type objectType) {
-			return Types.Any(type => type.IsAssignableFrom(objectType));
-		}
+    public class JsonIMessageChannelConverter : JsonConverter {
+        private static readonly Type[] Types = { typeof(IMessageChannel) };
 
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
-			if (reader.TokenType != JsonToken.StartObject) {
-				return null;
-			}
-			JObject json = JObject.Load(reader);
+        public override bool CanConvert(Type objectType) {
+            return Types.Any(type => type.IsAssignableFrom(objectType));
+        }
 
-			return Program.Client.GetMessageChannelById(json.Value<ulong>("Id"));
-		}
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+            if (reader.TokenType != JsonToken.StartObject) {
+                return null;
+            }
+            JObject json = JObject.Load(reader);
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-			if (value is IMessageChannel channel) {
-				serializer.Serialize(writer, new { channel.Id });
-			}
-		}
-	}
+            return Program.Client.GetMessageChannelById(json.Value<ulong>("Id"));
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+            if (value is IMessageChannel channel) {
+                serializer.Serialize(writer, new { channel.Id });
+            }
+        }
+    }
 }

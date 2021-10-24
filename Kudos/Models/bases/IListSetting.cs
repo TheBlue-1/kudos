@@ -1,3 +1,4 @@
 ﻿namespace Kudos.Models.bases {
-	public interface IListSetting : ISetting { }
+
+    public interface IListSetting : ISetting { }
 }
