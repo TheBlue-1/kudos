@@ -28,8 +28,12 @@ namespace Kudos.Bot {
             } catch (Exception) {
                 try {
                     await SendInternalError(sendMessages);
-                } catch (Exception) {
-                    //ignored (couldn't send internal error msg, nothing more kudos can do)
+                } catch (Exception e) {
+                    try {
+                        LogService.Instance.Log($"Exception could not be handled: {e.Message}\n{e}", LogService.LogType.Main, LogSeverity.Error);
+                    } catch (Exception) {
+                        //ignored (couldn't send internal error msg, nothing more kudos can do)
+                    }
                 }
             }
         }
@@ -45,6 +49,7 @@ namespace Kudos.Bot {
                     }
                 }
                 if (exception is IKudosException kudosException) {
+                    LogService.Instance.Log($"{kudosException.UserMessage} ({kudosException.Message})", LogService.LogType.Main, LogSeverity.Warning);
                     if (!sendMessages) {
                         return;
                     }

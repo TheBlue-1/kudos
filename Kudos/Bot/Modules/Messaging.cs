@@ -3,8 +3,8 @@
 using Discord;
 using Discord.WebSocket;
 using Kudos.Attributes;
-using Kudos.Exceptions;
 using Kudos.Extensions;
+using Kudos.Utils;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,9 +53,8 @@ namespace Kudos.Bot.Modules {
             await Task.Delay(timeSpan);
             try {
                 await message.DeleteAsync();
-            } catch (Exception) {
-                //message deletion didn't work
-                //ignored
+            } catch (Exception e) {
+                LogService.Instance.Log($"A message could not be deleted\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
             }
         }
 
@@ -74,7 +73,7 @@ namespace Kudos.Bot.Modules {
         public async Task<IUserMessage> SendMessage([CommandParameter] IMessageChannel channel, [CommandParameter(0)] string text) {
             if (text.StartsWith('=')) {
                 if (text.Length > 6000) {
-                    throw new KudosInternalException("Tried to send message with more than 6000 chars");
+                    text = text.Remove(6000 - 1 - 3) + "...";
                 }
                 return await channel.SendMessageAsync(text.Substring(1));
             }
@@ -85,7 +84,7 @@ namespace Kudos.Bot.Modules {
                 text = text.Remove(6000 - 25 - 55 - 1 - 3) + "...";
                 break;
 
-                case <= 4096: return await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
+                case <= 2048: return await SendEmbed(channel, new EmbedBuilder().SetDefaults().WithDescription(text));
             }
             EmbedBuilder builder = new EmbedBuilder().SetDefaults();
             string[] textParts = text.SplitAtSpace(25, 1024);
@@ -127,8 +126,8 @@ namespace Kudos.Bot.Modules {
                 }
                 try {
                     await SendMessage(await guildUser.GetOrCreateDMChannelAsync(), message);
-                } catch {
-                    // ignored
+                } catch (Exception e) {
+                    LogService.Instance.Log($"A welcome message could not be delivered\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
                 }
             }
         }
