@@ -126,7 +126,7 @@ namespace Kudos.Bot.Modules {
                 }
                 try {
                     await SendMessage(await guildUser.GetOrCreateDMChannelAsync(), message);
-                } catch {
+                } catch (Exception e) {
                     LogService.Instance.Log($"A welcome message could not be delivered\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
                 }
             }
