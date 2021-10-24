@@ -1,91 +1,94 @@
 ﻿#region
-using System;
+
 using Kudos.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using System;
 
 // ReSharper disable UnusedMember.Global
 #endregion
 
 namespace Kudos.Migrations {
-	[DbContext(typeof (KudosDataContext))]
-	internal class KudosDataContextModelSnapshot : ModelSnapshot {
-		protected override void BuildModel(ModelBuilder modelBuilder) {
-		#pragma warning disable 612, 618
-			modelBuilder.HasAnnotation("ProductVersion", "3.1.9");
 
-			modelBuilder.Entity("Kudos.DatabaseModels.BanData", b => {
-				b.Property<ulong>("UserId").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+    [DbContext(typeof(KudosDataContext))]
+    internal class KudosDataContextModelSnapshot : ModelSnapshot {
 
-				b.Property<bool>("HardBan").HasColumnType("INTEGER");
+        protected override void BuildModel(ModelBuilder modelBuilder) {
+#pragma warning disable 612, 618
+            modelBuilder.HasAnnotation("ProductVersion", "3.1.9");
 
-				b.HasKey("UserId");
+            modelBuilder.Entity("Kudos.DatabaseModels.BanData", b => {
+                b.Property<ulong>("UserId").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-				b.ToTable("BanData");
-			});
+                b.Property<bool>("HardBan").HasColumnType("INTEGER");
 
-			modelBuilder.Entity("Kudos.DatabaseModels.GroupData", b => {
-				b.Property<ulong>("ChannelId").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+                b.HasKey("UserId");
 
-				b.Property<bool>("Auto").HasColumnType("INTEGER");
+                b.ToTable("BanData");
+            });
 
-				b.Property<string>("RoleIds").HasColumnType("TEXT");
+            modelBuilder.Entity("Kudos.DatabaseModels.GroupData", b => {
+                b.Property<ulong>("ChannelId").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-				b.Property<string>("UserIds").HasColumnType("TEXT");
+                b.Property<bool>("Auto").HasColumnType("INTEGER");
 
-				b.HasKey("ChannelId");
+                b.Property<string>("RoleIds").HasColumnType("TEXT");
 
-				b.ToTable("GroupData");
-			});
+                b.Property<string>("UserIds").HasColumnType("TEXT");
 
-			modelBuilder.Entity("Kudos.DatabaseModels.HonorData", b => {
-				b.Property<ulong>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+                b.HasKey("ChannelId");
 
-				b.Property<int>("Honor").HasColumnType("INTEGER");
+                b.ToTable("GroupData");
+            });
 
-				b.Property<ulong>("Honored").HasColumnType("INTEGER");
+            modelBuilder.Entity("Kudos.DatabaseModels.HonorData", b => {
+                b.Property<ulong>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-				b.Property<ulong>("Honorer").HasColumnType("INTEGER");
+                b.Property<int>("Honor").HasColumnType("INTEGER");
 
-				b.Property<DateTime>("Timestamp").HasColumnType("TEXT");
+                b.Property<ulong>("Honored").HasColumnType("INTEGER");
 
-				b.HasKey("Id");
+                b.Property<ulong>("Honorer").HasColumnType("INTEGER");
 
-				b.ToTable("HonorData");
-			});
+                b.Property<DateTime>("Timestamp").HasColumnType("TEXT");
 
-			modelBuilder.Entity("Kudos.DatabaseModels.QuestionData", b => {
-				b.Property<ulong>("Id").HasColumnType("INTEGER");
+                b.HasKey("Id");
 
-				b.Property<ulong>("Answerer").HasColumnType("INTEGER");
+                b.ToTable("HonorData");
+            });
 
-				b.Property<string>("Question").HasColumnType("TEXT");
+            modelBuilder.Entity("Kudos.DatabaseModels.QuestionData", b => {
+                b.Property<ulong>("Id").HasColumnType("INTEGER");
 
-				b.Property<ulong>("Questionnaire").HasColumnType("INTEGER");
+                b.Property<ulong>("Answerer").HasColumnType("INTEGER");
 
-				b.HasKey("Id");
+                b.Property<string>("Question").HasColumnType("TEXT");
 
-				b.ToTable("QuestionData");
-			});
+                b.Property<ulong>("Questionnaire").HasColumnType("INTEGER");
 
-			modelBuilder.Entity("Kudos.DatabaseModels.TimerData", b => {
-				b.Property<ulong>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+                b.HasKey("Id");
 
-				b.Property<ulong>("ChannelId").HasColumnType("INTEGER");
+                b.ToTable("QuestionData");
+            });
 
-				b.Property<DateTime>("End").HasColumnType("TEXT");
+            modelBuilder.Entity("Kudos.DatabaseModels.TimerData", b => {
+                b.Property<ulong>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-				b.Property<string>("Message").HasColumnType("TEXT");
+                b.Property<ulong>("ChannelId").HasColumnType("INTEGER");
 
-				b.Property<ulong>("OwnerId").HasColumnType("INTEGER");
+                b.Property<DateTime>("End").HasColumnType("TEXT");
 
-				b.Property<TimeSpan>("Repeat").HasColumnType("TEXT");
+                b.Property<string>("Message").HasColumnType("TEXT");
 
-				b.HasKey("Id");
+                b.Property<ulong>("OwnerId").HasColumnType("INTEGER");
 
-				b.ToTable("TimerData");
-			});
-		#pragma warning restore 612, 618
-		}
-	}
+                b.Property<TimeSpan>("Repeat").HasColumnType("TEXT");
+
+                b.HasKey("Id");
+
+                b.ToTable("TimerData");
+            });
+#pragma warning restore 612, 618
+        }
+    }
 }

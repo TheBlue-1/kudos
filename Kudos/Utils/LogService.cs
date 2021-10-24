@@ -1,58 +1,67 @@
 ﻿#region
-using System;
-using System.Collections.Generic;
+
 using Google.Api;
 using Google.Cloud.Logging.Type;
 using Google.Cloud.Logging.V2;
 using Kudos.Extensions;
+using System;
+using System.Collections.Generic;
+
 #endregion
 
 namespace Kudos.Utils {
-	public class LogService {
-		private const string LogId = "kudos-main";
-		private const string ProjectId = "kudos-322808";
-		private LoggingServiceV2Client Client { get; }
-		public static LogService Instance { get; } = new();
 
-		private LogName LogName { get; } = new(ProjectId, LogId);
-		private Dictionary<LogType, string> Logs { get; } = new() {
-			{ LogType.Main, "main" }, { LogType.Access, "access" }, { LogType.Running, "running" }, { LogType.Login, "login" }
-		};
-		static LogService() { }
+    public class LogService {
+        private const string LogId = "kudos-main";
+        private const string ProjectId = "kudos-322808";
+        private LoggingServiceV2Client Client { get; }
+        public static LogService Instance { get; } = new();
 
-		private LogService() {
-			string credentials = FileService.Instance.ReadGoogleApiAuth();
-			if (credentials != null) {
-				Client = new LoggingServiceV2ClientBuilder { JsonCredentials = credentials }.Build();
-			} else {
-				Console.WriteLine(
-					"No google credentials given. Logging-Mode Debug. Logging to Console. (if you want to change this add the credentials json file to the KudosData folder)");
-			}
-		}
+        private LogName LogName { get; } = new(ProjectId, LogId);
 
-		public void Log(string text, LogType logType, LogSeverity severity, bool async = true) {
-			if (Client == null) {
-				Console.WriteLine($"{DateTime.Now} {logType} {severity} {text}");
-				return;
-			}
-			Action sendLog = () => {
-				LogEntry logEntry = new() { LogNameAsLogName = LogName, Severity = severity, TextPayload = text };
-				MonitoredResource resource = new() { Type = "global" };
-				Dictionary<string, string> labels = new() { { "logType", Logs[logType] } };
-				Client.WriteLogEntries(LogName, resource, labels, new[] { logEntry });
-			};
-			if (async) {
-				sendLog.RunAsyncSave();
-			} else {
-				sendLog.Invoke();
-			}
-		}
+        private Dictionary<LogType, string> Logs { get; } = new() {
+            { LogType.Main, "main" },
+            { LogType.Access, "access" },
+            { LogType.Running, "running" },
+            { LogType.Login, "login" }
+        };
 
-		public enum LogType {
-			Main,
-			Access,
-			Login,
-			Running
-		}
-	}
+        static LogService() {
+        }
+
+        private LogService() {
+            string credentials = FileService.Instance.ReadGoogleApiAuth();
+            if (credentials != null) {
+                Client = new LoggingServiceV2ClientBuilder { JsonCredentials = credentials }.Build();
+            } else {
+                Console.WriteLine(
+                    "No google credentials given. Logging-Mode Debug. Logging to Console. (if you want to change this add the credentials json file to the KudosData folder)");
+            }
+        }
+
+        public void Log(string text, LogType logType, LogSeverity severity, bool async = true) {
+            if (Client == null) {
+                Console.WriteLine($"{DateTime.Now} {logType} {severity} {text}");
+                return;
+            }
+            Action sendLog = () => {
+                LogEntry logEntry = new() { LogNameAsLogName = LogName, Severity = severity, TextPayload = text };
+                MonitoredResource resource = new() { Type = "global" };
+                Dictionary<string, string> labels = new() { { "logType", Logs[logType] } };
+                Client.WriteLogEntries(LogName, resource, labels, new[] { logEntry });
+            };
+            if (async) {
+                sendLog.RunAsyncSave();
+            } else {
+                sendLog.Invoke();
+            }
+        }
+
+        public enum LogType {
+            Main,
+            Access,
+            Login,
+            Running
+        }
+    }
 }

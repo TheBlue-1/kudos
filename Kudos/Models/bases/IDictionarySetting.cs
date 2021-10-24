@@ -1,3 +1,4 @@
 ﻿namespace Kudos.Models.bases {
-	public interface IDictionarySetting : ISetting { }
+
+    public interface IDictionarySetting : ISetting { }
 }
