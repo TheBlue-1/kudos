@@ -100,7 +100,7 @@ namespace Kudos {
                 return;
             }
 
-            Client.GuildCountChanged += () => { BotList.ThisBot.UpdateStatsAsync(Client.Guilds.Count); };
+            Client.GuildCountChanged += () => { BotList.ThisBot.UpdateStatsAsync(new[] { Client.Guilds.Count }); };
 
             string html = new HtmlGenerator().LongDescription();
 
