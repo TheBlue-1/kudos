@@ -172,15 +172,19 @@ namespace Kudos.Bot.Modules {
         }
 
         private static async Task RefreshInvites(IEnumerable<IUserMessage> currentInvites, IEnumerable<IGuildUser> users) {
-            string inChannelString = users.Aggregate("", (current, guildUser) => current + $"{guildUser}\n");
+            string inChannelString = users.Aggregate("\u200B", (current, guildUser) => current + $"{guildUser}\n");
 
             foreach (IUserMessage invite in currentInvites) {
-                await invite.ModifyAsync(message => {
-                    message.Embed = new EmbedBuilder().SetDefaults()
-                        .WithDescription(invite.Embeds.First().Description)
-                        .AddField("Current Users", inChannelString)
-                        .Build();
-                });
+                try {
+                    await invite.ModifyAsync(message => {
+                        message.Embed = new EmbedBuilder().SetDefaults()
+                            .WithDescription(invite.Embeds.First().Description)
+                            .AddField("Current Users", inChannelString)
+                            .Build();
+                    });
+                } catch (Exception e) {
+                    LogService.Instance.Log($"A server group call invite could not be updated\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
+                }
             }
         }
 
