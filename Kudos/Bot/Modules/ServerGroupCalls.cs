@@ -149,7 +149,7 @@ namespace Kudos.Bot.Modules {
                 try {
                     await invite.ModifyAsync(message => {
                         message.Embed = new EmbedBuilder().SetDefaults()
-                            .WithDescription($"**{call.StartedBy.Username}** started a call that lasted for {(DateTime.Now - call.Start).Readable()}")
+                            .WithDescription($"**{call.StartedBy.Username}** started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Readable()}")
                             .Build();
                     });
                 } catch (Exception e) {
@@ -256,7 +256,7 @@ namespace Kudos.Bot.Modules {
                 ?? await channel.CreateInviteAsync();
 
             string inChannelString = alreadyInChannel.Aggregate("", (current, guildUser) => current + $"{guildUser}\n");
-            RunningCalls[group.ChannelId] = new CallData(user) { CurrentInvites = new List<IUserMessage>() };
+            RunningCalls[group.ChannelId] = new CallData(user, group, channel) { CurrentInvites = new List<IUserMessage>() };
             foreach (ulong groupUserId in userIds.Where(groupUserId => alreadyInChannel.All(channelUser => channelUser.Id != groupUserId))) {
                 try {
                     SocketUser groupUser = Program.Client.GetSocketUserById(groupUserId);
