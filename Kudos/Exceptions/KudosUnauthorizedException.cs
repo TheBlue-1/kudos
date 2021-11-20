@@ -6,7 +6,7 @@ using System;
 
 namespace Kudos.Exceptions {
 
-    internal class KudosUnauthorizedException : Exception, IKudosException {
+    public class KudosUnauthorizedException : Exception, IKudosException {
         public TimeSpan? Lifetime { get; }
         public string UserMessage { get; }
 

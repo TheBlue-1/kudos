@@ -6,6 +6,7 @@ using Kudos.Attributes;
 using Kudos.DatabaseModels;
 using Kudos.Exceptions;
 using Kudos.Extensions;
+using Kudos.Models;
 using Kudos.Utils;
 using System;
 using System.Collections.Generic;
@@ -20,11 +21,11 @@ namespace Kudos.Bot.Modules {
     [CommandModule("Server Group Calls", permissions: new[] { GuildPermission.CreateInstantInvite })]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class ServerGroupCalls {
-        private Dictionary<ulong, IList<IUserMessage>> CurrentInvites { get; } = new();
         private DatabaseSyncedList<GroupData> Groups { get; } = DatabaseSyncedList.Instance<GroupData>();
 
         public static ServerGroupCalls Instance { get; } = new();
-        private Dictionary<ulong, DateTime> Timeouts { get; } = new();
+
+        private Dictionary<ulong, CallData> RunningCalls { get; } = new();
 
         static ServerGroupCalls() {
         }
@@ -108,7 +109,7 @@ namespace Kudos.Bot.Modules {
             if (group.Auto && (group.UserIds.Contains(user.Id) || roleUserIds.Contains(user.Id))) {
                 IEnumerable<IGuildUser> users = (await UsersInChannel(channel, group, roleUserIds)).ToArray();
                 if (!users.Any()) {
-                    Timeouts[group.ChannelId] = DateTime.UtcNow;
+                    RunningCalls[group.ChannelId].Timeout = DateTime.UtcNow;
                 }
                 await UpdateInvites(group, channel, user, roleUserIds, users);
             }
@@ -143,12 +144,16 @@ namespace Kudos.Bot.Modules {
             await Messaging.Instance.SendExpiringMessage(textChannel, "Group deleted successfully");
         }
 
-        private static async Task DeleteInvites(IEnumerable<IUserMessage> currentInvites) {
-            foreach (IUserMessage invite in currentInvites) {
+        private static async Task DeleteInvites(CallData call) {
+            foreach (IUserMessage invite in call.CurrentInvites) {
                 try {
-                    await invite.DeleteAsync();
+                    await invite.ModifyAsync(message => {
+                        message.Embed = new EmbedBuilder().SetDefaults()
+                            .WithDescription($"**{call.StartedBy.Username}** started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Readable()}")
+                            .Build();
+                    });
                 } catch (Exception e) {
-                    LogService.Instance.Log($"A server group call invite could not be deleted\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
+                    LogService.Instance.Log($"A server group call invite could not be deleted (updated)\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
                 }
             }
         }
@@ -233,8 +238,8 @@ namespace Kudos.Bot.Modules {
         }
 
         private async Task SendInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds, IEnumerable<IGuildUser> users = null) {
-            if (Timeouts.ContainsKey(group.ChannelId)) {
-                TimeSpan timeout = Timeouts[group.ChannelId] - DateTime.UtcNow.AddMinutes(-5);
+            if (RunningCalls.ContainsKey(group.ChannelId)) {
+                TimeSpan timeout = RunningCalls[group.ChannelId].Timeout - DateTime.UtcNow.AddMinutes(-5);
                 if (timeout > TimeSpan.Zero) {
                     throw new KudosInvalidOperationException($"There is still a Timeout for {timeout}");
                 }
@@ -247,11 +252,11 @@ namespace Kudos.Bot.Modules {
             IReadOnlyCollection<IInviteMetadata> invites = await channel.GetInvitesAsync();
 
             IInviteMetadata invite =
-                invites.FirstOrDefault(i => i.ChannelId == channel.Id && i.IsTemporary == false && i.Inviter.Id == Program.Client.BotUserId)
+                invites.FirstOrDefault(i => i.ChannelId == channel.Id && !i.IsTemporary && i.Inviter.Id == Program.Client.BotUserId)
                 ?? await channel.CreateInviteAsync();
 
             string inChannelString = alreadyInChannel.Aggregate("", (current, guildUser) => current + $"{guildUser}\n");
-            CurrentInvites[group.ChannelId] = new List<IUserMessage>();
+            RunningCalls[group.ChannelId] = new CallData(user, group, channel) { CurrentInvites = new List<IUserMessage>() };
             foreach (ulong groupUserId in userIds.Where(groupUserId => alreadyInChannel.All(channelUser => channelUser.Id != groupUserId))) {
                 try {
                     SocketUser groupUser = Program.Client.GetSocketUserById(groupUserId);
@@ -266,7 +271,7 @@ namespace Kudos.Bot.Modules {
                                 $"Hey, **{user.Username}** invited you to join the voice call [**{channel.Name}** in {channel.Guild.Name}]({invite.Url})")
                             .AddField("Current Users", inChannelString));
                     if (group.Auto) {
-                        CurrentInvites[group.ChannelId].Add(message);
+                        RunningCalls[group.ChannelId].CurrentInvites.Add(message);
                     }
                 } catch (Exception) {
                     errorCount++;
@@ -276,25 +281,25 @@ namespace Kudos.Bot.Modules {
                 throw new KudosUnauthorizedException($"{errorCount} users could not be notified");
             }
 
-            Timeouts[group.ChannelId] = DateTime.UtcNow;
+            RunningCalls[group.ChannelId].Timeout = DateTime.UtcNow;
         }
 
         private async Task UpdateInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds, IEnumerable<IGuildUser> users = null) {
             users = (users ?? await UsersInChannel(channel, group, roleUserIds)).ToArray();
 
-            if (CurrentInvites.ContainsKey(group.ChannelId)) {
-                await RefreshInvites(CurrentInvites[group.ChannelId], users);
+            if (RunningCalls.ContainsKey(group.ChannelId)) {
+                await RefreshInvites(RunningCalls[group.ChannelId].CurrentInvites, users);
                 if (users.Any()) {
                     return;
                 }
 
                 new Func<Task>(async () => {
                     await Task.Delay(new TimeSpan(0, 5, 0));
-                    if (Timeouts[group.ChannelId] + new TimeSpan(0, 5, 0) > DateTime.UtcNow || (await UsersInChannel(channel, group, roleUserIds)).Any()) {
+                    if (RunningCalls[group.ChannelId].Timeout + new TimeSpan(0, 5, 0) > DateTime.UtcNow || (await UsersInChannel(channel, group, roleUserIds)).Any()) {
                         return;
                     }
-                    await DeleteInvites(CurrentInvites[group.ChannelId]);
-                    CurrentInvites.Remove(group.ChannelId);
+                    await DeleteInvites(RunningCalls[group.ChannelId]);
+                    RunningCalls.Remove(group.ChannelId);
                 }).RunAsyncSave();
                 return;
             }
