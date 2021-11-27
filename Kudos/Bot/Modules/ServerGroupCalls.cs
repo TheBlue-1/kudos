@@ -130,6 +130,14 @@ namespace Kudos.Bot.Modules {
             await Messaging.Instance.SendExpiringMessage(textChannel, "Group created successfully");
         }
 
+        [Command("listgroups", "lists all groups on the current server", Accessibility.Admin)]
+        public async Task ListGroups([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel) {
+            IEnumerable<GroupData> groups = Groups.Where(g => Program.Client.GetVoiceChannelById(g.ChannelId).GuildId == user.Guild.Id);
+
+            string list = groups.Aggregate("Groups:\n", (s, group) => s + $"**{Program.Client.GetVoiceChannelById(group.ChannelId).Name}** {group.UserIds.Count} Users {group.RoleIds.Count} Roles");
+            await Messaging.Instance.SendMessage(textChannel, list);
+        }
+
         [Command("deletegroup", "deletes the call group in your current channel", Accessibility.Admin)]
         public async Task DeleteGroup([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel) {
             IVoiceChannel channel = user.VoiceChannel;
@@ -149,7 +157,7 @@ namespace Kudos.Bot.Modules {
                 try {
                     await invite.ModifyAsync(message => {
                         message.Embed = new EmbedBuilder().SetDefaults()
-                            .WithDescription($"**{call.StartedBy.Username}** started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Readable()}")
+                            .WithDescription($"**{call.StartedBy.Username}** started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Add(new TimeSpan(0, -5, 0)).Readable()}")
                             .Build();
                     });
                 } catch (Exception e) {
