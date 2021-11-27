@@ -120,6 +120,8 @@ namespace Kudos.Bot {
             return FakeTask;
         }
 
+        public IVoiceChannel GetVoiceChannelById(ulong id) => _client.GetChannel(id) as IVoiceChannel;
+
         public IMessageChannel GetMessageChannelById(ulong id) => _client.GetChannel(id) as IMessageChannel;
 
         public async Task<RestUser> GetRestUserById(ulong id) => await _client.Rest.GetUserAsync(id);
