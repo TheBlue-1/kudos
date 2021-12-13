@@ -130,11 +130,25 @@ namespace Kudos.Bot.Modules {
             await Messaging.Instance.SendExpiringMessage(textChannel, "Group created successfully");
         }
 
+        [Command("groupinfo", "gives information about a specific group", Accessibility.Admin)]
+        public async Task GroupInfo([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel, [CommandParameter(0)] int groupNumber) {
+            SocketGuild guild = user?.Guild;
+            GroupData[] groups = Groups.Where(g => Program.Client.GetVoiceChannelById(g.ChannelId)?.GuildId == guild?.Id && guild?.Id != null).ToArray();
+            if (groups.Length <= groupNumber) {
+                throw new KudosArgumentOutOfRangeException("groupNumber doesn't exist, try a lower number");
+            }
+            GroupData group = groups[groupNumber];
+
+            string msg = group.RoleIds.Aggregate($"**{Program.Client.GetVoiceChannelById(group.ChannelId).Name}**\nRoles:\n", (s, r) => $"{s}{guild.GetRole(r).Name}\n");
+            msg += group.UserIds.Aggregate("Users:\n", (s, u) => $"{s}{guild.GetUser(u).Username}\n");
+            await Messaging.Instance.SendMessage(textChannel, msg);
+        }
+
         [Command("listgroups", "lists all groups on the current server", Accessibility.Admin)]
         public async Task ListGroups([CommandParameter] SocketGuildUser user, [CommandParameter] ISocketMessageChannel textChannel) {
-            IEnumerable<GroupData> groups = Groups.Where(g => Program.Client.GetVoiceChannelById(g.ChannelId).GuildId == user?.Guild?.Id);
-
-            string list = groups.Aggregate("Groups:\n", (s, group) => s + $"**{Program.Client.GetVoiceChannelById(group.ChannelId).Name}** {group.UserIds.Count} Users {group.RoleIds.Count} Roles");
+            IEnumerable<GroupData> groups = Groups.Where(g => Program.Client.GetVoiceChannelById(g.ChannelId)?.GuildId == user?.Guild?.Id && user?.Guild?.Id != null);
+            int index = 0;
+            string list = groups.Aggregate("Groups:\n", (s, group) => s + $"{index++}: **{Program.Client.GetVoiceChannelById(group.ChannelId).Name}** {group.UserIds.Count} Users {group.RoleIds.Count} Roles");
             await Messaging.Instance.SendMessage(textChannel, list);
         }
 

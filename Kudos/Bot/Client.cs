@@ -108,7 +108,8 @@ namespace Kudos.Bot {
                 IUserMessage message;
                 try {
                     message = await arg1.GetOrDownloadAsync();
-                } catch (Exception) {
+                } catch (Exception e) {
+                    LogService.Instance.Log(e.ToString(), LogService.LogType.Main, LogSeverity.Notice);
                     return;
                 }
 
