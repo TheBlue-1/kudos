@@ -39,6 +39,11 @@ namespace Kudos.Utils {
             set => throw new NotSupportedException();
         }
 
+        public T this[params object[] keyvalues] {
+            get => Set.Find(keyvalues);
+            set => throw new NotSupportedException();
+        }
+
         /*
 		 * Do not use this constructor, use Instance of not generic class
 		 */

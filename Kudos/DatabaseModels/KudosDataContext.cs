@@ -19,6 +19,7 @@ namespace Kudos.DatabaseModels {
         public DbSet<HonorData> HonorData { get; set; }
         public DbSet<QuestionData> QuestionData { get; set; }
         public DbSet<TimerData> TimerData { get; set; }
+        public DbSet<RunningCall> RunningCall { get; set; }
 
         public KudosDataContext() {
         }
@@ -41,6 +42,9 @@ namespace Kudos.DatabaseModels {
             modelBuilder.Entity<GroupData>()
                 .Property(group => group.RoleIds)
                 .HasConversion(v => string.Join(';', v), v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(ulong.Parse).ToList());
+            modelBuilder.Entity<RunningCall>()
+                      .Property(call => call.CurrentInvitesIds)
+                      .HasConversion(v => string.Join(';', v.Select(i => i.Item1 + "," + i.Item2)), v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(i => i.Split(",", StringSplitOptions.None)).Select(i => new Tuple<ulong, ulong>(ulong.Parse(i[0]), ulong.Parse(i[1]))));
         }
 
         // ReSharper disable once PartialMethodWithSinglePart

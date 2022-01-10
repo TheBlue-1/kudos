@@ -62,6 +62,7 @@ namespace Kudos {
                 settings["bot_token"] = botToken;
             }
             Client = new Client(botToken);
+
             Client.StateChanged += ClientStateChanged;
 
             LogService.Instance.Log(DateTime.UtcNow + ": start initiated", LogService.LogType.Running, LogSeverity.Info);

@@ -135,7 +135,8 @@ namespace Kudos.Bot {
 
         private static Task Init() {
             new Action(() => {
-                Rememberer unused = Rememberer.Instance; //initiate Timers
+                _ = Rememberer.Instance; //initiate Timers
+                _ = ServerGroupCalls.Instance; //initiate Running Calls
             }).RunAsyncSave();
             return FakeTask;
         }
