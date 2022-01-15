@@ -284,7 +284,7 @@ namespace Kudos.Bot {
             DefaultValue<IMessageChannel> defaultValue, Optional<IMessageChannel> min, Optional<IMessageChannel> max, bool throwOutOfRange, Settings settings) {
             IMessageChannel channel;
             if (ParameterPresent(parameters, index)) {
-                channel = parameters[index].ChannelFromMention();
+                channel = parameters[index].ChannelFromMentionOrId();
                 if (channel != null) {
                     return channel;
                 }
@@ -301,7 +301,7 @@ namespace Kudos.Bot {
             DefaultValue<SocketRole> defaultValue, Optional<SocketRole> min, Optional<SocketRole> max, bool throwOutOfRange, Settings settings) {
             SocketRole role;
             if (ParameterPresent(parameters, index)) {
-                role = parameters[index].RoleFromMention();
+                role = parameters[index].RoleFromMentionOrId();
                 if (role != null) {
                     return role;
                 }
@@ -318,14 +318,14 @@ namespace Kudos.Bot {
             DefaultValue<SocketUser> defaultValue, Optional<SocketUser> min, Optional<SocketUser> max, bool throwOutOfRange, Settings settings) {
             SocketUser user;
             if (ParameterPresent(parameters, index)) {
-                user = parameters[index].FromMention();
+                user = parameters[index].UserFromMentionOrId();
                 if (user != null) {
                     return user;
                 }
 
                 string[] userData = parameters[index].Split("#");
                 if (userData[0].StartsWith('@')) {
-                    userData[0] = userData[0].Substring(1);
+                    userData[0] = userData[0][1..];
                 }
                 if (userData.Length == 2) {
                     user = Program.Client.GetSocketUserByUsername(userData[0], userData[1]);

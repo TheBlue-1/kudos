@@ -3,14 +3,16 @@ using System;
 using Kudos.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Kudos.Migrations
 {
     [DbContext(typeof(KudosDataContext))]
-    partial class KudosDataContextModelSnapshot : ModelSnapshot
+    [Migration("20220110153158_AddRunningCalls")]
+    partial class AddRunningCalls
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -131,7 +131,7 @@ namespace Kudos.Bot.Modules {
             new Func<Task>(async () => {
                 IMessageChannel channel = Program.Client.GetMessageChannelById(data.ChannelId);
                 if (data.Message.StartsWith('=')) {
-                    await Messaging.Instance.SendMessage(channel, "=**Reminder: **" + data.Message.Substring(1));
+                    await Messaging.Instance.SendMessage(channel, "=**Reminder: **" + data.Message[1..]);
                 } else {
                     await Messaging.Instance.SendMessage(channel, "**Reminder: **" + data.Message);
                 }
