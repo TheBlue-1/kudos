@@ -180,6 +180,11 @@ namespace Kudos.Bot.Modules {
                     LogService.Instance.Log($"A server group call invite could not be deleted (updated)\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
                 }
             }
+            try {
+                await Messaging.Instance.SendMessage(await call.StartedBy.GetOrCreateDMChannelAsync(), $"*You* started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Add(new TimeSpan(0, -5, 0)).Readable()}");
+            } catch (Exception e) {
+                LogService.Instance.Log($"A server group call info could not be delivered to starter\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
+            }
         }
 
         [Command("invitegroup", "sends a dm to all group members to invite them to join your channel")]
