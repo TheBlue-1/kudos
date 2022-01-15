@@ -19,25 +19,29 @@ namespace Kudos.Extensions {
             return guildUsers.FirstOrDefault(guildUser => guildUser.VoiceChannel != null)?.VoiceChannel;
         }
 
-        public static IMessageChannel ChannelFromMention(this string mention) {
-            Regex regex = new("^<#(\\d+)>$");
-            Match match = regex.Match(mention);
-            if (!match.Success) {
-                return null;
+        public static IMessageChannel ChannelFromMentionOrId(this string mention) {
+            if (!ulong.TryParse(mention, out ulong id)) {
+                Regex regex = new("^<#(\\d+)>$");
+                Match match = regex.Match(mention);
+                if (!match.Success) {
+                    return null;
+                }
+                id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
             }
 
-            ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
             return Program.Client.GetMessageChannelById(id);
         }
 
-        public static SocketUser FromMention(this string mention) {
-            Regex regex = new("^<@!{0,1}(\\d+)>$");
-            Match match = regex.Match(mention);
-            if (!match.Success) {
-                return null;
-            }
+        public static SocketUser UserFromMentionOrId(this string mention) {
+            if (!ulong.TryParse(mention, out ulong id)) {
+                Regex regex = new("^<@!{0,1}(\\d+)>$");
+                Match match = regex.Match(mention);
+                if (!match.Success) {
+                    return null;
+                }
 
-            ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+                id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+            }
             return Program.Client.GetSocketUserById(id);
         }
 
@@ -51,14 +55,16 @@ namespace Kudos.Extensions {
 
         public static bool IsGuildAdmin(this SocketGuildUser user) => user.GuildPermissions.Administrator;
 
-        public static SocketRole RoleFromMention(this string mention) {
-            Regex regex = new("^<@&{0,1}(\\d+)>$");
-            Match match = regex.Match(mention);
-            if (!match.Success) {
-                return null;
-            }
+        public static SocketRole RoleFromMentionOrId(this string mention) {
+            if (!ulong.TryParse(mention, out ulong id)) {
+                Regex regex = new("^<@&{0,1}(\\d+)>$");
+                Match match = regex.Match(mention);
+                if (!match.Success) {
+                    return null;
+                }
 
-            ulong id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+                id = ulong.Parse(match.Groups.Values.ToArray()[1].Value);
+            }
             return Program.Client.GetRoleById(id);
         }
     }
