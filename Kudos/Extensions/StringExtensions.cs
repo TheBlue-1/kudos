@@ -70,7 +70,7 @@ namespace Kudos.Extensions {
                 }
 
                 parts.Add(text.Remove(spaceIndex));
-                text = text.Substring(spaceIndex + 1);
+                text = text[(spaceIndex + 1)..];
             }
             return parts.ToArray();
         }

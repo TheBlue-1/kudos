@@ -173,17 +173,12 @@ namespace Kudos.Bot.Modules {
                 try {
                     await invite.ModifyAsync(message => {
                         message.Embed = new EmbedBuilder().SetDefaults()
-                            .WithDescription($"**{call.StartedBy.Username}** started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Add(new TimeSpan(0, -5, 0)).Readable()}")
+                            .WithDescription($"**{(call.StartedBy.GetOrCreateDMChannelAsync().WaitForResult().Id == invite.Channel.Id ? "You" : call.StartedBy.Username)}** started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Add(new TimeSpan(0, -5, 0)).Readable()}")
                             .Build();
                     });
                 } catch (Exception e) {
                     LogService.Instance.Log($"A server group call invite could not be deleted (updated)\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
                 }
-            }
-            try {
-                await Messaging.Instance.SendMessage(await call.StartedBy.GetOrCreateDMChannelAsync(), $"*You* started a call in **{call.Channel.Name}** in {call.Channel.Guild.Name} that lasted for {(DateTime.Now - call.Start).Add(new TimeSpan(0, -5, 0)).Readable()}");
-            } catch (Exception e) {
-                LogService.Instance.Log($"A server group call info could not be delivered to starter\n{e}", LogService.LogType.Main, Google.Cloud.Logging.Type.LogSeverity.Notice);
             }
         }
 
@@ -214,6 +209,7 @@ namespace Kudos.Bot.Modules {
                         message.Embed = new EmbedBuilder().SetDefaults()
                             .WithDescription(invite.Embeds.First().Description)
                             .AddField("Current Users", inChannelString)
+                            .WithTimestamp(invite.Timestamp)
                             .Build();
                     });
                 } catch (Exception e) {
@@ -267,11 +263,11 @@ namespace Kudos.Bot.Modules {
         }
 
         private async Task SendInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds, RunningCall call = null, IEnumerable<IGuildUser> users = null) {
-            call = call ?? RunningCalls[group.ChannelId];
+            call ??= RunningCalls[group.ChannelId];
 
             if (call != null) {
                 if (call.Timeout > DateTime.UtcNow.AddMinutes(-5)) {
-                    throw new KudosInvalidOperationException($"There is still a Timeout for {call.Timeout - DateTime.UtcNow.AddMinutes(-5)}");
+                    throw new KudosInvalidOperationException($"There is still a Timeout for {(call.Timeout - DateTime.UtcNow.AddMinutes(-5)).LikeInput()}");
                 }
             } else {
                 RunningCalls.Add(new RunningCall(user, group, channel) { CurrentInvites = new List<IUserMessage>() });
@@ -288,7 +284,7 @@ namespace Kudos.Bot.Modules {
                 ?? await channel.CreateInviteAsync();
 
             string inChannelString = alreadyInChannel.Aggregate("", (current, guildUser) => current + $"{guildUser}\n");
-            foreach (ulong groupUserId in userIds.Where(groupUserId => alreadyInChannel.All(channelUser => channelUser.Id != groupUserId))) {
+            foreach (ulong groupUserId in userIds) {
                 try {
                     SocketUser groupUser = Program.Client.GetSocketUserById(groupUserId);
                     if (groupUser.IsBot) {
@@ -299,7 +295,7 @@ namespace Kudos.Bot.Modules {
                     IUserMessage message = await Messaging.Instance.SendEmbed(groupUserChannel,
                         new EmbedBuilder().SetDefaults()
                             .WithDescription(
-                                $"Hey, **{user.Username}** invited you to join the voice call [**{channel.Name}** in {channel.Guild.Name}]({invite.Url})")
+                                $"Hey, **{(user.GetOrCreateDMChannelAsync().WaitForResult().Id == invite.Channel.Id ? "You" : user.Username)}** invited you to join the voice call [**{channel.Name}** in {channel.Guild.Name}]({invite.Url})")
                             .AddField("Current Users", inChannelString));
                     if (group.Auto) {
                         call.CurrentInvites.Add(message);
@@ -318,7 +314,7 @@ namespace Kudos.Bot.Modules {
 
         private async Task UpdateInvites(GroupData group, SocketVoiceChannel channel, IUser user, ulong[] roleUserIds, RunningCall call = null, IEnumerable<IGuildUser> users = null) {
             users = (users ?? await UsersInChannel(channel, group, roleUserIds)).ToArray();
-            call = call ?? RunningCalls[group.ChannelId];
+            call ??= RunningCalls[group.ChannelId];
             if (call != null) {
                 await RefreshInvites(call.CurrentInvites, users);
                 if (users.Any()) {
