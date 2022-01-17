@@ -28,8 +28,7 @@ namespace Kudos.Bot.Modules {
                         return i;
                     }
                 }
-
-                throw new Exception("ulong id limit exceeded");
+                throw new KudosInternalException("ulong id limit exceeded");
             }
         }
 

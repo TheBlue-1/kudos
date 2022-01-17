@@ -48,6 +48,9 @@ namespace Kudos.Bot {
                             "connection timeout to discord (maybe too much traffic)", new TimeSpan(0, 0, 30));
                     }
                 }
+                if (exception is TaskCanceledException) {
+                    LogService.Instance.Log($"task got cancelled:\n{exception}", LogService.LogType.Main, LogSeverity.Notice);
+                }
                 if (exception is IKudosException kudosException) {
                     LogService.Instance.Log($"{kudosException.UserMessage} ({kudosException.Message})", LogService.LogType.Main, LogSeverity.Warning);
                     if (!sendMessages) {
