@@ -275,7 +275,8 @@ namespace Kudos.Bot.Modules {
                     throw new KudosInvalidOperationException($"There is still a Timeout for {(call.Timeout - DateTime.UtcNow.AddMinutes(-5)).LikeInput()}");
                 }
             } else {
-                RunningCalls.Add(new RunningCall(user, group, channel) { CurrentInvites = new List<IUserMessage>() });
+                call = new RunningCall(user, group, channel) { CurrentInvites = new List<IUserMessage>() }
+                RunningCalls.Add(call);
             }
             int errorCount = 0;
             HashSet<ulong> userIds = new();
