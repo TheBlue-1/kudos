@@ -24,7 +24,7 @@ namespace Kudos.Models {
         public override string HelpText {
             get {
                 string info = $"[{ParameterType.FromType(typeof(T)).Character}|value]";
-                string text = $"`{Name.ToString().ToLower()} {info}` default: `{Default}` {Description}";
+                string text = $"`{Name.ToString().ToLower()} {info}` default: `{(Default == null ? "-" : Default)}` {Description}";
                 return text;
             }
         }

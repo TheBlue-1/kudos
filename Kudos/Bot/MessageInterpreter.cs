@@ -37,7 +37,7 @@ namespace Kudos.Bot {
             }
             message.Settings()[SettingNames.Prefix].Value(out string prefix);
             if (!message.Content.StartsWith(prefix)) {
-                if (!(message.Channel is IDMChannel)) {
+                if (message.Channel is not IDMChannel) {
                     Executable = false;
                     return;
                 }

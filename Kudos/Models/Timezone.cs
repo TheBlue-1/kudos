@@ -23,5 +23,9 @@ namespace Kudos.Models {
         public static implicit operator Timezone(double value) => new(value);
 
         public static implicit operator double(Timezone timezone) => timezone.Value;
+
+        public override string ToString() {
+            return "" + Value;
+        }
     }
 }
