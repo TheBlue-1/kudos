@@ -151,7 +151,7 @@ namespace Kudos.Bot.Modules {
 
         [Command("leaders", "shows the most highly honored people of the server")]
         public async Task SendGuildStats([CommandParameter] ISocketMessageChannel channel, [CommandParameter(0, 0)] TimeSpan time) {
-            if (!(channel is SocketGuildChannel guildChannel)) {
+            if (channel is not SocketGuildChannel guildChannel) {
                 throw new KudosUnauthorizedException("this command can only be used servers");
             }
 

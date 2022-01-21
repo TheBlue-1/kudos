@@ -8,6 +8,7 @@
         AutoMessage,
         AutoHonor,
         HonorChannel,
-        Timezone
+        Timezone,
+        InChannelInvites
     }
 }

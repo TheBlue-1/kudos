@@ -290,12 +290,19 @@ namespace Kudos.Bot.Modules {
                 ?? await channel.CreateInviteAsync();
 
             string inChannelString = alreadyInChannel.Aggregate("", (current, guildUser) => current + $"{guildUser}\n");
+
             foreach (ulong groupUserId in userIds) {
                 try {
+                    SettingsManager.Instance.SettingsFor(groupUserId)[Models.SettingNames.InChannelInvites].Value<bool>(out bool userInChannelInvite);
+
+                    if (!userInChannelInvite && alreadyInChannel.Any(g => g.Id == groupUserId)) {
+                        continue;
+                    }
                     SocketUser groupUser = Program.Client.GetSocketUserById(groupUserId);
                     if (groupUser.IsBot) {
                         continue;
                     }
+
                     IDMChannel groupUserChannel = await groupUser.GetOrCreateDMChannelAsync();
 
                     IUserMessage message = await Messaging.Instance.SendEmbed(groupUserChannel,

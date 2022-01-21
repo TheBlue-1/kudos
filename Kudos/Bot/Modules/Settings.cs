@@ -65,7 +65,7 @@ namespace Kudos.Bot.Modules {
 
         [Command("gsreset", "resets guild settings", Accessibility.Admin)]
         public async Task ResetGuildSettings([CommandParameter] ISocketMessageChannel channel) {
-            if (!(channel is SocketGuildChannel guildChannel)) {
+            if (channel is not SocketGuildChannel guildChannel) {
                 throw new KudosArgumentException("Can not set server settings in pms");
             }
 
