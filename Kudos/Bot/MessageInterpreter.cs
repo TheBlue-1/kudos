@@ -43,7 +43,7 @@ namespace Kudos.Bot {
                 }
                 prefix = string.Empty;
             }
-            string[] contentParts = Regex.Split(message.Content.Substring(prefix.Length), "(?:\\s+)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            string[] contentParts = Regex.Split(message.Content[prefix.Length..], "(?:\\s+)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
             if (contentParts.Length < 1 || string.IsNullOrEmpty(contentParts[0])) {
                 Executable = false;
                 return;
@@ -56,7 +56,7 @@ namespace Kudos.Bot {
             Parameters = contentParts.Skip(1).ToArray();
             for (int i = 0; i < Parameters.Length; i++) {
                 if (Parameters[i].StartsWith('"') && Parameters[i].EndsWith('"')) {
-                    Parameters[i] = Parameters[i].Substring(1, Parameters[i].Length - 2);
+                    Parameters[i] = Parameters[i][1..^1];
                 }
             }
             LogService.Instance.Log($"{message.Author.Id} called {Command} with [{string.Join("];[", Parameters)}]", LogService.LogType.Access,
