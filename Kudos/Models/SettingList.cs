@@ -38,7 +38,7 @@ namespace Kudos.Models {
         protected readonly Setting<string> Prefix = SettingBase.Create(SettingNames.Prefix, "k!", "sets a new prefix");
 
         [JsonProperty]
-        protected readonly Setting<bool> InChannelInvites = SettingBase.Create(SettingNames.InChannelInvites, true, "send server group call invites to you if you already are in the call (or started it)");
+        protected readonly Setting<bool> InChannelInvites = SettingBase.Create(SettingNames.InChannelInvites, false, "send server group call invites to you if you already are in the call (or started it)");
 
         [JsonProperty]
         protected readonly Setting<Timezone> Timezone =

@@ -88,7 +88,7 @@ namespace Kudos.Bot.Modules {
             message = guilds.Aggregate(message,
                 (current, guild) =>
                     current
-                    + $"\n({guild.Users?.Count}|{guild.Users?.Where(u => u.IsBot).Count()}|{guild.Users?.Where(u => u.IsGuildAdmin()).Count()}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
+                    + $"\n({guild.Users?.Count}|{guild.Users?.Count(u => u.IsBot)}|{guild.Users?.Count(u => u.IsGuildAdmin())}) {guild.Name} [{guild.Id}] ({guild.Owner?.Id})");
 
             await Messaging.Instance.SendMessage(channel, message);
         }
@@ -129,8 +129,8 @@ namespace Kudos.Bot.Modules {
 
         [Command("update", "updates the bot (currently only master-version)")]
         public async Task UpdateBot([CommandParameter] ISocketMessageChannel channel) {
-            const string updateFileKey = "updateFile";
-            const string pullFileKey = "pullFile";
+            const string updateFileKey = "update_file";
+            const string pullFileKey = "pull_file";
             AsyncThreadsafeFileSyncedDictionary<string, string> settings = FileService.Instance.Settings;
             if (!settings.ContainsKey(pullFileKey) || string.IsNullOrEmpty(settings[pullFileKey])) {
                 throw new KudosInvalidOperationException($"no pull file path specified in settings file (key:'{pullFileKey}')");

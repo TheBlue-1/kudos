@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Kudos {
 
-    internal class Program {
+    internal static class Program {
         private const int WaitingTimeInMs = 10000;
         public static Random Random { get; } = new();
 

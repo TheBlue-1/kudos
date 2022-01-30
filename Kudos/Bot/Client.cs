@@ -25,7 +25,7 @@ namespace Kudos.Bot {
         private string _lastState;
 
         private volatile bool _loggedIn;
-        public FixedSizedQueue<int> LastPings = new(5);
+        public FixedSizedQueue<int> LastPings { get; } = new(5);
 
         public ulong BotUserId => _client.CurrentUser.Id;
         private static Task FakeTask => Task.Run(() => true);
@@ -157,8 +157,9 @@ namespace Kudos.Bot {
         [SuppressMessage("ReSharper", "InvertIf")]
         public void Start() {
             StateChange();
+            UptimeHeartbeatClient heartbeatClient = new();
             Task connector = new(async () => {
-                while (true) {
+                for (int i = 0; ; i++) {
                     try {
                         if (!_loggedIn) {
                             await _client.LoginAsync(TokenType.Bot, Token);
@@ -172,6 +173,10 @@ namespace Kudos.Bot {
                         }
                     } catch (Exception e) {
                         LogService.Instance.Log(e.Message, LogService.LogType.Login, LogSeverity.Error);
+                    }
+                    if (i % 12 == 0) {
+                        i = 0;
+                        heartbeatClient.Call().RunAsyncSave();
                     }
                     await Task.Delay(5000);
                 }
