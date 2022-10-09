@@ -56,10 +56,10 @@ namespace Kudos.Bot.Modules {
             IEnumerable<SocketGuildUser> users = guilds.SelectMany(g => g.Users);
             IEnumerable<SocketGuild> servers = users.Where(u => u.Id == user.Id).Select(u => u.Guild).ToArray();
             if (!servers.Any()) {
-                await Messaging.Instance.SendMessage(channel, "User is not known");
+                await Messaging.Instance.SendMessage(channel, $"User {user.Id} is not known");
                 return;
             }
-            string message = servers.Aggregate("User is known from the following servers",
+            string message = servers.Aggregate($"User {user.Id} is known from the following servers",
                 (current, socketGuild) => current + $"\n{socketGuild.Name}|{socketGuild.Id}");
             await Messaging.Instance.SendMessage(channel, message);
         }
