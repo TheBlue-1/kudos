@@ -90,7 +90,7 @@ namespace Kudos.Utils {
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<T> GetEnumerator() => Set.ToEnumerable().GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => Set.AsEnumerable().GetEnumerator();
 
         public int IndexOf(T item) => throw new NotSupportedException();
 
